@@ -309,7 +309,7 @@
       <div class="title">
         <div>
           <h1>今日なに食べる？</h1>
-          <div class="sub">あるもの・旬・家族NGから夕飯候補を3つに絞る <span style="font-size:11px;color:#9a8068">v20260510-tags</span></div>
+          <div class="sub">あるもの・旬・家族NGから夕飯候補を3つに絞る <span style="font-size:11px;color:#9a8068">v20260510-tags-fix</span></div>
         </div>
         <span class="pill" id="recipeCountPill">🍳 100件</span>
       </div>
@@ -4221,6 +4221,8 @@ const CURATED_URL_RECIPES = [
       {id:'mood', label:'ただ気分じゃない'}
     ];
 
+    const FEATURE_TAGS = ['ヘルシー','前菜・副菜','さっぱり','こってり','温まる'];
+
     let activeTab = 'today';
     let data = loadData();
     let state = {
@@ -4498,8 +4500,6 @@ const CURATED_URL_RECIPES = [
       if(list.includes('子供別メニュー前提')) return 'separate';
       return 'unknown';
     }
-
-    const FEATURE_TAGS = ['ヘルシー','前菜・副菜','さっぱり','こってり','温まる'];
 
     function normalizeRecipeTags(tags){
       return uniqueList((Array.isArray(tags) ? tags : parseList(tags))
