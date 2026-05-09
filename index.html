@@ -309,7 +309,7 @@
       <div class="title">
         <div>
           <h1>今日なに食べる？</h1>
-          <div class="sub">あるもの・旬・家族NGから夕飯候補を3つに絞る <span style="font-size:11px;color:#9a8068">v20260509-analysis</span></div>
+          <div class="sub">あるもの・旬・家族NGから夕飯候補を3つに絞る <span style="font-size:11px;color:#9a8068">v20260510-tags</span></div>
         </div>
         <span class="pill" id="recipeCountPill">🍳 100件</span>
       </div>
@@ -4520,28 +4520,65 @@ const CURATED_URL_RECIPES = [
       ].filter(Boolean).join(' ');
     }
 
+    function hasStapleCarb(r){
+      const category = String(r?.category || '');
+      const mainType = String(r?.mainType || '');
+      const tags = normalizeRecipeTags(r?.tags || []);
+      const name = String(r?.name || '');
+      const ingredientText = [
+        ...(r?.ingredients || []),
+        ...(r?.required || []),
+        ...(r?.optional || [])
+      ].filter(Boolean).join(' ');
+      const fullText = recipeText({...r, tags});
+      // 米・麺・パンなどの主食系炭水化物があるものは「ヘルシー」扱いにしない。
+      // ただし、カリフラワーライスなど明確に糖質オフ代替のものは除外しない。
+      if(/カリフラワーライス|糖質オフ|低糖質/.test(fullText) && !/ご飯|白米|米|パスタ|スパゲッティ|マカロニ|うどん|そば|そうめん|ラーメン|中華麺|焼きそば|春雨|パン|食パン|餅|もち/.test(ingredientText)) return false;
+      if(/ご飯|白米|米|ライス|パスタ|スパゲッティ|マカロニ|うどん|そば|そうめん|ラーメン|中華麺|焼きそば|麺|春雨|パン|食パン|餅|もち/.test(ingredientText)) return true;
+      if(/丼|チャーハン|炒飯|炊き込みご飯|混ぜご飯|ドリア|リゾット|カレーライス/.test(name)) return true;
+      if(['丼・ご飯','麺','麺類'].includes(category) && mainType === '主食') return true;
+      return false;
+    }
+
     function inferFeatureTags(r){
       const out = new Set();
       const tags = normalizeRecipeTags(r?.tags || []);
       const text = recipeText({...r, tags});
       const category = String(r?.category || '');
-      const mainType = String(r?.mainType || '');
       const light = String(r?.light || '');
+      const carbHeavy = hasStapleCarb({...r, tags});
 
-      if(tags.includes('ヘルシー') || tags.includes('低糖質') || /ヘルシー|糖質オフ|低糖質|鶏むね|鶏ささみ|ささみ|豆腐|こんにゃく|蒸し鶏|サラダチキン|野菜たっぷり/.test(text) || category === '蒸し物') out.add('ヘルシー');
+      const healthyHit = tags.includes('ヘルシー') || tags.includes('低糖質') || /ヘルシー|糖質オフ|低糖質|鶏むね|鶏ささみ|ささみ|豆腐|こんにゃく|蒸し鶏|サラダチキン|野菜たっぷり/.test(text) || category === '蒸し物';
+      if(healthyHit && !carbHeavy) out.add('ヘルシー');
+
       if(tags.includes('前菜・副菜') || /副菜|前菜|小鉢|サラダ|和え物|和え|ナムル|おひたし|冷奴|きんぴら|浅漬け|漬け|マリネ|酢の物/.test(text) || ['副菜','サラダ','サラダ・副菜','和え物'].includes(category)) out.add('前菜・副菜');
-      if(tags.includes('さっぱり') || light === 'あっさり' || /さっぱり|ポン酢|ぽん酢|甘酢|黒酢|酢の物|マリネ|梅|レモン|大葉|青じそ|おろし|大根おろし|みぞれ|薬味|ねぎ塩/.test(text)) out.add('さっぱり');
-      if(tags.includes('こってり') || light === 'こってり' || light === '重め' || category === '揚げ物' || category === 'カレー・シチュー' || /こってり|濃厚|チーズ|マヨ|マヨネーズ|バター|クリーム|生クリーム|豚バラ|ベーコン|唐揚げ|天ぷら|フライ|揚げ|カレー|シチュー|タルタル/.test(text)) out.add('こってり');
-      if(tags.includes('温まる') || ['汁物','汁物・スープ','鍋','鍋物','煮物','麺','麺類','カレー・シチュー'].includes(category) || /温まる|あったか|熱々|スープ|汁|味噌汁|みそ汁|豚汁|鍋|煮込み|煮物|うどん|ラーメン|シチュー|カレー|あんかけ|とろみ|湯豆腐/.test(text)) out.add('温まる');
+
+      const refreshingHit = tags.includes('さっぱり') || light === 'あっさり' || /さっぱり|ポン酢|ぽん酢|甘酢|黒酢|酢の物|マリネ|梅|レモン|柚子|ゆず|大葉|青じそ|おろし|大根おろし|みぞれ|薬味|ねぎ塩/.test(text);
+      const richHit = tags.includes('こってり') || light === 'こってり' || light === '重め' || category === '揚げ物' || category === 'カレー・シチュー' || /こってり|濃厚|チーズ|マヨ|マヨネーズ|バター|クリーム|生クリーム|豚バラ|ベーコン|唐揚げ|天ぷら|フライ|揚げ|カレー|シチュー|タルタル|グラタン|ドリア/.test(text);
+      const richStrong = light === 'こってり' || light === '重め' || category === '揚げ物' || category === 'カレー・シチュー' || /チーズ|マヨ|マヨネーズ|バター|クリーム|生クリーム|唐揚げ|天ぷら|フライ|揚げ|カレー|シチュー|タルタル|グラタン|ドリア/.test(text);
+
+      // 「さっぱり」と「こってり」は両立させない。
+      // 両方に引っかかる場合は、揚げ物・マヨ・チーズ・クリーム系など明確に濃厚なもの以外は「さっぱり」を優先。
+      if(refreshingHit && richHit){
+        out.add(richStrong ? 'こってり' : 'さっぱり');
+      }else if(refreshingHit){
+        out.add('さっぱり');
+      }else if(richHit){
+        out.add('こってり');
+      }
+
+      if(tags.includes('温まる') || ['汁物','汁物・スープ','鍋','鍋物','煮物','麺','麺類','カレー・シチュー'].includes(category) || /温まる|あったか|熱々|スープ|汁|味噌汁|みそ汁|豚汁|鍋|鍋物|煮込み|煮物|うどん|ラーメン|シチュー|カレー|あんかけ|とろみ|湯豆腐/.test(text)) out.add('温まる');
 
       return [...out];
     }
 
     function normalizeRecipeForFeatures(r){
       if(!r) return r;
-      r.tags = normalizeRecipeTags(r.tags);
-      if(r.light === '軽め') r.light = 'あっさり';
-      r.tags = uniqueList(r.tags.concat(inferFeatureTags(r)));
+      const rawTags = normalizeRecipeTags(r.tags);
+      if(r.light === '軽め') r.light = '普通';
+      // 特徴タグは毎回再判定して、旧タグ・矛盾タグ・炭水化物ありのヘルシーを自動整理する。
+      const baseTags = rawTags.filter(t => !FEATURE_TAGS.includes(t));
+      r.tags = uniqueList(baseTags.concat(inferFeatureTags({...r, tags: rawTags})));
       return r;
     }
 
@@ -5864,6 +5901,9 @@ ${items.map((it, i) => `${i+1}. id=${it.id}\n   URL: ${it.url}`).join('\n')}
 注意:
 - ingredients は調味料(醤油、みりん、塩、こしょう、油など)を除き、メインの具材だけ
 - tags は料理の特徴だけ。ダイエットは使わずヘルシーに統一
+- 米・ご飯・パスタ・麺・パンなど主食系炭水化物が入る料理は「ヘルシー」にしない
+- さっぱり と こってり は両立不可。迷う場合は さっぱり を優先し、揚げ物・マヨ・チーズ・クリーム系など明確に濃厚なものだけ こってり にする
+- 鍋物・汁物・煮込み・あんかけ・うどんなどは「温まる」を付ける
 - ページが読めなかったURLは結果から除外してOK
 - 必ずJSON配列形式のみで返答してください
 `;
@@ -6045,7 +6085,7 @@ ${items.map((it, i) => `${i+1}. id=${it.id}\n   URL: ${it.url}`).join('\n')}
           <input name="name" required value="${escAttr(r.name || '')}" placeholder="例：豚こまキャベツ味噌炒め">
 
           <div class="notice" style="margin:10px 0">
-            <b>カテゴリ</b>は料理の形、<b>タグ</b>は条件です。辛い・子供OK・ヘルシー・前菜/副菜・さっぱり・こってり・温まるなどはタグで管理します。
+            <b>カテゴリ</b>は料理の形、<b>タグ</b>は条件です。ヘルシー・前菜/副菜・さっぱり・こってり・温まるなどはタグで管理します。米・パスタなど主食系炭水化物入りはヘルシー対象外、さっぱり/こってりはどちらか一方に自動整理します。
           </div>
 
           <label class="label">カテゴリ（料理の形）</label>
