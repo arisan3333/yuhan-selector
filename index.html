@@ -181,11 +181,30 @@
 
     /* 分析パネル */
     .cov-count{background:rgba(0,0,0,.08);border-radius:10px;padding:1px 7px;font-size:11px;font-weight:bold;margin-left:4px}
+    .cov-tabs{display:flex;gap:4px;background:#f6eadc;border-radius:13px;padding:3px;margin-bottom:4px}
+    .cov-tab{
+      flex:1;border:0;background:transparent;color:var(--muted);
+      padding:7px 6px;border-radius:11px;font-size:12px;font-weight:700;
+      display:flex;align-items:center;justify-content:center;gap:4px;
+      white-space:nowrap;
+    }
+    .cov-tab.on{background:#fff;color:var(--ink);box-shadow:0 2px 8px rgba(0,0,0,.06)}
+    .cov-tab-num{font-size:11px;background:rgba(0,0,0,.08);border-radius:8px;padding:1px 5px;color:#444}
+    .cov-tab.on .cov-tab-num{background:#ffe1b8;color:#783800}
     .ing-cells{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px}
     .ing-cell{border:1px solid var(--line);background:#fff;border-radius:13px;padding:8px 10px;display:flex;flex-direction:column;gap:6px}
     .ing-cell-name{font-size:13px;font-weight:700;color:var(--ink);display:flex;align-items:center}
     .ing-cell-actions{display:flex;gap:4px;flex-wrap:wrap}
     .ing-cell-actions .mini-btn{font-size:11px;padding:4px 7px;flex:1;text-align:center;min-width:0}
+
+    /* AIヘルパー */
+    .ai-step{display:flex;gap:10px;margin:10px 0;align-items:flex-start}
+    .ai-step-num{
+      flex-shrink:0;width:28px;height:28px;border-radius:50%;
+      background:var(--accent);color:#fff;font-weight:800;
+      display:flex;align-items:center;justify-content:center;font-size:14px;
+    }
+    .ai-step-body{flex:1;min-width:0}
     .cov-group{margin-bottom:14px}
     .cov-group-title{font-weight:bold;font-size:13px;color:var(--muted);margin-bottom:6px}
     .cov-cells{display:flex;flex-wrap:wrap;gap:6px}
@@ -4205,7 +4224,9 @@ const CURATED_URL_RECIPES = [
       relaxedNotice: '',
       analysisOpen: false,
       analysisTab: 'coverage',
+      coverageTab: 'pantry',
       quickAddOpen: false,
+      aiHelperOpen: false,
       familyAddMember: null,
       familyAddKind: 'hardNg',
       historyMonth: `${TODAY.getFullYear()}-${String(TODAY.getMonth()+1).padStart(2,'0')}`
@@ -5262,7 +5283,7 @@ const CURATED_URL_RECIPES = [
       `;
     }
 
-    // 機能A: 食材カバレッジ(コンパクト版)
+    // 機能A: 食材カバレッジ(整頓版)
     function analysisCoverageView(){
       const cov = computeCoverage();
       const allItems = Object.values(cov).flat();
@@ -5273,52 +5294,42 @@ const CURATED_URL_RECIPES = [
         <div class="ing-cell">
           <div class="ing-cell-name">${it.name}${withCount ? `<span class="cov-count">${it.count}</span>` : ''}</div>
           <div class="ing-cell-actions">
-            <button class="mini-btn ing-act-search" onclick="searchAndAddRecipe('${escAttr(it.name)}', 'nadia')" title="Nadiaで検索">🔍 Nadia</button>
-            <button class="mini-btn ing-act-search" onclick="searchAndAddRecipe('${escAttr(it.name)}', 'google')" title="Googleで検索">🔍 Google</button>
-            ${it.count > 0 ? `<button class="mini-btn" onclick="state.recipeQuery='${escAttr(it.name)}'; state.analysisOpen=false; render()" title="登録済みレシピを表示">📚 ${it.count}</button>` : ''}
+            <button class="mini-btn ing-act-search" onclick="searchAndAddRecipe('${escAttr(it.name)}')" title="ネット検索してURLで追加">🔍 探す</button>
+            ${it.count > 0 ? `<button class="mini-btn" onclick="state.recipeQuery='${escAttr(it.name)}'; state.analysisOpen=false; render()" title="登録済みレシピを表示">📚 ${it.count}件</button>` : ''}
           </div>
         </div>
       `;
+      // タブ的に切り替え
+      const tab = state.coverageTab || 'pantry';
+      const sections = [
+        ['pantry', `🛒 冷蔵庫×少なめ`, inPantryFewest, '冷蔵庫にある食材で、レシピが少ないもの。レシピを増やすと活用しやすくなります。'],
+        ['zero', `📭 レシピなし`, zeroes, 'レシピが1件もない食材。検索してURLで追加してみましょう。'],
+        ['few', `🔻 少ない`, fewest, '登録レシピが少ない食材TOP12。バリエーション増やすチャンス。']
+      ];
+      const activeSection = sections.find(s => s[0] === tab) || sections[0];
+      const [, , items, desc] = activeSection;
       return `
-        <div class="small" style="color:var(--muted);margin-bottom:10px">レシピ数が少ない食材。<b>🔍探す</b> でネット検索→URL貼り付けで追加。<b>📚N件</b> で登録済みレシピを表示。</div>
-        ${inPantryFewest.length ? `
-          <div class="card" style="margin-top:0;background:#fff8ef">
-            <b>🛒 冷蔵庫にあって、レシピ少なめ</b>
-            <div class="ing-cells" style="margin-top:8px">
-              ${inPantryFewest.map(it => renderIngCell(it)).join('')}
-            </div>
-          </div>
-        ` : ''}
-        ${zeroes.length ? `
-          <div class="card" style="margin-top:8px">
-            <b>📭 レシピがない食材 (${zeroes.length})</b>
-            <div class="ing-cells" style="margin-top:8px">
-              ${zeroes.slice(0,20).map(it => renderIngCell(it, false)).join('')}
-            </div>
-            ${zeroes.length > 20 ? `<div class="small" style="margin-top:4px;color:var(--muted)">ほか${zeroes.length-20}件...</div>` : ''}
-          </div>
-        ` : ''}
-        <div class="card" style="margin-top:8px">
-          <b>🔻 レシピが少ない食材</b>
-          <div class="ing-cells" style="margin-top:8px">
-            ${fewest.map(it => renderIngCell(it)).join('')}
-          </div>
+        <div class="cov-tabs">
+          ${sections.map(([id, label, list]) => `
+            <button class="cov-tab ${tab===id?'on':''}" onclick="state.coverageTab='${id}'; render()">
+              ${label} <span class="cov-tab-num">${list.length}</span>
+            </button>
+          `).join('')}
         </div>
+        <div class="small" style="color:var(--muted);margin:8px 0">${desc}</div>
+        ${items.length ? `
+          <div class="ing-cells">
+            ${items.slice(0, 20).map(it => renderIngCell(it, tab !== 'zero')).join('')}
+          </div>
+          ${items.length > 20 ? `<div class="small" style="margin-top:6px;color:var(--muted)">ほか${items.length-20}件は省略</div>` : ''}
+        ` : `<div class="empty" style="margin:8px 0">該当する食材はありません。</div>`}
       `;
     }
 
     // 食材から検索画面に飛ばす(URL貼り付けフォームへ)
-    function searchAndAddRecipe(ing, site = 'nadia'){
-      const q = encodeURIComponent(ing);
-      let url;
-      if(site === 'nadia'){
-        url = `https://oceans-nadia.com/search/recipes?keyword=${q}`;
-      }else if(site === 'sirogohan'){
-        url = `https://www.google.com/search?q=site%3Asirogohan.com+${encodeURIComponent(ing+' レシピ')}`;
-      }else{
-        url = `https://www.google.com/search?q=${encodeURIComponent(ing+' レシピ 人気')}`;
-      }
-      window.open(url, '_blank', 'noopener');
+    function searchAndAddRecipe(ing){
+      const q = encodeURIComponent(ing + ' レシピ 人気');
+      window.open(`https://www.google.com/search?q=${q}`, '_blank', 'noopener');
       setTimeout(() => {
         state.analysisOpen = false;
         state.quickAddOpen = true;
@@ -5382,7 +5393,7 @@ const CURATED_URL_RECIPES = [
           <div><b>${ing}</b> × <b>${cat}</b></div>
           <div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap">
             <a class="secondary" href="https://www.google.com/search?q=${q}" target="_blank" rel="noopener">ググる</a>
-            <a class="secondary" href="https://oceans-nadia.com/search/recipes?keyword=${encodeURIComponent(ing+' '+cat)}" target="_blank" rel="noopener">Nadia</a>
+            <a class="secondary" href="https://cookpad.com/search/${encodeURIComponent(ing+' '+cat)}" target="_blank" rel="noopener">クックパッド</a>
             <a class="secondary" href="https://recipe.rakuten.co.jp/search/${encodeURIComponent(ing+' '+cat)}/" target="_blank" rel="noopener">楽天</a>
             <button class="ghost" onclick="prefillUrlForm('${escAttr(ing)}', '${escAttr(cat)}')">URLで追加へ</button>
           </div>
@@ -5468,7 +5479,18 @@ const CURATED_URL_RECIPES = [
         else if(/炒/.test(inputName)) cat = '炒め物';
         else cat = 'その他';
       }
-      const name = inputName || `${domainHint}のレシピ`;
+      // レシピ名の自動生成: 食材+カテゴリ > 食材のみ > ドメイン名
+      let name = inputName;
+      if(!name){
+        const mainIng = ings[0]; // 最初の食材をメインに
+        if(mainIng && cat && cat !== 'その他'){
+          name = `${mainIng}の${cat}`;
+        }else if(mainIng){
+          name = `${mainIng}のレシピ`;
+        }else{
+          name = `${domainHint}のレシピ`;
+        }
+      }
       const id = 'qa_' + Date.now().toString(36);
       const item = {
         id,
@@ -5501,6 +5523,137 @@ const CURATED_URL_RECIPES = [
       render();
       alert(`「${name}」を追加しました。レシピタブで開いて、必要なら食材・カテゴリを編集してください。`);
     }
+
+    // ========== AIヘルパー(食材未入力レシピの一括補完) ==========
+    function aiHelperPanel(){
+      const incomplete = data.recipes.filter(r => {
+        if(!recipeHasSource(r)) return false;
+        // 食材0〜1個 or レシピ名がドメイン名のまま
+        const fewIngs = !r.ingredients || r.ingredients.length <= 1;
+        const isDomainName = /^[a-z0-9.\-]+(\.com|\.jp|\.tv|\.net|\.io)/.test(r.name);
+        return fewIngs || isDomainName;
+      });
+      return `
+        <div class="small" style="color:var(--muted);margin-bottom:8px">
+          食材が未入力のレシピや、レシピ名がドメイン名のままのものをAI(Claude/ChatGPT)に分析してもらう仕組みです。
+        </div>
+        <div class="ai-step">
+          <div class="ai-step-num">1</div>
+          <div class="ai-step-body">
+            <b>補完が必要なレシピ: ${incomplete.length}件</b>
+            ${incomplete.length ? `<div class="small" style="margin-top:4px">${incomplete.slice(0,5).map(r => r.name).join('、')}${incomplete.length > 5 ? `、ほか${incomplete.length-5}件` : ''}</div>` : '<div class="small" style="margin-top:4px">補完が必要なレシピはありません。</div>'}
+          </div>
+        </div>
+        ${incomplete.length ? `
+          <div class="ai-step">
+            <div class="ai-step-num">2</div>
+            <div class="ai-step-body">
+              <b>AIに依頼するプロンプトをコピー</b>
+              <div class="small" style="margin:4px 0">下のボタンを押すとプロンプトがコピーされます。Claude.aiまたはChatGPTに貼り付けてください。</div>
+              <button class="primary block" onclick="copyAiPrompt()">📋 プロンプトをコピー</button>
+              <div class="small" style="margin-top:6px;color:var(--muted)">※ Claude.ai推奨(web検索が標準でできる)。ChatGPTでもPlus/Free関係なくBingブラウジング機能で動きます。</div>
+            </div>
+          </div>
+          <div class="ai-step">
+            <div class="ai-step-num">3</div>
+            <div class="ai-step-body">
+              <b>AIが返したJSONを貼り付ける</b>
+              <textarea id="aiResultInput" placeholder="AIが返したJSONをここに貼り付け" style="width:100%;min-height:120px;font-family:ui-monospace,monospace;font-size:12px"></textarea>
+              <button class="primary block" style="margin-top:8px" onclick="applyAiResult()">📥 反映する</button>
+            </div>
+          </div>
+        ` : ''}
+      `;
+    }
+
+    function copyAiPrompt(){
+      const incomplete = data.recipes.filter(r => {
+        if(!recipeHasSource(r)) return false;
+        const fewIngs = !r.ingredients || r.ingredients.length <= 1;
+        const isDomainName = /^[a-z0-9.\-]+(\.com|\.jp|\.tv|\.net|\.io)/.test(r.name);
+        return fewIngs || isDomainName;
+      });
+      if(!incomplete.length){ alert('補完が必要なレシピがありません。'); return; }
+      const items = incomplete.map(r => ({id: r.id, url: r.sourceUrl}));
+      const prompt = `以下のレシピURLそれぞれについて、ウェブから内容を取得して、料理名・主な食材(調味料は省く)・カテゴリを抽出してください。
+
+【出力形式】JSON配列のみ(他の説明文は不要):
+\`\`\`json
+[
+  {
+    "id": "レシピID(そのまま使う)",
+    "name": "正しい料理名(例:まぐろのステーキ)",
+    "ingredients": ["主な食材を3〜8個", "調味料は除く"],
+    "category": "炒め物/煮物/焼き物/揚げ物/蒸し物/サラダ/和え物/汁物/丼・ご飯/麺類/鍋物/その他 のいずれか",
+    "time": 調理時間の数値(分),
+    "spicy": 辛いならtrue,
+    "childMode": "ok=子供OK / adapt=アレンジ可 / separate=子供別 のいずれか"
+  }
+]
+\`\`\`
+
+【対象URL】${items.length}件:
+${items.map((it, i) => `${i+1}. id=${it.id}\n   URL: ${it.url}`).join('\n')}
+
+注意:
+- ingredients は調味料(醤油、みりん、塩、こしょう、油など)を除き、メインの具材だけ
+- ページが読めなかったURLは結果から除外してOK
+- 必ずJSON配列形式のみで返答してください
+`;
+      navigator.clipboard.writeText(prompt).then(() => {
+        alert(`${items.length}件分のプロンプトをコピーしました。\n\nClaude.ai または ChatGPT に貼り付けてください。\nAIから返ってきたJSONを下の欄に貼り付けて「反映」してください。`);
+      }).catch(() => {
+        // フォールバック: 別ウィンドウで表示
+        const w = window.open('', '_blank');
+        w.document.write('<pre style="white-space:pre-wrap;padding:20px;font-family:ui-monospace,monospace">' + escHtml(prompt) + '</pre>');
+        alert('クリップボードに保存できなかったので、別タブにプロンプトを表示しました。手動でコピーしてください。');
+      });
+    }
+
+    function applyAiResult(){
+      const el = document.getElementById('aiResultInput');
+      const raw = (el?.value || '').trim();
+      if(!raw){ alert('AIから返ってきたJSONを貼り付けてください。'); return; }
+      // JSONブロックの中身だけ抽出(```json...```で囲まれていることが多い)
+      let jsonStr = raw;
+      const m = raw.match(/```(?:json)?\s*([\s\S]*?)```/);
+      if(m) jsonStr = m[1];
+      let arr;
+      try{
+        arr = JSON.parse(jsonStr);
+      }catch(e){
+        alert('JSONの形式が正しくありません。AIの返答からJSON部分だけを貼り付けてください。\n\nエラー: ' + e.message);
+        return;
+      }
+      if(!Array.isArray(arr)){ alert('JSON配列形式ではありません。'); return; }
+      let updated = 0;
+      let notFound = [];
+      arr.forEach(item => {
+        if(!item.id) return;
+        const r = data.recipes.find(x => x.id === item.id);
+        if(!r){ notFound.push(item.id); return; }
+        if(item.name) r.name = item.name;
+        if(Array.isArray(item.ingredients) && item.ingredients.length){
+          r.ingredients = item.ingredients;
+          r.required = item.ingredients;
+        }
+        if(item.category) r.category = item.category;
+        if(typeof item.time === 'number') r.time = item.time;
+        if(typeof item.spicy === 'boolean') r.spicy = item.spicy;
+        if(item.childMode && ['ok','adapt','separate'].includes(item.childMode)) r.childMode = item.childMode;
+        // 「AI補完済み」タグを付ける
+        r.tags = uniqueList((r.tags || []).filter(t => t !== '要補完').concat(['AI補完済み']));
+        r.modified = true;
+        updated++;
+      });
+      saveData();
+      el.value = '';
+      render();
+      let msg = `${updated}件のレシピを更新しました!`;
+      if(notFound.length) msg += `\n見つからなかったID: ${notFound.length}件`;
+      alert(msg);
+    }
+    // ========== /AIヘルパー ==========
     // ========== /分析機能 ==========
 
     function viewRecipes(){
@@ -5551,14 +5704,15 @@ const CURATED_URL_RECIPES = [
               <span class="small" style="color:var(--muted)">サイトで探す:</span>
               <a class="secondary" href="https://www.sirogohan.com/" target="_blank" rel="noopener" style="font-size:12px;padding:3px 9px">白ごはん.com</a>
               <a class="secondary" href="https://oceans-nadia.com/" target="_blank" rel="noopener" style="font-size:12px;padding:3px 9px">Nadia</a>
+              <a class="secondary" href="https://cookpad.com/" target="_blank" rel="noopener" style="font-size:12px;padding:3px 9px">クックパッド</a>
               <a class="secondary" href="https://delishkitchen.tv/" target="_blank" rel="noopener" style="font-size:12px;padding:3px 9px">DELISH KITCHEN</a>
               <a class="secondary" href="https://www.kurashiru.com/" target="_blank" rel="noopener" style="font-size:12px;padding:3px 9px">クラシル</a>
               <a class="secondary" href="https://recipe.rakuten.co.jp/" target="_blank" rel="noopener" style="font-size:12px;padding:3px 9px">楽天レシピ</a>
               <a class="secondary" href="https://www.kyounoryouri.jp/" target="_blank" rel="noopener" style="font-size:12px;padding:3px 9px">きょうの料理</a>
             </div>
             <input type="text" id="quickUrlInput" placeholder="URLを貼り付け：https://..." style="width:100%;margin-bottom:8px">
-            <input type="text" id="quickNameInput" placeholder="レシピ名(任意。空ならURLから推測)" style="width:100%;margin-bottom:8px">
-            <input type="text" id="quickIngsInput" placeholder="主な食材(任意。例：鶏もも、玉ねぎ、卵)" style="width:100%;margin-bottom:8px">
+            <input type="text" id="quickNameInput" placeholder="レシピ名(空なら「食材＋カテゴリ」で自動命名)" style="width:100%;margin-bottom:8px">
+            <input type="text" id="quickIngsInput" placeholder="主な食材(レシピ名の自動命名にも使われます。例：まぐろ、玉ねぎ)" style="width:100%;margin-bottom:8px">
             <select id="quickCatInput" style="width:100%;margin-bottom:8px">
               <option value="">カテゴリ自動推測</option>
               <option value="炒め物">炒め物</option>
@@ -5575,7 +5729,12 @@ const CURATED_URL_RECIPES = [
               <option value="その他">その他</option>
             </select>
             <button class="primary block" onclick="quickAddRecipeFromUrl()">URLからレシピを追加</button>
-            <div class="small" style="margin-top:8px;color:var(--muted)">💡 URLから自動でドメイン推測してレシピ名にします。あとから編集も可。</div>
+            <div class="small" style="margin-top:8px;color:var(--muted)">💡 食材を入れると「まぐろの炒め物」のようにレシピ名が自動でつきます。後から編集もできます。</div>
+          </details>
+
+          <details class="card" ${state.aiHelperOpen ? 'open' : ''} ontoggle="state.aiHelperOpen=this.open">
+            <summary><b>🤖 AIに食材・カテゴリを補完してもらう</b><span class="small" style="margin-left:8px;color:var(--muted)">食材未入力のレシピをまとめて</span></summary>
+            ${aiHelperPanel()}
           </details>
 
           <details class="card">
@@ -6219,8 +6378,8 @@ const CURATED_URL_RECIPES = [
       const q = encodeURIComponent(name);
       const google = encodeURIComponent(name + ' レシピ');
       const links = [
-        ['Nadiaで探す', `https://oceans-nadia.com/search/recipes?keyword=${q}`],
         ['白ごはん.comを検索', `https://www.google.com/search?q=site%3Asirogohan.com+${google}`],
+        ['クックパッドで探す', `https://cookpad.com/search/${q}`],
         ['DELISH KITCHENで探す', `https://delishkitchen.tv/search?q=${q}`],
         ['楽天レシピで探す', `https://recipe.rakuten.co.jp/search/${q}/`]
       ];
