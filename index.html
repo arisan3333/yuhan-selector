@@ -486,7 +486,7 @@
       "豚こま"
     ],
     "tags": [
-      "パパ好み",
+      "辛い",
       "大人向け",
       "辛い",
       "子供別メニュー前提",
@@ -653,7 +653,7 @@
     ],
     "tags": [
       "野菜消費",
-      "パパ好み",
+      "辛い",
       "辛い"
     ],
     "time": 30,
@@ -773,7 +773,7 @@
       "卵"
     ],
     "tags": [
-      "パパ好み",
+      "辛い",
       "大人向け",
       "辛い",
       "子供別メニュー前提"
@@ -1090,7 +1090,7 @@
       "小松菜"
     ],
     "tags": [
-      "パパ好み",
+      "辛い",
       "大人向け",
       "辛い",
       "子供別メニュー前提"
@@ -1414,7 +1414,7 @@
       "豆板醤"
     ],
     "tags": [
-      "パパ好み",
+      "辛い",
       "野菜消費",
       "辛い"
     ],
@@ -1526,7 +1526,7 @@
       "ニラ"
     ],
     "tags": [
-      "パパ好み",
+      "辛い",
       "大人向け",
       "辛い",
       "子供別メニュー前提",
@@ -1999,7 +1999,7 @@
     ],
     "optional": [],
     "tags": [
-      "パパ好み",
+      "辛い",
       "大人向け",
       "辛い",
       "子供別メニュー前提"
@@ -2037,7 +2037,7 @@
     ],
     "optional": [],
     "tags": [
-      "パパ好み",
+      "辛い",
       "大人向け",
       "軽め",
       "辛い",
@@ -2565,7 +2565,7 @@
     ],
     "optional": [],
     "tags": [
-      "パパ好み",
+      "辛い",
       "大人向け",
       "辛い",
       "子供別メニュー前提"
@@ -2903,7 +2903,7 @@
       "長ねぎ"
     ],
     "tags": [
-      "パパ好み",
+      "辛い",
       "大人向け",
       "辛い",
       "子供別メニュー前提"
@@ -3773,7 +3773,7 @@
       "卵"
     ],
     "tags": [
-      "パパ好み",
+      "辛い",
       "大人向け",
       "辛い",
       "子供別メニュー前提"
@@ -3816,7 +3816,7 @@
       "トマト缶"
     ],
     "tags": [
-      "パパ好み",
+      "辛い",
       "大人向け",
       "辛い",
       "子供別メニュー前提"
@@ -3859,7 +3859,7 @@
       "にんじん"
     ],
     "tags": [
-      "パパ好み",
+      "辛い",
       "大人向け",
       "辛い",
       "子供別メニュー前提"
@@ -3904,7 +3904,7 @@
       "コチュジャン"
     ],
     "tags": [
-      "パパ好み",
+      "辛い",
       "野菜消費",
       "辛い"
     ],
@@ -3940,7 +3940,7 @@
     ],
     "optional": [],
     "tags": [
-      "パパ好み",
+      "辛い",
       "大人向け",
       "辛い",
       "子供別メニュー前提"
@@ -3979,7 +3979,7 @@
     ],
     "optional": [],
     "tags": [
-      "パパ好み",
+      "辛い",
       "大人向け",
       "辛い",
       "子供別メニュー前提"
@@ -4021,7 +4021,7 @@
       "レタス"
     ],
     "tags": [
-      "パパ好み",
+      "辛い",
       "軽め",
       "辛い",
       "子供別メニュー前提"
@@ -4061,7 +4061,7 @@
       "小松菜"
     ],
     "tags": [
-      "パパ好み",
+      "辛い",
       "大人向け",
       "辛い",
       "子供別メニュー前提"
@@ -4168,7 +4168,7 @@
         family: {
           members: [
             {id:'child', name:'子供', role:'child', hardNg:'', dislikes:'', likes:''},
-            {id:'papa', name:'パパ', role:'adult', hardNg:'', dislikes:'', likes:'辛いもの,キムチ,唐辛子'},
+            {id:'papa', name:'パパ', role:'adult', hardNg:'', dislikes:'', likes:''},
             {id:'mama', name:'ママ', role:'adult', hardNg:'', dislikes:'', likes:''}
           ]
         },
@@ -4182,10 +4182,30 @@
       return JSON.parse(JSON.stringify(obj));
     }
 
+    function normalizeLoadedData(obj){
+      // 旧版データの表示名を補正する。
+      // 「パパ好み」はユーザーが好み設定を入れていなくても出てしまうため、
+      // 汎用タグ名に置換する。
+      if(Array.isArray(obj.recipes)){
+        obj.recipes.forEach(r => {
+          if(Array.isArray(r.tags)){
+            r.tags = [...new Set(r.tags.map(t => (t === 'パパ好み' || t === '辛いもの好き向け') ? '辛い' : t))];
+          }
+        });
+      }
+      // 初期値として入っていたパパの好みは、未編集と判断できる場合のみ空に戻す。
+      if(obj.family && Array.isArray(obj.family.members)){
+        obj.family.members.forEach(m => {
+          if(m.id === 'papa' && m.likes === '辛いもの,キムチ,唐辛子') m.likes = '';
+        });
+      }
+      return obj;
+    }
+
     function loadData(){
       try{
         const raw = localStorage.getItem(STORAGE_KEY);
-        if(!raw) return defaultData();
+        if(!raw) return normalizeLoadedData(defaultData());
         const saved = JSON.parse(raw);
         const base = defaultData();
         const merged = {...base, ...saved};
@@ -4201,10 +4221,10 @@
         merged.bargain = saved.bargain || [];
         merged.shoppingList = saved.shoppingList || [];
         merged.shoppingDone = saved.shoppingDone || {};
-        return merged;
+        return normalizeLoadedData(merged);
       }catch(e){
         console.warn(e);
-        return defaultData();
+        return normalizeLoadedData(defaultData());
       }
     }
 
@@ -4512,7 +4532,7 @@
 
       if(state.modes.spicyAdult){
         if(r.spicy){ score += 9; reasons.push('辛いもの候補'); }
-        if(r.tags.includes('パパ好み')){ score += 5; reasons.push('パパ好み'); }
+        if(r.tags.includes('辛い')){ score += 5; reasons.push('辛い'); }
       }
 
       const likes = allTerms(data.family.members.flatMap(m => [m.likes]));
@@ -4707,7 +4727,7 @@
           <textarea name="required" placeholder="豚こま, キャベツ"></textarea>
 
           <label class="label">タグ</label>
-          <input name="tags" placeholder="子供OK, 疲れている日, パパ好み, 辛い">
+          <input name="tags" placeholder="子供OK, 疲れている日, 辛い, 辛い">
 
           <label class="label">作り方メモ</label>
           <textarea name="steps" placeholder="1. 切る&#10;2. 炒める&#10;3. 味付けする"></textarea>
