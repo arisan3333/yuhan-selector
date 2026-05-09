@@ -1,0 +1,5003 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f7a84b">
+  <title>今日なに食べる？</title>
+  <style>
+    :root{
+      --bg:#fff8ef;
+      --card:#ffffff;
+      --ink:#2c251f;
+      --muted:#756a60;
+      --line:#eadbc9;
+      --accent:#f28b38;
+      --accent2:#ffcf96;
+      --good:#2f7d47;
+      --bad:#b24b40;
+      --soft:#fff2df;
+      --chip:#f6eadc;
+      --shadow:0 10px 28px rgba(95,59,30,.12);
+      --radius:18px;
+      --safe-bottom: env(safe-area-inset-bottom, 12px);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      background:linear-gradient(180deg,#fff8ef 0%,#fffaf4 45%,#ffffff 100%);
+      color:var(--ink);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Noto Sans JP", "Hiragino Sans", "Yu Gothic", sans-serif;
+      font-size:15px;
+      line-height:1.5;
+      -webkit-text-size-adjust:100%;
+    }
+    button,input,select,textarea{font:inherit}
+    button{touch-action:manipulation}
+    .app{max-width:780px;margin:0 auto;padding:12px 12px calc(88px + var(--safe-bottom));}
+    header{
+      position:sticky;top:0;z-index:20;
+      margin:0 -12px 10px;padding:10px 12px 8px;
+      background:rgba(255,248,239,.92);
+      backdrop-filter: blur(12px);
+      border-bottom:1px solid rgba(234,219,201,.75);
+    }
+    .title{display:flex;align-items:center;justify-content:space-between;gap:8px}
+    h1{font-size:22px;margin:0;font-weight:800;letter-spacing:.02em}
+    .sub{font-size:12px;color:var(--muted);margin-top:2px}
+    .pill{display:inline-flex;align-items:center;gap:5px;border-radius:999px;background:var(--soft);border:1px solid var(--line);padding:5px 9px;font-size:12px;color:#60452e;white-space:nowrap}
+    .tabs{
+      position:fixed;left:0;right:0;bottom:0;z-index:30;
+      display:grid;grid-template-columns:repeat(5,1fr);
+      max-width:780px;margin:0 auto;
+      padding:7px 8px calc(7px + var(--safe-bottom));
+      background:rgba(255,255,255,.96);
+      border-top:1px solid var(--line);
+      box-shadow:0 -8px 24px rgba(72,42,20,.08);
+      backdrop-filter: blur(12px);
+    }
+    .tab{
+      border:0;background:transparent;color:var(--muted);
+      padding:8px 3px;border-radius:14px;font-size:12px;
+      display:flex;flex-direction:column;align-items:center;gap:2px;
+    }
+    .tab span:first-child{font-size:18px}
+    .tab.active{background:#fff0dc;color:#9a4c12;font-weight:700}
+    .section{margin:12px 0}
+    .card{
+      background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+      box-shadow:var(--shadow);padding:14px;margin:12px 0;
+    }
+    .card.flat{box-shadow:none}
+    h2{font-size:18px;margin:0 0 10px;font-weight:800}
+    h3{font-size:16px;margin:0 0 8px;font-weight:800}
+    .muted{color:var(--muted);font-size:13px}
+    .small{font-size:12px;color:var(--muted)}
+    .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    .between{display:flex;align-items:center;justify-content:space-between;gap:8px}
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+    @media(max-width:420px){.grid2,.grid3{grid-template-columns:1fr}}
+    .chips{display:flex;flex-wrap:wrap;gap:8px}
+    .chip{
+      display:inline-flex;align-items:center;gap:6px;
+      border:1px solid var(--line);background:var(--chip);
+      border-radius:999px;padding:8px 10px;font-size:13px;min-height:36px;
+    }
+    .chip input{accent-color:var(--accent)}
+    .chip.on,.tag.on{background:#ffe1b8;border-color:#f4b36d;color:#783800;font-weight:700}
+    .tag{
+      display:inline-flex;border:1px solid var(--line);background:#fff8ef;border-radius:999px;
+      padding:4px 8px;font-size:12px;color:#5f5147;gap:4px;align-items:center;
+    }
+    .tag.good{background:#ecf8ee;color:#246b39;border-color:#bde5c5}
+    .tag.bad{background:#fff0ed;color:#96372e;border-color:#ffd1c9}
+    .tag.hot{background:#fff1d8;color:#9b3b00;border-color:#ffd08e}
+    .tag.blue{background:#eef6ff;color:#2b5b8d;border-color:#cfe4ff}
+    .primary,.secondary,.danger,.ghost{
+      border:0;border-radius:14px;padding:11px 13px;font-weight:800;
+      min-height:42px;display:inline-flex;align-items:center;justify-content:center;gap:6px;
+      text-decoration:none;
+    }
+    .primary{background:var(--accent);color:white;box-shadow:0 7px 16px rgba(242,139,56,.25)}
+    .secondary{background:#fff1dd;color:#8a490d;border:1px solid #ffd6a2}
+    .danger{background:#fff0ed;color:#a33b31;border:1px solid #ffc7bd}
+    .ghost{background:#f6f0e9;color:#604f40;border:1px solid var(--line)}
+    .block{width:100%}
+    input[type="text"],input[type="number"],input[type="url"],select,textarea{
+      width:100%;border:1px solid var(--line);border-radius:13px;background:#fff;
+      padding:11px 12px;color:var(--ink);outline:none;
+    }
+    textarea{min-height:88px;resize:vertical}
+    label.label{display:block;font-weight:700;margin:10px 0 5px;font-size:13px}
+    .ingredient-group{margin:10px 0}
+    .ingredient-title{font-weight:800;font-size:13px;color:#614c39;margin:10px 0 6px}
+    .candidate{position:relative;overflow:hidden}
+    .candidate::before{
+      content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--accent);
+      border-radius:var(--radius) 0 0 var(--radius);
+    }
+    .score{font-size:12px;color:#8a5b2a;background:#fff3e1;border:1px solid #ffdcb0;border-radius:999px;padding:3px 7px}
+    .reasons{margin:8px 0 0;padding-left:18px;color:#5b5148;font-size:13px}
+    .reasons li{margin:2px 0}
+    .actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+    .actions.three{grid-template-columns:1fr 1fr 1fr}
+    @media(max-width:430px){.actions,.actions.three{grid-template-columns:1fr}}
+    .empty{
+      text-align:center;color:var(--muted);padding:28px 12px;border:1px dashed var(--line);
+      border-radius:var(--radius);background:rgba(255,255,255,.55)
+    }
+    .notice{background:#fff4df;border:1px solid #ffd89f;color:#6c421c;border-radius:14px;padding:10px 12px;font-size:13px}
+    .warn{background:#fff0ed;border:1px solid #ffd1c9;color:#87352d;border-radius:14px;padding:10px 12px;font-size:13px}
+    .list{display:grid;gap:8px}
+    .recipe-line{display:flex;gap:8px;align-items:flex-start;justify-content:space-between;border:1px solid var(--line);border-radius:15px;padding:10px;background:#fff}
+    .recipe-line .name{font-weight:800}
+    .recipe-line .meta{font-size:12px;color:var(--muted)}
+    .mini-btn{border:1px solid var(--line);background:#fff7ed;color:#75502c;border-radius:999px;padding:7px 9px;font-size:12px;font-weight:700;white-space:nowrap}
+    .shopping-item{display:flex;align-items:center;gap:9px;padding:10px;border:1px solid var(--line);border-radius:13px;background:#fff}
+    .shopping-item input{width:18px;height:18px;accent-color:var(--accent)}
+    .shopping-item.done span{text-decoration:line-through;color:var(--muted)}
+    dialog{
+      width:min(720px,calc(100vw - 20px));max-height:88vh;border:0;border-radius:20px;padding:0;
+      box-shadow:0 24px 80px rgba(48,28,12,.28);overflow:hidden;
+    }
+    dialog::backdrop{background:rgba(28,18,10,.42)}
+    .modal-head{position:sticky;top:0;background:#fff8ef;border-bottom:1px solid var(--line);padding:13px;z-index:2}
+    .modal-body{padding:14px;overflow:auto;max-height:calc(88vh - 62px)}
+    .close{border:0;background:#f1e7dc;border-radius:999px;width:36px;height:36px;font-weight:900}
+    .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+    .stat{background:#fff7ed;border:1px solid var(--line);border-radius:15px;padding:10px;text-align:center}
+    .stat b{display:block;font-size:18px}
+    .hidden{display:none !important}
+    .divider{height:1px;background:var(--line);margin:12px 0}
+    .kbd{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;background:#f4eee8;border:1px solid #e3d5c7;border-radius:6px;padding:1px 5px}
+    .site-links{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+    @media(max-width:430px){.site-links{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="title">
+        <div>
+          <h1>今日なに食べる？</h1>
+          <div class="sub">ありモノ・旬・家族NGから夕飯候補を3つに絞る</div>
+        </div>
+        <span class="pill" id="recipeCountPill">🍳 100件</span>
+      </div>
+    </header>
+
+    <main id="view"></main>
+  </div>
+
+  <nav class="tabs" aria-label="メニュー">
+    <button class="tab active" data-tab="today"><span>🍽️</span><span>今日</span></button>
+    <button class="tab" data-tab="recipes"><span>📚</span><span>レシピ</span></button>
+    <button class="tab" data-tab="shopping"><span>🛒</span><span>買い物</span></button>
+    <button class="tab" data-tab="settings"><span>👪</span><span>家族</span></button>
+    <button class="tab" data-tab="data"><span>💾</span><span>保存</span></button>
+  </nav>
+
+  <dialog id="recipeDialog">
+    <div class="modal-head between">
+      <strong id="modalTitle">レシピ</strong>
+      <button class="close" onclick="closeDialog()">×</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </dialog>
+
+  <script type="application/json" id="initial-recipes">[
+  {
+    "id": "r001",
+    "name": "親子丼",
+    "category": "丼・ご飯",
+    "mainType": "主食",
+    "ingredients": [
+      "鶏もも",
+      "玉ねぎ",
+      "卵",
+      "ご飯",
+      "醤油",
+      "みりん"
+    ],
+    "required": [
+      "鶏もも",
+      "玉ねぎ",
+      "卵",
+      "ご飯"
+    ],
+    "optional": [],
+    "tags": [
+      "買い物少なめ",
+      "子供OK"
+    ],
+    "time": 20,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r002",
+    "name": "鶏そぼろ丼",
+    "category": "丼・ご飯",
+    "mainType": "主食",
+    "ingredients": [
+      "鶏ひき肉",
+      "卵",
+      "ご飯",
+      "醤油",
+      "砂糖"
+    ],
+    "required": [
+      "鶏ひき肉",
+      "卵",
+      "ご飯"
+    ],
+    "optional": [],
+    "tags": [
+      "作り置き",
+      "子供OK"
+    ],
+    "time": 20,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r003",
+    "name": "豚丼",
+    "category": "丼・ご飯",
+    "mainType": "肉",
+    "ingredients": [
+      "豚こま",
+      "玉ねぎ",
+      "ご飯",
+      "醤油",
+      "みりん"
+    ],
+    "required": [
+      "豚こま",
+      "玉ねぎ",
+      "ご飯"
+    ],
+    "optional": [],
+    "tags": [
+      "買い物少なめ",
+      "子供OK",
+      "疲れている日"
+    ],
+    "time": 15,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r004",
+    "name": "牛丼風",
+    "category": "丼・ご飯",
+    "mainType": "肉",
+    "ingredients": [
+      "牛こま",
+      "玉ねぎ",
+      "ご飯",
+      "醤油",
+      "みりん"
+    ],
+    "required": [
+      "牛こま",
+      "玉ねぎ",
+      "ご飯"
+    ],
+    "optional": [],
+    "tags": [
+      "買い物少なめ",
+      "子供OK"
+    ],
+    "time": 20,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r005",
+    "name": "三色丼",
+    "category": "丼・ご飯",
+    "mainType": "主食",
+    "ingredients": [
+      "鶏ひき肉",
+      "卵",
+      "小松菜",
+      "ご飯"
+    ],
+    "required": [
+      "鶏ひき肉",
+      "卵",
+      "小松菜",
+      "ご飯"
+    ],
+    "optional": [],
+    "tags": [
+      "子供OK"
+    ],
+    "time": 25,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r006",
+    "name": "オムライス",
+    "category": "丼・ご飯",
+    "mainType": "主食",
+    "ingredients": [
+      "卵",
+      "ご飯",
+      "玉ねぎ",
+      "鶏もも",
+      "ケチャップ"
+    ],
+    "required": [
+      "卵",
+      "ご飯",
+      "玉ねぎ"
+    ],
+    "optional": [
+      "鶏もも"
+    ],
+    "tags": [
+      "子供OK"
+    ],
+    "time": 25,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r007",
+    "name": "チャーハン",
+    "category": "丼・ご飯",
+    "mainType": "主食",
+    "ingredients": [
+      "ご飯",
+      "卵",
+      "ねぎ",
+      "ハム",
+      "醤油"
+    ],
+    "required": [
+      "ご飯",
+      "卵"
+    ],
+    "optional": [
+      "ねぎ",
+      "ハム"
+    ],
+    "tags": [
+      "買い物少なめ",
+      "子供OK",
+      "疲れている日"
+    ],
+    "time": 15,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r008",
+    "name": "キムチチャーハン",
+    "category": "丼・ご飯",
+    "mainType": "辛い",
+    "ingredients": [
+      "ご飯",
+      "キムチ",
+      "卵",
+      "豚こま"
+    ],
+    "required": [
+      "ご飯",
+      "キムチ"
+    ],
+    "optional": [
+      "卵",
+      "豚こま"
+    ],
+    "tags": [
+      "パパ好み",
+      "大人向け",
+      "辛い",
+      "子供別メニュー前提",
+      "疲れている日"
+    ],
+    "time": 15,
+    "difficulty": "かんたん",
+    "childMode": "separate",
+    "spicy": true,
+    "light": "普通",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r009",
+    "name": "タコライス風",
+    "category": "丼・ご飯",
+    "mainType": "主食",
+    "ingredients": [
+      "ご飯",
+      "合いびき肉",
+      "レタス",
+      "トマト",
+      "チーズ"
+    ],
+    "required": [
+      "ご飯",
+      "合いびき肉",
+      "レタス"
+    ],
+    "optional": [
+      "トマト",
+      "チーズ"
+    ],
+    "tags": [
+      "野菜消費"
+    ],
+    "time": 20,
+    "difficulty": "かんたん",
+    "childMode": "adapt",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r010",
+    "name": "しらす丼",
+    "category": "丼・ご飯",
+    "mainType": "魚",
+    "ingredients": [
+      "しらす",
+      "ご飯",
+      "卵",
+      "大葉"
+    ],
+    "required": [
+      "しらす",
+      "ご飯"
+    ],
+    "optional": [
+      "卵",
+      "大葉"
+    ],
+    "tags": [
+      "軽め",
+      "買い物少なめ",
+      "子供OK",
+      "疲れている日"
+    ],
+    "time": 10,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "軽め",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r011",
+    "name": "ツナマヨ丼",
+    "category": "丼・ご飯",
+    "mainType": "魚",
+    "ingredients": [
+      "ツナ缶",
+      "ご飯",
+      "きゅうり",
+      "マヨネーズ"
+    ],
+    "required": [
+      "ツナ缶",
+      "ご飯"
+    ],
+    "optional": [
+      "きゅうり"
+    ],
+    "tags": [
+      "買い物少なめ",
+      "子供OK",
+      "疲れている日"
+    ],
+    "time": 10,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r012",
+    "name": "そぼろビビンバ風",
+    "category": "丼・ご飯",
+    "mainType": "主食",
+    "ingredients": [
+      "豚ひき肉",
+      "小松菜",
+      "にんじん",
+      "もやし",
+      "ご飯",
+      "コチュジャン"
+    ],
+    "required": [
+      "豚ひき肉",
+      "小松菜",
+      "にんじん",
+      "ご飯"
+    ],
+    "optional": [
+      "もやし",
+      "コチュジャン"
+    ],
+    "tags": [
+      "野菜消費",
+      "パパ好み",
+      "辛い"
+    ],
+    "time": 30,
+    "difficulty": "かんたん",
+    "childMode": "adapt",
+    "spicy": true,
+    "light": "普通",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r013",
+    "name": "天津飯風",
+    "category": "丼・ご飯",
+    "mainType": "卵・豆腐",
+    "ingredients": [
+      "卵",
+      "ご飯",
+      "かにかま",
+      "醤油",
+      "片栗粉"
+    ],
+    "required": [
+      "卵",
+      "ご飯"
+    ],
+    "optional": [
+      "かにかま"
+    ],
+    "tags": [
+      "子供OK",
+      "買い物少なめ",
+      "疲れている日"
+    ],
+    "time": 15,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r014",
+    "name": "焼き鳥丼",
+    "category": "丼・ご飯",
+    "mainType": "肉",
+    "ingredients": [
+      "鶏もも",
+      "長ねぎ",
+      "ご飯",
+      "醤油",
+      "みりん"
+    ],
+    "required": [
+      "鶏もも",
+      "ご飯"
+    ],
+    "optional": [
+      "長ねぎ"
+    ],
+    "tags": [
+      "買い物少なめ",
+      "子供OK"
+    ],
+    "time": 20,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r015",
+    "name": "ガパオ風ライス",
+    "category": "丼・ご飯",
+    "mainType": "辛い",
+    "ingredients": [
+      "鶏ひき肉",
+      "ピーマン",
+      "玉ねぎ",
+      "卵",
+      "ご飯",
+      "ナンプラー"
+    ],
+    "required": [
+      "鶏ひき肉",
+      "ピーマン",
+      "ご飯"
+    ],
+    "optional": [
+      "卵"
+    ],
+    "tags": [
+      "パパ好み",
+      "大人向け",
+      "辛い",
+      "子供別メニュー前提"
+    ],
+    "time": 20,
+    "difficulty": "かんたん",
+    "childMode": "separate",
+    "spicy": true,
+    "light": "普通",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r016",
+    "name": "焼きうどん",
+    "category": "麺",
+    "mainType": "主食",
+    "ingredients": [
+      "うどん",
+      "キャベツ",
+      "にんじん",
+      "玉ねぎ",
+      "豚こま"
+    ],
+    "required": [
+      "うどん",
+      "キャベツ"
+    ],
+    "optional": [
+      "にんじん",
+      "玉ねぎ",
+      "豚こま"
+    ],
+    "tags": [
+      "野菜消費",
+      "子供OK",
+      "疲れている日"
+    ],
+    "time": 15,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r017",
+    "name": "ナポリタン",
+    "category": "麺",
+    "mainType": "主食",
+    "ingredients": [
+      "パスタ",
+      "玉ねぎ",
+      "ピーマン",
+      "ウインナー",
+      "ケチャップ"
+    ],
+    "required": [
+      "パスタ",
+      "玉ねぎ"
+    ],
+    "optional": [
+      "ピーマン",
+      "ウインナー"
+    ],
+    "tags": [
+      "子供OK"
+    ],
+    "time": 20,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r018",
+    "name": "和風きのこパスタ",
+    "category": "麺",
+    "mainType": "主食",
+    "ingredients": [
+      "パスタ",
+      "きのこ",
+      "ベーコン",
+      "醤油",
+      "バター"
+    ],
+    "required": [
+      "パスタ",
+      "きのこ"
+    ],
+    "optional": [
+      "ベーコン"
+    ],
+    "tags": [
+      "買い物少なめ",
+      "子供OK"
+    ],
+    "time": 20,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r019",
+    "name": "ツナトマトパスタ",
+    "category": "麺",
+    "mainType": "魚",
+    "ingredients": [
+      "パスタ",
+      "ツナ缶",
+      "トマト缶",
+      "玉ねぎ"
+    ],
+    "required": [
+      "パスタ",
+      "ツナ缶",
+      "トマト缶"
+    ],
+    "optional": [
+      "玉ねぎ"
+    ],
+    "tags": [
+      "買い物少なめ",
+      "子供OK"
+    ],
+    "time": 20,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r020",
+    "name": "釜玉うどん",
+    "category": "麺",
+    "mainType": "主食",
+    "ingredients": [
+      "うどん",
+      "卵",
+      "めんつゆ"
+    ],
+    "required": [
+      "うどん",
+      "卵"
+    ],
+    "optional": [],
+    "tags": [
+      "買い物少なめ",
+      "子供OK",
+      "疲れている日"
+    ],
+    "time": 10,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r021",
+    "name": "肉うどん",
+    "category": "麺",
+    "mainType": "肉",
+    "ingredients": [
+      "うどん",
+      "豚こま",
+      "玉ねぎ",
+      "めんつゆ"
+    ],
+    "required": [
+      "うどん",
+      "豚こま"
+    ],
+    "optional": [
+      "玉ねぎ"
+    ],
+    "tags": [
+      "買い物少なめ",
+      "子供OK",
+      "疲れている日"
+    ],
+    "time": 15,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r022",
+    "name": "冷やし中華風",
+    "category": "麺",
+    "mainType": "主食",
+    "ingredients": [
+      "中華麺",
+      "きゅうり",
+      "卵",
+      "ハム",
+      "トマト"
+    ],
+    "required": [
+      "中華麺",
+      "きゅうり",
+      "卵"
+    ],
+    "optional": [
+      "ハム",
+      "トマト"
+    ],
+    "tags": [
+      "軽め",
+      "子供OK"
+    ],
+    "time": 20,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "軽め",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r023",
+    "name": "担々風うどん",
+    "category": "麺",
+    "mainType": "辛い",
+    "ingredients": [
+      "うどん",
+      "豚ひき肉",
+      "豆乳",
+      "小松菜",
+      "ラー油"
+    ],
+    "required": [
+      "うどん",
+      "豚ひき肉",
+      "豆乳"
+    ],
+    "optional": [
+      "小松菜"
+    ],
+    "tags": [
+      "パパ好み",
+      "大人向け",
+      "辛い",
+      "子供別メニュー前提"
+    ],
+    "time": 20,
+    "difficulty": "かんたん",
+    "childMode": "separate",
+    "spicy": true,
+    "light": "普通",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r024",
+    "name": "塩焼きそば",
+    "category": "麺",
+    "mainType": "主食",
+    "ingredients": [
+      "焼きそば麺",
+      "キャベツ",
+      "もやし",
+      "豚こま"
+    ],
+    "required": [
+      "焼きそば麺",
+      "キャベツ"
+    ],
+    "optional": [
+      "もやし",
+      "豚こま"
+    ],
+    "tags": [
+      "野菜消費",
+      "子供OK",
+      "疲れている日"
+    ],
+    "time": 15,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r025",
+    "name": "ソース焼きそば",
+    "category": "麺",
+    "mainType": "主食",
+    "ingredients": [
+      "焼きそば麺",
+      "キャベツ",
+      "にんじん",
+      "豚こま"
+    ],
+    "required": [
+      "焼きそば麺",
+      "キャベツ"
+    ],
+    "optional": [
+      "にんじん",
+      "豚こま"
+    ],
+    "tags": [
+      "野菜消費",
+      "子供OK",
+      "疲れている日"
+    ],
+    "time": 15,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r026",
+    "name": "トマトチーズパスタ",
+    "category": "麺",
+    "mainType": "主食",
+    "ingredients": [
+      "パスタ",
+      "トマト缶",
+      "チーズ",
+      "玉ねぎ"
+    ],
+    "required": [
+      "パスタ",
+      "トマト缶",
+      "チーズ"
+    ],
+    "optional": [
+      "玉ねぎ"
+    ],
+    "tags": [
+      "子供OK"
+    ],
+    "time": 20,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r027",
+    "name": "ちゃんぽん風うどん",
+    "category": "麺",
+    "mainType": "主食",
+    "ingredients": [
+      "うどん",
+      "キャベツ",
+      "もやし",
+      "にんじん",
+      "豚こま",
+      "牛乳"
+    ],
+    "required": [
+      "うどん",
+      "キャベツ",
+      "豚こま"
+    ],
+    "optional": [
+      "もやし",
+      "にんじん"
+    ],
+    "tags": [
+      "野菜消費",
+      "子供OK"
+    ],
+    "time": 20,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r028",
+    "name": "豚こまキャベツ味噌炒め",
+    "category": "炒め物",
+    "mainType": "肉",
+    "ingredients": [
+      "豚こま",
+      "キャベツ",
+      "玉ねぎ",
+      "味噌",
+      "みりん"
+    ],
+    "required": [
+      "豚こま",
+      "キャベツ"
+    ],
+    "optional": [
+      "玉ねぎ"
+    ],
+    "tags": [
+      "野菜消費",
+      "買い物少なめ",
+      "子供OK",
+      "疲れている日"
+    ],
+    "time": 15,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r029",
+    "name": "生姜焼き",
+    "category": "炒め物",
+    "mainType": "肉",
+    "ingredients": [
+      "豚ロース",
+      "玉ねぎ",
+      "生姜",
+      "醤油",
+      "みりん"
+    ],
+    "required": [
+      "豚ロース",
+      "玉ねぎ"
+    ],
+    "optional": [
+      "生姜"
+    ],
+    "tags": [
+      "定番",
+      "子供OK"
+    ],
+    "time": 20,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r030",
+    "name": "野菜炒め",
+    "category": "炒め物",
+    "mainType": "肉",
+    "ingredients": [
+      "豚こま",
+      "キャベツ",
+      "にんじん",
+      "もやし",
+      "ピーマン"
+    ],
+    "required": [
+      "キャベツ",
+      "豚こま"
+    ],
+    "optional": [
+      "にんじん",
+      "もやし",
+      "ピーマン"
+    ],
+    "tags": [
+      "野菜消費",
+      "子供OK",
+      "疲れている日"
+    ],
+    "time": 15,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r031",
+    "name": "回鍋肉風",
+    "category": "炒め物",
+    "mainType": "肉",
+    "ingredients": [
+      "豚こま",
+      "キャベツ",
+      "ピーマン",
+      "味噌",
+      "豆板醤"
+    ],
+    "required": [
+      "豚こま",
+      "キャベツ"
+    ],
+    "optional": [
+      "ピーマン",
+      "豆板醤"
+    ],
+    "tags": [
+      "パパ好み",
+      "野菜消費",
+      "辛い"
+    ],
+    "time": 20,
+    "difficulty": "かんたん",
+    "childMode": "adapt",
+    "spicy": true,
+    "light": "普通",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r032",
+    "name": "青椒肉絲風",
+    "category": "炒め物",
+    "mainType": "肉",
+    "ingredients": [
+      "豚こま",
+      "ピーマン",
+      "たけのこ",
+      "醤油"
+    ],
+    "required": [
+      "豚こま",
+      "ピーマン"
+    ],
+    "optional": [
+      "たけのこ"
+    ],
+    "tags": [
+      "野菜消費"
+    ],
+    "time": 20,
+    "difficulty": "かんたん",
+    "childMode": "adapt",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r033",
+    "name": "なす味噌炒め",
+    "category": "炒め物",
+    "mainType": "肉",
+    "ingredients": [
+      "なす",
+      "豚ひき肉",
+      "味噌",
+      "みりん"
+    ],
+    "required": [
+      "なす",
+      "豚ひき肉"
+    ],
+    "optional": [],
+    "tags": [
+      "野菜消費"
+    ],
+    "time": 20,
+    "difficulty": "かんたん",
+    "childMode": "adapt",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r034",
+    "name": "豚キムチ",
+    "category": "炒め物",
+    "mainType": "辛い",
+    "ingredients": [
+      "豚こま",
+      "キムチ",
+      "もやし",
+      "ニラ"
+    ],
+    "required": [
+      "豚こま",
+      "キムチ"
+    ],
+    "optional": [
+      "もやし",
+      "ニラ"
+    ],
+    "tags": [
+      "パパ好み",
+      "大人向け",
+      "辛い",
+      "子供別メニュー前提",
+      "疲れている日"
+    ],
+    "time": 15,
+    "difficulty": "かんたん",
+    "childMode": "separate",
+    "spicy": true,
+    "light": "普通",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r035",
+    "name": "鶏むねピーマン甘辛炒め",
+    "category": "炒め物",
+    "mainType": "肉",
+    "ingredients": [
+      "鶏むね",
+      "ピーマン",
+      "醤油",
+      "みりん"
+    ],
+    "required": [
+      "鶏むね",
+      "ピーマン"
+    ],
+    "optional": [],
+    "tags": [
+      "買い物少なめ"
+    ],
+    "time": 20,
+    "difficulty": "かんたん",
+    "childMode": "adapt",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r036",
+    "name": "小松菜と卵炒め",
+    "category": "炒め物",
+    "mainType": "卵・豆腐",
+    "ingredients": [
+      "小松菜",
+      "卵",
+      "醤油"
+    ],
+    "required": [
+      "小松菜",
+      "卵"
+    ],
+    "optional": [],
+    "tags": [
+      "軽め",
+      "買い物少なめ",
+      "子供OK",
+      "疲れている日"
+    ],
+    "time": 10,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "軽め",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r037",
+    "name": "トマト卵炒め",
+    "category": "炒め物",
+    "mainType": "卵・豆腐",
+    "ingredients": [
+      "トマト",
+      "卵",
+      "中華だし"
+    ],
+    "required": [
+      "トマト",
+      "卵"
+    ],
+    "optional": [],
+    "tags": [
+      "軽め",
+      "子供OK",
+      "疲れている日"
+    ],
+    "time": 10,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "軽め",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r038",
+    "name": "もやしニラ炒め",
+    "category": "炒め物",
+    "mainType": "肉",
+    "ingredients": [
+      "もやし",
+      "ニラ",
+      "豚こま"
+    ],
+    "required": [
+      "もやし",
+      "ニラ"
+    ],
+    "optional": [
+      "豚こま"
+    ],
+    "tags": [
+      "節約",
+      "子供OK",
+      "疲れている日"
+    ],
+    "time": 10,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r039",
+    "name": "厚揚げ野菜炒め",
+    "category": "炒め物",
+    "mainType": "卵・豆腐",
+    "ingredients": [
+      "厚揚げ",
+      "キャベツ",
+      "にんじん",
+      "醤油"
+    ],
+    "required": [
+      "厚揚げ",
+      "キャベツ"
+    ],
+    "optional": [
+      "にんじん"
+    ],
+    "tags": [
+      "野菜消費",
+      "節約",
+      "子供OK",
+      "疲れている日"
+    ],
+    "time": 15,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r040",
+    "name": "キャベツと卵の炒め物",
+    "category": "炒め物",
+    "mainType": "卵・豆腐",
+    "ingredients": [
+      "キャベツ",
+      "卵",
+      "醤油"
+    ],
+    "required": [
+      "キャベツ",
+      "卵"
+    ],
+    "optional": [],
+    "tags": [
+      "買い物少なめ",
+      "子供OK",
+      "疲れている日"
+    ],
+    "time": 10,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r041",
+    "name": "きゅうりと豚の塩炒め",
+    "category": "炒め物",
+    "mainType": "肉",
+    "ingredients": [
+      "きゅうり",
+      "豚こま",
+      "にんにく"
+    ],
+    "required": [
+      "きゅうり",
+      "豚こま"
+    ],
+    "optional": [],
+    "tags": [
+      "野菜消費",
+      "子供OK",
+      "疲れている日"
+    ],
+    "time": 15,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r042",
+    "name": "じゃがいもベーコン炒め",
+    "category": "炒め物",
+    "mainType": "肉",
+    "ingredients": [
+      "じゃがいも",
+      "ベーコン",
+      "玉ねぎ"
+    ],
+    "required": [
+      "じゃがいも",
+      "ベーコン"
+    ],
+    "optional": [
+      "玉ねぎ"
+    ],
+    "tags": [
+      "買い物少なめ",
+      "子供OK"
+    ],
+    "time": 20,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r043",
+    "name": "鶏もも照り焼き",
+    "category": "鶏肉",
+    "mainType": "肉",
+    "ingredients": [
+      "鶏もも",
+      "醤油",
+      "みりん",
+      "砂糖"
+    ],
+    "required": [
+      "鶏もも"
+    ],
+    "optional": [],
+    "tags": [
+      "買い物少なめ",
+      "子供OK"
+    ],
+    "time": 20,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r044",
+    "name": "鶏の唐揚げ風焼き",
+    "category": "鶏肉",
+    "mainType": "肉",
+    "ingredients": [
+      "鶏もも",
+      "片栗粉",
+      "醤油",
+      "生姜"
+    ],
+    "required": [
+      "鶏もも"
+    ],
+    "optional": [],
+    "tags": [
+      "子供OK"
+    ],
+    "time": 25,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "重め",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r045",
+    "name": "チキン南蛮風",
+    "category": "鶏肉",
+    "mainType": "肉",
+    "ingredients": [
+      "鶏むね",
+      "卵",
+      "マヨネーズ",
+      "酢"
+    ],
+    "required": [
+      "鶏むね",
+      "卵"
+    ],
+    "optional": [],
+    "tags": [
+      "子供OK"
+    ],
+    "time": 30,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "重め",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r046",
+    "name": "鶏むねピカタ",
+    "category": "鶏肉",
+    "mainType": "肉",
+    "ingredients": [
+      "鶏むね",
+      "卵",
+      "小麦粉",
+      "チーズ"
+    ],
+    "required": [
+      "鶏むね",
+      "卵"
+    ],
+    "optional": [],
+    "tags": [
+      "子供OK"
+    ],
+    "time": 20,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r047",
+    "name": "鶏チリ風",
+    "category": "鶏肉",
+    "mainType": "辛い",
+    "ingredients": [
+      "鶏むね",
+      "ケチャップ",
+      "豆板醤",
+      "玉ねぎ"
+    ],
+    "required": [
+      "鶏むね",
+      "玉ねぎ"
+    ],
+    "optional": [],
+    "tags": [
+      "パパ好み",
+      "大人向け",
+      "辛い",
+      "子供別メニュー前提"
+    ],
+    "time": 20,
+    "difficulty": "かんたん",
+    "childMode": "separate",
+    "spicy": true,
+    "light": "普通",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r048",
+    "name": "よだれ鶏風",
+    "category": "鶏肉",
+    "mainType": "辛い",
+    "ingredients": [
+      "鶏むね",
+      "きゅうり",
+      "ラー油",
+      "醤油"
+    ],
+    "required": [
+      "鶏むね",
+      "きゅうり"
+    ],
+    "optional": [],
+    "tags": [
+      "パパ好み",
+      "大人向け",
+      "軽め",
+      "辛い",
+      "子供別メニュー前提"
+    ],
+    "time": 20,
+    "difficulty": "かんたん",
+    "childMode": "separate",
+    "spicy": true,
+    "light": "軽め",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r049",
+    "name": "鶏じゃが",
+    "category": "鶏肉",
+    "mainType": "肉",
+    "ingredients": [
+      "鶏もも",
+      "じゃがいも",
+      "にんじん",
+      "玉ねぎ"
+    ],
+    "required": [
+      "鶏もも",
+      "じゃがいも"
+    ],
+    "optional": [
+      "にんじん",
+      "玉ねぎ"
+    ],
+    "tags": [
+      "定番",
+      "子供OK"
+    ],
+    "time": 30,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r050",
+    "name": "蒸し鶏サラダ",
+    "category": "鶏肉",
+    "mainType": "肉",
+    "ingredients": [
+      "鶏むね",
+      "レタス",
+      "きゅうり",
+      "トマト"
+    ],
+    "required": [
+      "鶏むね",
+      "レタス"
+    ],
+    "optional": [
+      "きゅうり",
+      "トマト"
+    ],
+    "tags": [
+      "軽め",
+      "子供OK"
+    ],
+    "time": 20,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "軽め",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r051",
+    "name": "鶏と大根の煮物",
+    "category": "鶏肉",
+    "mainType": "肉",
+    "ingredients": [
+      "鶏もも",
+      "大根",
+      "醤油",
+      "みりん"
+    ],
+    "required": [
+      "鶏もも",
+      "大根"
+    ],
+    "optional": [],
+    "tags": [
+      "煮物",
+      "子供OK"
+    ],
+    "time": 35,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r052",
+    "name": "鶏ももトマト煮",
+    "category": "鶏肉",
+    "mainType": "肉",
+    "ingredients": [
+      "鶏もも",
+      "トマト缶",
+      "玉ねぎ",
+      "にんじん"
+    ],
+    "required": [
+      "鶏もも",
+      "トマト缶"
+    ],
+    "optional": [
+      "玉ねぎ",
+      "にんじん"
+    ],
+    "tags": [
+      "野菜消費",
+      "子供OK"
+    ],
+    "time": 30,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r053",
+    "name": "肉じゃが",
+    "category": "豚肉",
+    "mainType": "肉",
+    "ingredients": [
+      "豚こま",
+      "じゃがいも",
+      "にんじん",
+      "玉ねぎ"
+    ],
+    "required": [
+      "豚こま",
+      "じゃがいも"
+    ],
+    "optional": [
+      "にんじん",
+      "玉ねぎ"
+    ],
+    "tags": [
+      "定番",
+      "子供OK"
+    ],
+    "time": 35,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r054",
+    "name": "ポークケチャップ",
+    "category": "豚肉",
+    "mainType": "肉",
+    "ingredients": [
+      "豚ロース",
+      "玉ねぎ",
+      "ケチャップ"
+    ],
+    "required": [
+      "豚ロース",
+      "玉ねぎ"
+    ],
+    "optional": [],
+    "tags": [
+      "子供OK"
+    ],
+    "time": 20,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r055",
+    "name": "豚しゃぶサラダ",
+    "category": "豚肉",
+    "mainType": "肉",
+    "ingredients": [
+      "豚しゃぶ肉",
+      "レタス",
+      "きゅうり",
+      "トマト"
+    ],
+    "required": [
+      "豚しゃぶ肉",
+      "レタス"
+    ],
+    "optional": [
+      "きゅうり",
+      "トマト"
+    ],
+    "tags": [
+      "軽め",
+      "子供OK",
+      "疲れている日"
+    ],
+    "time": 15,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "軽め",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r056",
+    "name": "豚汁",
+    "category": "豚肉",
+    "mainType": "汁物",
+    "ingredients": [
+      "豚こま",
+      "大根",
+      "にんじん",
+      "ごぼう",
+      "味噌"
+    ],
+    "required": [
+      "豚こま",
+      "大根"
+    ],
+    "optional": [
+      "にんじん",
+      "ごぼう"
+    ],
+    "tags": [
+      "野菜消費",
+      "子供OK"
+    ],
+    "time": 30,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r057",
+    "name": "豚こま大根",
+    "category": "豚肉",
+    "mainType": "肉",
+    "ingredients": [
+      "豚こま",
+      "大根",
+      "醤油",
+      "みりん"
+    ],
+    "required": [
+      "豚こま",
+      "大根"
+    ],
+    "optional": [],
+    "tags": [
+      "煮物",
+      "子供OK"
+    ],
+    "time": 25,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r058",
+    "name": "豚バラ白菜ミルフィーユ",
+    "category": "豚肉",
+    "mainType": "肉",
+    "ingredients": [
+      "豚バラ",
+      "白菜",
+      "ポン酢"
+    ],
+    "required": [
+      "豚バラ",
+      "白菜"
+    ],
+    "optional": [],
+    "tags": [
+      "買い物少なめ",
+      "子供OK"
+    ],
+    "time": 25,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r059",
+    "name": "豚肉と小松菜の卵とじ",
+    "category": "豚肉",
+    "mainType": "肉",
+    "ingredients": [
+      "豚こま",
+      "小松菜",
+      "卵",
+      "めんつゆ"
+    ],
+    "required": [
+      "豚こま",
+      "小松菜",
+      "卵"
+    ],
+    "optional": [],
+    "tags": [
+      "買い物少なめ",
+      "子供OK",
+      "疲れている日"
+    ],
+    "time": 15,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r060",
+    "name": "豚ひき肉そぼろレタス包み",
+    "category": "豚肉",
+    "mainType": "肉",
+    "ingredients": [
+      "豚ひき肉",
+      "レタス",
+      "味噌",
+      "醤油"
+    ],
+    "required": [
+      "豚ひき肉",
+      "レタス"
+    ],
+    "optional": [],
+    "tags": [
+      "軽め",
+      "子供OK"
+    ],
+    "time": 20,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "軽め",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r061",
+    "name": "ルーローハン風",
+    "category": "豚肉",
+    "mainType": "肉",
+    "ingredients": [
+      "豚バラ",
+      "卵",
+      "ご飯",
+      "醤油",
+      "五香粉"
+    ],
+    "required": [
+      "豚バラ",
+      "卵",
+      "ご飯"
+    ],
+    "optional": [],
+    "tags": [
+      "大人向け",
+      "子供OK"
+    ],
+    "time": 35,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r062",
+    "name": "豚なすピリ辛炒め",
+    "category": "豚肉",
+    "mainType": "辛い",
+    "ingredients": [
+      "豚こま",
+      "なす",
+      "味噌",
+      "豆板醤"
+    ],
+    "required": [
+      "豚こま",
+      "なす"
+    ],
+    "optional": [],
+    "tags": [
+      "パパ好み",
+      "大人向け",
+      "辛い",
+      "子供別メニュー前提"
+    ],
+    "time": 20,
+    "difficulty": "かんたん",
+    "childMode": "separate",
+    "spicy": true,
+    "light": "普通",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r063",
+    "name": "鮭ホイル焼き",
+    "category": "魚",
+    "mainType": "魚",
+    "ingredients": [
+      "鮭",
+      "玉ねぎ",
+      "きのこ",
+      "バター"
+    ],
+    "required": [
+      "鮭",
+      "玉ねぎ"
+    ],
+    "optional": [
+      "きのこ"
+    ],
+    "tags": [
+      "買い物少なめ",
+      "子供OK"
+    ],
+    "time": 25,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r064",
+    "name": "鮭のちゃんちゃん焼き",
+    "category": "魚",
+    "mainType": "魚",
+    "ingredients": [
+      "鮭",
+      "キャベツ",
+      "玉ねぎ",
+      "味噌"
+    ],
+    "required": [
+      "鮭",
+      "キャベツ"
+    ],
+    "optional": [
+      "玉ねぎ"
+    ],
+    "tags": [
+      "野菜消費",
+      "子供OK"
+    ],
+    "time": 25,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r065",
+    "name": "さば味噌風",
+    "category": "魚",
+    "mainType": "魚",
+    "ingredients": [
+      "さば",
+      "味噌",
+      "生姜"
+    ],
+    "required": [
+      "さば"
+    ],
+    "optional": [],
+    "tags": [
+      "買い物少なめ",
+      "子供OK"
+    ],
+    "time": 25,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r066",
+    "name": "ぶり照り焼き",
+    "category": "魚",
+    "mainType": "魚",
+    "ingredients": [
+      "ぶり",
+      "醤油",
+      "みりん"
+    ],
+    "required": [
+      "ぶり"
+    ],
+    "optional": [],
+    "tags": [
+      "買い物少なめ",
+      "子供OK"
+    ],
+    "time": 20,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r067",
+    "name": "ツナじゃが",
+    "category": "魚",
+    "mainType": "魚",
+    "ingredients": [
+      "ツナ缶",
+      "じゃがいも",
+      "玉ねぎ",
+      "にんじん"
+    ],
+    "required": [
+      "ツナ缶",
+      "じゃがいも"
+    ],
+    "optional": [
+      "玉ねぎ",
+      "にんじん"
+    ],
+    "tags": [
+      "買い物少なめ",
+      "子供OK"
+    ],
+    "time": 25,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r068",
+    "name": "鮭チャーハン",
+    "category": "魚",
+    "mainType": "魚",
+    "ingredients": [
+      "鮭",
+      "ご飯",
+      "卵",
+      "ねぎ"
+    ],
+    "required": [
+      "鮭",
+      "ご飯",
+      "卵"
+    ],
+    "optional": [
+      "ねぎ"
+    ],
+    "tags": [
+      "買い物少なめ",
+      "子供OK",
+      "疲れている日"
+    ],
+    "time": 15,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r069",
+    "name": "しらす小松菜炒め",
+    "category": "魚",
+    "mainType": "魚",
+    "ingredients": [
+      "しらす",
+      "小松菜",
+      "卵"
+    ],
+    "required": [
+      "しらす",
+      "小松菜"
+    ],
+    "optional": [
+      "卵"
+    ],
+    "tags": [
+      "軽め",
+      "子供OK",
+      "疲れている日"
+    ],
+    "time": 10,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "軽め",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r070",
+    "name": "白身魚のムニエル",
+    "category": "魚",
+    "mainType": "魚",
+    "ingredients": [
+      "白身魚",
+      "小麦粉",
+      "バター",
+      "レモン"
+    ],
+    "required": [
+      "白身魚"
+    ],
+    "optional": [
+      "レモン"
+    ],
+    "tags": [
+      "軽め",
+      "子供OK"
+    ],
+    "time": 20,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "軽め",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r071",
+    "name": "麻婆豆腐",
+    "category": "卵・豆腐",
+    "mainType": "辛い",
+    "ingredients": [
+      "豆腐",
+      "豚ひき肉",
+      "長ねぎ",
+      "豆板醤"
+    ],
+    "required": [
+      "豆腐",
+      "豚ひき肉"
+    ],
+    "optional": [
+      "長ねぎ"
+    ],
+    "tags": [
+      "パパ好み",
+      "大人向け",
+      "辛い",
+      "子供別メニュー前提"
+    ],
+    "time": 20,
+    "difficulty": "かんたん",
+    "childMode": "separate",
+    "spicy": true,
+    "light": "普通",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r072",
+    "name": "甘口麻婆豆腐",
+    "category": "卵・豆腐",
+    "mainType": "卵・豆腐",
+    "ingredients": [
+      "豆腐",
+      "豚ひき肉",
+      "長ねぎ",
+      "味噌"
+    ],
+    "required": [
+      "豆腐",
+      "豚ひき肉"
+    ],
+    "optional": [
+      "長ねぎ"
+    ],
+    "tags": [
+      "子供OK"
+    ],
+    "time": 20,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r073",
+    "name": "豆腐ステーキ",
+    "category": "卵・豆腐",
+    "mainType": "卵・豆腐",
+    "ingredients": [
+      "豆腐",
+      "片栗粉",
+      "きのこ",
+      "醤油"
+    ],
+    "required": [
+      "豆腐"
+    ],
+    "optional": [
+      "きのこ"
+    ],
+    "tags": [
+      "節約",
+      "軽め",
+      "子供OK"
+    ],
+    "time": 20,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "軽め",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r074",
+    "name": "厚揚げそぼろあん",
+    "category": "卵・豆腐",
+    "mainType": "卵・豆腐",
+    "ingredients": [
+      "厚揚げ",
+      "豚ひき肉",
+      "片栗粉"
+    ],
+    "required": [
+      "厚揚げ",
+      "豚ひき肉"
+    ],
+    "optional": [],
+    "tags": [
+      "節約",
+      "子供OK"
+    ],
+    "time": 20,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r075",
+    "name": "ニラ玉",
+    "category": "卵・豆腐",
+    "mainType": "卵・豆腐",
+    "ingredients": [
+      "ニラ",
+      "卵",
+      "醤油"
+    ],
+    "required": [
+      "ニラ",
+      "卵"
+    ],
+    "optional": [],
+    "tags": [
+      "買い物少なめ",
+      "子供OK",
+      "疲れている日"
+    ],
+    "time": 10,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r076",
+    "name": "かに玉風",
+    "category": "卵・豆腐",
+    "mainType": "卵・豆腐",
+    "ingredients": [
+      "卵",
+      "かにかま",
+      "ご飯",
+      "片栗粉"
+    ],
+    "required": [
+      "卵",
+      "かにかま"
+    ],
+    "optional": [
+      "ご飯"
+    ],
+    "tags": [
+      "子供OK",
+      "疲れている日"
+    ],
+    "time": 15,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r077",
+    "name": "卵とじうどん",
+    "category": "卵・豆腐",
+    "mainType": "主食",
+    "ingredients": [
+      "うどん",
+      "卵",
+      "めんつゆ",
+      "小松菜"
+    ],
+    "required": [
+      "うどん",
+      "卵"
+    ],
+    "optional": [
+      "小松菜"
+    ],
+    "tags": [
+      "買い物少なめ",
+      "子供OK",
+      "疲れている日"
+    ],
+    "time": 10,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r078",
+    "name": "豆腐ハンバーグ",
+    "category": "卵・豆腐",
+    "mainType": "卵・豆腐",
+    "ingredients": [
+      "豆腐",
+      "鶏ひき肉",
+      "玉ねぎ",
+      "卵"
+    ],
+    "required": [
+      "豆腐",
+      "鶏ひき肉"
+    ],
+    "optional": [
+      "玉ねぎ",
+      "卵"
+    ],
+    "tags": [
+      "子供OK"
+    ],
+    "time": 30,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r079",
+    "name": "カレー",
+    "category": "野菜消費",
+    "mainType": "主食",
+    "ingredients": [
+      "カレールー",
+      "豚こま",
+      "じゃがいも",
+      "にんじん",
+      "玉ねぎ",
+      "ご飯"
+    ],
+    "required": [
+      "カレールー",
+      "じゃがいも",
+      "玉ねぎ",
+      "ご飯"
+    ],
+    "optional": [
+      "豚こま",
+      "にんじん"
+    ],
+    "tags": [
+      "定番",
+      "作り置き",
+      "子供OK"
+    ],
+    "time": 40,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "重め",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r080",
+    "name": "ハヤシライス",
+    "category": "野菜消費",
+    "mainType": "主食",
+    "ingredients": [
+      "ハヤシルー",
+      "牛こま",
+      "玉ねぎ",
+      "きのこ",
+      "ご飯"
+    ],
+    "required": [
+      "ハヤシルー",
+      "玉ねぎ",
+      "ご飯"
+    ],
+    "optional": [
+      "牛こま",
+      "きのこ"
+    ],
+    "tags": [
+      "作り置き",
+      "子供OK"
+    ],
+    "time": 35,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r081",
+    "name": "ミートソース",
+    "category": "野菜消費",
+    "mainType": "主食",
+    "ingredients": [
+      "パスタ",
+      "合いびき肉",
+      "玉ねぎ",
+      "にんじん",
+      "トマト缶"
+    ],
+    "required": [
+      "パスタ",
+      "合いびき肉",
+      "トマト缶"
+    ],
+    "optional": [
+      "玉ねぎ",
+      "にんじん"
+    ],
+    "tags": [
+      "作り置き",
+      "子供OK"
+    ],
+    "time": 35,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r082",
+    "name": "ラタトゥイユ風",
+    "category": "野菜消費",
+    "mainType": "野菜",
+    "ingredients": [
+      "なす",
+      "ズッキーニ",
+      "トマト缶",
+      "玉ねぎ",
+      "ピーマン"
+    ],
+    "required": [
+      "なす",
+      "トマト缶"
+    ],
+    "optional": [
+      "ズッキーニ",
+      "玉ねぎ",
+      "ピーマン"
+    ],
+    "tags": [
+      "野菜消費",
+      "軽め"
+    ],
+    "time": 30,
+    "difficulty": "かんたん",
+    "childMode": "adapt",
+    "spicy": false,
+    "light": "軽め",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r083",
+    "name": "ポトフ",
+    "category": "野菜消費",
+    "mainType": "汁物",
+    "ingredients": [
+      "ウインナー",
+      "キャベツ",
+      "じゃがいも",
+      "にんじん",
+      "玉ねぎ"
+    ],
+    "required": [
+      "ウインナー",
+      "キャベツ",
+      "じゃがいも"
+    ],
+    "optional": [
+      "にんじん",
+      "玉ねぎ"
+    ],
+    "tags": [
+      "野菜消費",
+      "子供OK"
+    ],
+    "time": 35,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r084",
+    "name": "ロールキャベツ風煮込み",
+    "category": "野菜消費",
+    "mainType": "肉",
+    "ingredients": [
+      "キャベツ",
+      "合いびき肉",
+      "玉ねぎ",
+      "トマト缶"
+    ],
+    "required": [
+      "キャベツ",
+      "合いびき肉"
+    ],
+    "optional": [
+      "玉ねぎ",
+      "トマト缶"
+    ],
+    "tags": [
+      "野菜消費",
+      "子供OK"
+    ],
+    "time": 40,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r085",
+    "name": "かぼちゃそぼろ煮",
+    "category": "野菜消費",
+    "mainType": "肉",
+    "ingredients": [
+      "かぼちゃ",
+      "鶏ひき肉",
+      "醤油",
+      "みりん"
+    ],
+    "required": [
+      "かぼちゃ",
+      "鶏ひき肉"
+    ],
+    "optional": [],
+    "tags": [
+      "子供OK"
+    ],
+    "time": 25,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r086",
+    "name": "ひじきと大豆煮",
+    "category": "野菜消費",
+    "mainType": "野菜",
+    "ingredients": [
+      "ひじき",
+      "大豆",
+      "にんじん",
+      "油揚げ"
+    ],
+    "required": [
+      "ひじき",
+      "大豆"
+    ],
+    "optional": [
+      "にんじん",
+      "油揚げ"
+    ],
+    "tags": [
+      "作り置き",
+      "軽め",
+      "子供OK"
+    ],
+    "time": 25,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "軽め",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r087",
+    "name": "野菜たっぷりスープごはん",
+    "category": "野菜消費",
+    "mainType": "主食",
+    "ingredients": [
+      "ご飯",
+      "キャベツ",
+      "にんじん",
+      "玉ねぎ",
+      "卵"
+    ],
+    "required": [
+      "ご飯",
+      "キャベツ"
+    ],
+    "optional": [
+      "にんじん",
+      "玉ねぎ",
+      "卵"
+    ],
+    "tags": [
+      "野菜消費",
+      "軽め",
+      "子供OK"
+    ],
+    "time": 20,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "軽め",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r088",
+    "name": "春雨チャプチェ風",
+    "category": "野菜消費",
+    "mainType": "主食",
+    "ingredients": [
+      "春雨",
+      "豚こま",
+      "にんじん",
+      "ピーマン",
+      "玉ねぎ"
+    ],
+    "required": [
+      "春雨",
+      "豚こま"
+    ],
+    "optional": [
+      "にんじん",
+      "ピーマン",
+      "玉ねぎ"
+    ],
+    "tags": [
+      "野菜消費",
+      "子供OK"
+    ],
+    "time": 25,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r089",
+    "name": "具だくさん味噌汁",
+    "category": "汁物・スープ",
+    "mainType": "汁物",
+    "ingredients": [
+      "味噌",
+      "豆腐",
+      "大根",
+      "にんじん",
+      "小松菜"
+    ],
+    "required": [
+      "味噌",
+      "豆腐"
+    ],
+    "optional": [
+      "大根",
+      "にんじん",
+      "小松菜"
+    ],
+    "tags": [
+      "野菜消費",
+      "軽め",
+      "子供OK"
+    ],
+    "time": 20,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "軽め",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r090",
+    "name": "豚汁うどん",
+    "category": "汁物・スープ",
+    "mainType": "主食",
+    "ingredients": [
+      "うどん",
+      "豚こま",
+      "大根",
+      "にんじん",
+      "味噌"
+    ],
+    "required": [
+      "うどん",
+      "豚こま",
+      "味噌"
+    ],
+    "optional": [
+      "大根",
+      "にんじん"
+    ],
+    "tags": [
+      "野菜消費",
+      "子供OK"
+    ],
+    "time": 25,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r091",
+    "name": "ミネストローネ",
+    "category": "汁物・スープ",
+    "mainType": "汁物",
+    "ingredients": [
+      "トマト缶",
+      "キャベツ",
+      "玉ねぎ",
+      "ベーコン"
+    ],
+    "required": [
+      "トマト缶",
+      "キャベツ"
+    ],
+    "optional": [
+      "玉ねぎ",
+      "ベーコン"
+    ],
+    "tags": [
+      "野菜消費",
+      "軽め",
+      "子供OK"
+    ],
+    "time": 25,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "軽め",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r092",
+    "name": "中華卵スープごはん",
+    "category": "汁物・スープ",
+    "mainType": "主食",
+    "ingredients": [
+      "卵",
+      "ご飯",
+      "小松菜",
+      "中華だし"
+    ],
+    "required": [
+      "卵",
+      "ご飯"
+    ],
+    "optional": [
+      "小松菜"
+    ],
+    "tags": [
+      "軽め",
+      "買い物少なめ",
+      "子供OK",
+      "疲れている日"
+    ],
+    "time": 10,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "軽め",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r093",
+    "name": "スンドゥブ風",
+    "category": "汁物・スープ",
+    "mainType": "辛い",
+    "ingredients": [
+      "豆腐",
+      "キムチ",
+      "豚こま",
+      "卵"
+    ],
+    "required": [
+      "豆腐",
+      "キムチ"
+    ],
+    "optional": [
+      "豚こま",
+      "卵"
+    ],
+    "tags": [
+      "パパ好み",
+      "大人向け",
+      "辛い",
+      "子供別メニュー前提"
+    ],
+    "time": 20,
+    "difficulty": "かんたん",
+    "childMode": "separate",
+    "spicy": true,
+    "light": "普通",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r094",
+    "name": "スパイスカレー",
+    "category": "辛い・大人向け",
+    "mainType": "辛い",
+    "ingredients": [
+      "カレー粉",
+      "鶏もも",
+      "玉ねぎ",
+      "トマト缶",
+      "ご飯"
+    ],
+    "required": [
+      "カレー粉",
+      "鶏もも",
+      "玉ねぎ",
+      "ご飯"
+    ],
+    "optional": [
+      "トマト缶"
+    ],
+    "tags": [
+      "パパ好み",
+      "大人向け",
+      "辛い",
+      "子供別メニュー前提"
+    ],
+    "time": 35,
+    "difficulty": "かんたん",
+    "childMode": "separate",
+    "spicy": true,
+    "light": "重め",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r095",
+    "name": "キーマカレー",
+    "category": "辛い・大人向け",
+    "mainType": "辛い",
+    "ingredients": [
+      "合いびき肉",
+      "玉ねぎ",
+      "にんじん",
+      "カレー粉",
+      "ご飯"
+    ],
+    "required": [
+      "合いびき肉",
+      "玉ねぎ",
+      "カレー粉",
+      "ご飯"
+    ],
+    "optional": [
+      "にんじん"
+    ],
+    "tags": [
+      "パパ好み",
+      "大人向け",
+      "辛い",
+      "子供別メニュー前提"
+    ],
+    "time": 25,
+    "difficulty": "かんたん",
+    "childMode": "separate",
+    "spicy": true,
+    "light": "普通",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r096",
+    "name": "ビビンバ",
+    "category": "辛い・大人向け",
+    "mainType": "辛い",
+    "ingredients": [
+      "ご飯",
+      "牛こま",
+      "もやし",
+      "小松菜",
+      "にんじん",
+      "コチュジャン"
+    ],
+    "required": [
+      "ご飯",
+      "牛こま",
+      "もやし"
+    ],
+    "optional": [
+      "小松菜",
+      "にんじん",
+      "コチュジャン"
+    ],
+    "tags": [
+      "パパ好み",
+      "野菜消費",
+      "辛い"
+    ],
+    "time": 30,
+    "difficulty": "かんたん",
+    "childMode": "adapt",
+    "spicy": true,
+    "light": "普通",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r097",
+    "name": "ヤンニョムチキン風",
+    "category": "辛い・大人向け",
+    "mainType": "辛い",
+    "ingredients": [
+      "鶏もも",
+      "コチュジャン",
+      "ケチャップ"
+    ],
+    "required": [
+      "鶏もも",
+      "コチュジャン"
+    ],
+    "optional": [],
+    "tags": [
+      "パパ好み",
+      "大人向け",
+      "辛い",
+      "子供別メニュー前提"
+    ],
+    "time": 25,
+    "difficulty": "かんたん",
+    "childMode": "separate",
+    "spicy": true,
+    "light": "重め",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r098",
+    "name": "チリコンカン風",
+    "category": "辛い・大人向け",
+    "mainType": "辛い",
+    "ingredients": [
+      "合いびき肉",
+      "豆",
+      "トマト缶",
+      "チリパウダー"
+    ],
+    "required": [
+      "合いびき肉",
+      "豆",
+      "トマト缶"
+    ],
+    "optional": [],
+    "tags": [
+      "パパ好み",
+      "大人向け",
+      "辛い",
+      "子供別メニュー前提"
+    ],
+    "time": 30,
+    "difficulty": "かんたん",
+    "childMode": "separate",
+    "spicy": true,
+    "light": "普通",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r099",
+    "name": "サルサチキン",
+    "category": "辛い・大人向け",
+    "mainType": "辛い",
+    "ingredients": [
+      "鶏むね",
+      "トマト",
+      "玉ねぎ",
+      "レタス",
+      "チリパウダー"
+    ],
+    "required": [
+      "鶏むね",
+      "トマト"
+    ],
+    "optional": [
+      "玉ねぎ",
+      "レタス"
+    ],
+    "tags": [
+      "パパ好み",
+      "軽め",
+      "辛い",
+      "子供別メニュー前提"
+    ],
+    "time": 25,
+    "difficulty": "かんたん",
+    "childMode": "separate",
+    "spicy": true,
+    "light": "軽め",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  },
+  {
+    "id": "r100",
+    "name": "ピリ辛担々春雨",
+    "category": "辛い・大人向け",
+    "mainType": "辛い",
+    "ingredients": [
+      "春雨",
+      "豚ひき肉",
+      "小松菜",
+      "豆板醤"
+    ],
+    "required": [
+      "春雨",
+      "豚ひき肉"
+    ],
+    "optional": [
+      "小松菜"
+    ],
+    "tags": [
+      "パパ好み",
+      "大人向け",
+      "辛い",
+      "子供別メニュー前提"
+    ],
+    "time": 20,
+    "difficulty": "かんたん",
+    "childMode": "separate",
+    "spicy": true,
+    "light": "普通",
+    "steps": [
+      "材料を食べやすく切る。",
+      "火の通りにくいものから炒める、または煮る。",
+      "味を調えて仕上げる。"
+    ],
+    "memo": "",
+    "sourceName": "",
+    "sourceUrl": "",
+    "custom": false,
+    "teppan": false
+  }
+]</script>
+
+  <script>
+    const INITIAL_RECIPES = JSON.parse(document.getElementById('initial-recipes').textContent);
+    const STORAGE_KEY = 'menu_selector_personal_v1';
+    const TODAY = new Date();
+    const todayKey = () => {
+      const d = new Date();
+      return [d.getFullYear(), String(d.getMonth()+1).padStart(2,'0'), String(d.getDate()).padStart(2,'0')].join('-');
+    };
+    const STAPLES = new Set(['醤油','みりん','砂糖','塩','こしょう','味噌','めんつゆ','中華だし','小麦粉','片栗粉','バター','マヨネーズ','ケチャップ','酢','生姜','にんにく','ポン酢','カレー粉','豆板醤','コチュジャン','ラー油','チリパウダー','ナンプラー','五香粉','レモン','油','ごま油','水','だし','カレールー','ハヤシルー']);
+    const COMMON_INGREDIENTS = {
+      '野菜': ['キャベツ','にんじん','玉ねぎ','小松菜','なす','ピーマン','きゅうり','トマト','レタス','もやし','白菜','大根','じゃがいも','新じゃが','春キャベツ','新玉ねぎ','ズッキーニ','アスパラ','ニラ','きのこ','ごぼう','かぼちゃ','大葉'],
+      '肉・魚': ['豚こま','豚ロース','豚バラ','豚ひき肉','鶏もも','鶏むね','鶏ひき肉','牛こま','合いびき肉','ウインナー','ベーコン','鮭','さば','ぶり','白身魚','しらす','ツナ缶'],
+      '卵・豆腐など': ['卵','豆腐','厚揚げ','油揚げ','チーズ','牛乳','豆乳','かにかま','ハム','キムチ','大豆','豆'],
+      '主食': ['ご飯','うどん','焼きそば麺','中華麺','パスタ','春雨'],
+      'その他': ['トマト缶','レトルトカレー','ひじき']
+    };
+    const SEASONAL = {
+      1:['白菜','大根','ねぎ','ほうれん草','小松菜','春菊','れんこん','ごぼう'],
+      2:['白菜','大根','ねぎ','ほうれん草','小松菜','ブロッコリー','菜の花'],
+      3:['春キャベツ','新玉ねぎ','菜の花','アスパラ','新じゃが','スナップえんどう'],
+      4:['春キャベツ','新玉ねぎ','新じゃが','アスパラ','レタス','たけのこ'],
+      5:['春キャベツ','新玉ねぎ','新じゃが','アスパラ','レタス','きゅうり','なす','ピーマン','ズッキーニ'],
+      6:['トマト','きゅうり','なす','ピーマン','ズッキーニ','とうもろこし','オクラ','大葉'],
+      7:['トマト','きゅうり','なす','ピーマン','オクラ','とうもろこし','枝豆','ゴーヤ'],
+      8:['トマト','きゅうり','なす','ピーマン','オクラ','とうもろこし','枝豆','ゴーヤ'],
+      9:['なす','ピーマン','きのこ','さつまいも','かぼちゃ','れんこん'],
+      10:['きのこ','さつまいも','かぼちゃ','れんこん','ごぼう','白菜'],
+      11:['白菜','大根','ねぎ','ほうれん草','小松菜','れんこん','ごぼう'],
+      12:['白菜','大根','ねぎ','ほうれん草','小松菜','春菊','れんこん']
+    };
+    const REJECT_REASONS = [
+      {id:'noMeat', label:'肉の気分じゃない'},
+      {id:'noFish', label:'魚の気分じゃない'},
+      {id:'heavy', label:'重い'},
+      {id:'tooHard', label:'作るのが面倒'},
+      {id:'tooMuchShopping', label:'買い物が多すぎる'},
+      {id:'child', label:'子供が食べなさそう'},
+      {id:'recent', label:'最近食べた'},
+      {id:'mood', label:'ただ気分じゃない'}
+    ];
+
+    let activeTab = 'today';
+    let data = loadData();
+    let state = {
+      modes: { pantry:true, empty:false, shopping:false, tired:false, childSame:false, spicyAdult:false, seasonal:true },
+      currentCandidates: [],
+      excludedToday: new Set(),
+      filtersToday: {},
+      recipeQuery: '',
+      relaxedNotice: ''
+    };
+
+    function defaultData(){
+      return {
+        version: 1,
+        recipes: structuredCloneSafe(INITIAL_RECIPES),
+        pantry: [],
+        bargain: [],
+        shoppingList: [],
+        shoppingDone: {},
+        family: {
+          members: [
+            {id:'child', name:'子供', role:'child', hardNg:'', dislikes:'', likes:''},
+            {id:'papa', name:'パパ', role:'adult', hardNg:'', dislikes:'', likes:'辛いもの,キムチ,唐辛子'},
+            {id:'mama', name:'ママ', role:'adult', hardNg:'', dislikes:'', likes:''}
+          ]
+        },
+        history: [],
+        stats: {},
+        createdAt: new Date().toISOString()
+      };
+    }
+
+    function structuredCloneSafe(obj){
+      return JSON.parse(JSON.stringify(obj));
+    }
+
+    function loadData(){
+      try{
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if(!raw) return defaultData();
+        const saved = JSON.parse(raw);
+        const base = defaultData();
+        const merged = {...base, ...saved};
+        merged.recipes = Array.isArray(saved.recipes) && saved.recipes.length ? saved.recipes : base.recipes;
+        merged.family = saved.family || base.family;
+        merged.history = saved.history || [];
+        merged.stats = saved.stats || {};
+        merged.pantry = saved.pantry || [];
+        merged.bargain = saved.bargain || [];
+        merged.shoppingList = saved.shoppingList || [];
+        merged.shoppingDone = saved.shoppingDone || {};
+        return merged;
+      }catch(e){
+        console.warn(e);
+        return defaultData();
+      }
+    }
+
+    function saveData(){
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      updatePill();
+    }
+
+    function updatePill(){
+      const pill = document.getElementById('recipeCountPill');
+      if(pill) pill.textContent = `🍳 ${data.recipes.length}件`;
+    }
+
+    function render(){
+      document.querySelectorAll('.tab').forEach(b => b.classList.toggle('active', b.dataset.tab === activeTab));
+      updatePill();
+      const view = document.getElementById('view');
+      if(activeTab === 'today') view.innerHTML = viewToday();
+      if(activeTab === 'recipes') view.innerHTML = viewRecipes();
+      if(activeTab === 'shopping') view.innerHTML = viewShopping();
+      if(activeTab === 'settings') view.innerHTML = viewSettings();
+      if(activeTab === 'data') view.innerHTML = viewData();
+    }
+
+    document.querySelectorAll('.tab').forEach(btn => {
+      btn.addEventListener('click', () => {
+        activeTab = btn.dataset.tab;
+        render();
+      });
+    });
+
+    function viewToday(){
+      const month = TODAY.getMonth()+1;
+      const seasonal = SEASONAL[month] || [];
+      return `
+        <section class="section">
+          <div class="card">
+            <h2>今日の条件</h2>
+            <div class="chips">
+              ${modeChip('pantry','ありモノから')}
+              ${modeChip('empty','冷蔵庫なんもない')}
+              ${modeChip('shopping','買い物前提')}
+              ${modeChip('tired','疲れている')}
+              ${modeChip('childSame','子供も同じもの')}
+              ${modeChip('spicyAdult','大人だけ辛いものOK')}
+              ${modeChip('seasonal','旬・安そう優先')}
+            </div>
+            <div class="notice" style="margin-top:10px">候補は3件だけ。全部違う場合は、表示済みを外して次の候補を出します。</div>
+          </div>
+
+          <div class="card">
+            <div class="between">
+              <h2>冷蔵庫にあるもの</h2>
+              <button class="mini-btn" onclick="clearPantry()">全部外す</button>
+            </div>
+            ${ingredientGroups(COMMON_INGREDIENTS, data.pantry, 'pantry')}
+            <div class="row" style="margin-top:10px">
+              <input id="customPantryInput" type="text" placeholder="食材を追加 例：大葉">
+              <button class="secondary" onclick="addCustomPantry()">追加</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <h2>${month}月の旬・買ってもよさそう</h2>
+            <div class="small">旬食材は自動加点。「安そう・買いたい」は手動チェックで強めに加点します。</div>
+            <div class="ingredient-group">
+              <div class="ingredient-title">旬候補</div>
+              <div class="chips">
+                ${seasonal.map(x => `<label class="chip ${data.bargain.includes(x) ? 'on':''}"><input type="checkbox" ${data.bargain.includes(x)?'checked':''} onchange="toggleArrayItem(data.bargain,'${esc(x)}'); saveData(); render()"> ${x}</label>`).join('')}
+              </div>
+            </div>
+            <div class="row" style="margin-top:10px">
+              <input id="customBargainInput" type="text" placeholder="安そうな食材を追加 例：もやし">
+              <button class="secondary" onclick="addCustomBargain()">追加</button>
+            </div>
+            ${data.bargain.length ? `<div class="chips" style="margin-top:10px">${data.bargain.map(x=>`<span class="tag on">${x}<button class="mini-btn" onclick="toggleArrayItem(data.bargain,'${esc(x)}'); saveData(); render()">×</button></span>`).join('')}</div>`:''}
+          </div>
+
+          <div class="grid2">
+            <button class="primary block" onclick="generateCandidates(true)">今日の候補を3つ出す</button>
+            <button class="secondary block" onclick="rejectCurrentAndRegenerate('mood')">3つとも違うので別候補</button>
+          </div>
+          ${state.relaxedNotice ? `<div class="warn" style="margin-top:10px">${state.relaxedNotice}</div>`:''}
+
+          <section id="candidates">${renderCandidates()}</section>
+        </section>
+      `;
+    }
+
+    function modeChip(key,label){
+      return `<label class="chip ${state.modes[key] ? 'on':''}"><input type="checkbox" ${state.modes[key]?'checked':''} onchange="state.modes.${key}=this.checked; if('${key}'==='empty'&&this.checked){state.modes.pantry=false} if('${key}'==='pantry'&&this.checked){state.modes.empty=false} render()"> ${label}</label>`;
+    }
+
+    function ingredientGroups(groups, selected, target){
+      return Object.entries(groups).map(([group,items]) => `
+        <div class="ingredient-group">
+          <div class="ingredient-title">${group}</div>
+          <div class="chips">
+            ${items.map(x => `<label class="chip ${selected.includes(x)?'on':''}"><input type="checkbox" ${selected.includes(x)?'checked':''} onchange="toggleArrayItem(data.${target},'${esc(x)}'); saveData(); render()"> ${x}</label>`).join('')}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderCandidates(){
+      if(!state.currentCandidates.length){
+        return `<div class="empty" style="margin-top:12px">条件を選んで「今日の候補を3つ出す」を押してください。</div>`;
+      }
+      return state.currentCandidates.map((item,idx) => candidateCard(item, idx)).join('') + `
+        <div class="card flat">
+          <h3>全部ちがう理由を選んで次へ</h3>
+          <div class="chips">
+            ${REJECT_REASONS.map(r => `<button class="secondary" onclick="rejectCurrentAndRegenerate('${r.id}')">${r.label}</button>`).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    function candidateCard(item, idx){
+      const r = item.recipe;
+      const missing = missingIngredients(r);
+      const used = r.ingredients.filter(x => data.pantry.includes(x));
+      const tags = [
+        r.childMode === 'ok' ? '<span class="tag good">子供OK</span>' : r.childMode === 'adapt' ? '<span class="tag blue">子供アレンジ可</span>' : '<span class="tag bad">子供別</span>',
+        r.spicy ? '<span class="tag hot">辛い</span>' : '',
+        r.teppan ? '<span class="tag good">鉄板</span>' : '',
+        `<span class="tag">${r.time}分</span>`
+      ].filter(Boolean).join('');
+      return `
+        <div class="card candidate">
+          <div class="between">
+            <div>
+              <h2>${idx+1}. ${r.name}</h2>
+              <div class="chips">${tags}</div>
+            </div>
+            <span class="score">${Math.round(item.score)}点</span>
+          </div>
+          <div class="small" style="margin-top:8px">カテゴリ：${r.category} / ${r.mainType}</div>
+          <div style="margin-top:8px">
+            ${used.length ? `<div><b>使うありモノ：</b>${used.join('、')}</div>` : `<div><b>使うありモノ：</b>少なめ</div>`}
+            <div><b>買い足し：</b>${missing.length ? missing.join('、') : 'なし'}</div>
+          </div>
+          <ul class="reasons">${item.reasons.slice(0,5).map(x=>`<li>${x}</li>`).join('')}</ul>
+          <div class="actions three">
+            <button class="primary" onclick="chooseRecipe('${r.id}')">これにする</button>
+            <button class="secondary" onclick="openRecipe('${r.id}')">レシピを見る</button>
+            <button class="ghost" onclick="showRejectBox('${r.id}')">今日は違う</button>
+          </div>
+          <div id="reject-${r.id}" class="hidden" style="margin-top:10px">
+            <div class="small" style="margin-bottom:6px">理由を選ぶと、次回以降の候補出しに少し反映します。</div>
+            <div class="chips">${REJECT_REASONS.map(reason => `<button class="secondary" onclick="rejectOneAndRegenerate('${r.id}','${reason.id}')">${reason.label}</button>`).join('')}</div>
+          </div>
+        </div>
+      `;
+    }
+
+    function generateCandidates(reset){
+      if(reset){
+        state.excludedToday = new Set();
+        state.filtersToday = {};
+        state.relaxedNotice = '';
+      }
+      const scored = data.recipes.map(r => scoreRecipe(r)).filter(x => x.score > -9999 && !state.excludedToday.has(x.recipe.id));
+      scored.sort((a,b) => b.score - a.score);
+      let chosen = scored.slice(0,3);
+      state.relaxedNotice = '';
+      if(chosen.length < 3){
+        const relaxed = data.recipes.map(r => scoreRecipe(r, {relaxed:true})).filter(x => x.score > -9999 && !state.excludedToday.has(x.recipe.id)).sort((a,b)=>b.score-a.score);
+        chosen = relaxed.slice(0,3);
+        state.relaxedNotice = '条件に合う候補が少ないため、完全NG以外の条件を少しゆるめました。';
+      }
+      if(!chosen.length){
+        const fallback = data.recipes.map(r => scoreRecipe(r, {ignoreToday:true, relaxed:true})).filter(x => x.score > -9999).sort((a,b)=>b.score-a.score);
+        chosen = fallback.slice(0,3);
+        state.relaxedNotice = '候補が尽きたため、今日すでに出した候補も含めて再表示しています。';
+      }
+      state.currentCandidates = chosen;
+      render();
+      setTimeout(()=>document.getElementById('candidates')?.scrollIntoView({behavior:'smooth', block:'start'}), 50);
+    }
+
+    function scoreRecipe(r, opt={}){
+      const reasons = [];
+      let score = 0;
+      const adultHardNg = allTerms(data.family.members.filter(m => m.role !== 'child').flatMap(m => [m.hardNg]));
+      const child = data.family.members.find(m => m.role === 'child');
+      const childHardNg = child ? allTerms([child.hardNg]) : [];
+      const hardNg = state.modes.childSame ? adultHardNg.concat(childHardNg) : adultHardNg;
+      const hitNg = hardNg.find(term => recipeContains(r, term));
+      if(hitNg) return {recipe:r, score:-10000, reasons:[`完全NG「${hitNg}」に該当`]};
+
+      if(!opt.ignoreToday && state.excludedToday.has(r.id)) return {recipe:r, score:-10000, reasons:['今日すでに除外']};
+
+      if(r.teppan){ score += 8; reasons.push('鉄板レシピ'); }
+      const stats = data.stats[r.id] || {};
+      if(stats.accepted){ score += Math.min(8, stats.accepted * 1.5); reasons.push('過去に選んだ実績あり'); }
+      if(stats.rejected){ score -= Math.min(8, stats.rejected * 0.7); }
+
+      const pantryHits = r.ingredients.filter(x => data.pantry.includes(x));
+      const missing = missingIngredients(r);
+      if(state.modes.pantry && !state.modes.empty){
+        score += pantryHits.length * 6;
+        if(pantryHits.length) reasons.push(`ありモノを${pantryHits.length}個使える`);
+        score -= missing.length * (state.filtersToday.limitShopping ? 3.2 : 1.4);
+        if(!missing.length) { score += 8; reasons.push('買い足しなし'); }
+      }
+      if(state.modes.empty){
+        score += r.tags.includes('買い物少なめ') ? 5 : 0;
+        score -= Math.max(0, missing.length - 4) * 1.4;
+        reasons.push('冷蔵庫なんもない前提');
+      }
+      if(state.modes.shopping){
+        score += 3;
+        reasons.push('買い物前提でも作りやすい');
+      }
+
+      const month = TODAY.getMonth()+1;
+      const seasonal = SEASONAL[month] || [];
+      const seasonalHits = r.ingredients.filter(x => seasonal.includes(x));
+      const bargainHits = r.ingredients.filter(x => data.bargain.includes(x));
+      if(state.modes.seasonal){
+        score += seasonalHits.length * 2.3;
+        score += bargainHits.length * 5;
+        if(seasonalHits.length) reasons.push(`旬食材：${seasonalHits.join('、')}`);
+        if(bargainHits.length) reasons.push(`買いたい食材：${bargainHits.join('、')}`);
+      }
+
+      if(state.modes.tired || state.filtersToday.preferEasy){
+        if(r.time <= 15){ score += 6; reasons.push('15分以内'); }
+        else if(r.time <= 20){ score += 3; reasons.push('20分以内'); }
+        if(r.tags.includes('疲れている日')) score += 4;
+        if(r.difficulty === 'かんたん') score += 2;
+      }
+
+      if(state.modes.childSame || state.filtersToday.preferChild){
+        if(r.childMode === 'ok'){ score += 7; reasons.push('子供OK'); }
+        if(r.childMode === 'adapt'){ score += 2; reasons.push('子供アレンジ可'); }
+        if(r.childMode === 'separate'){ score -= opt.relaxed ? 3 : 12; reasons.push('子供別メニュー前提'); }
+      } else {
+        if(r.childMode === 'separate') reasons.push('子供は別メニュー前提');
+      }
+
+      if(state.modes.spicyAdult){
+        if(r.spicy){ score += 9; reasons.push('辛いもの候補'); }
+        if(r.tags.includes('パパ好み')){ score += 5; reasons.push('パパ好み'); }
+      }
+
+      const likes = allTerms(data.family.members.flatMap(m => [m.likes]));
+      const dislikes = allTerms(data.family.members.filter(m => state.modes.childSame || m.role !== 'child').flatMap(m => [m.dislikes]));
+      likes.forEach(term => {
+        if(recipeContains(r, term) || (term.includes('辛') && r.spicy)){ score += 1.5; }
+      });
+      dislikes.forEach(term => {
+        if(recipeContains(r, term)){ score -= 3; reasons.push(`苦手「${term}」は少し減点`); }
+      });
+
+      const last = lastCookedDate(r.id);
+      if(last){
+        const days = daysSince(last);
+        if(days <= 3){ score -= opt.relaxed ? 5 : 13; reasons.push(`${days}日前に作った`); }
+        else if(days <= 7){ score -= 7; reasons.push(`${days}日前に作ったので少し減点`); }
+        else if(days <= 14){ score -= 3; }
+      }
+
+      if(state.filtersToday.noMeat && isMeat(r)){ score -= opt.relaxed ? 6 : 18; }
+      if(state.filtersToday.noFish && isFish(r)){ score -= opt.relaxed ? 6 : 18; }
+      if(state.filtersToday.preferLight){
+        if(r.light === '軽め'){ score += 7; reasons.push('軽め'); }
+        if(r.light === '重め'){ score -= opt.relaxed ? 4 : 12; }
+      }
+      if(state.filtersToday.avoidRecentCategory && r.category === state.filtersToday.avoidRecentCategory){ score -= 8; }
+
+      score += Math.random() * 2.2;
+      return {recipe:r, score, reasons};
+    }
+
+    function isMeat(r){
+      return r.mainType === '肉' || r.ingredients.some(x => /豚|鶏|牛|肉|ウインナー|ベーコン|ハム/.test(x));
+    }
+    function isFish(r){
+      return r.mainType === '魚' || r.ingredients.some(x => /魚|鮭|さば|ぶり|しらす|ツナ/.test(x));
+    }
+
+    function missingIngredients(r){
+      return r.required
+        .filter(x => !data.pantry.includes(x))
+        .filter(x => !STAPLES.has(x))
+        .filter(x => x !== 'ご飯');
+    }
+
+    function chooseRecipe(id){
+      const r = recipeById(id);
+      if(!r) return;
+      const stats = data.stats[id] || {};
+      stats.accepted = (stats.accepted || 0) + 1;
+      data.stats[id] = stats;
+      data.history.unshift({recipeId:id, name:r.name, date:todayKey(), at:new Date().toISOString()});
+      data.history = data.history.slice(0,120);
+      const missing = missingIngredients(r);
+      data.shoppingList = missing.map(name => ({name, recipeId:id, recipeName:r.name, createdAt:new Date().toISOString()}));
+      data.shoppingDone = {};
+      saveData();
+      activeTab = 'shopping';
+      render();
+    }
+
+    function rejectCurrentAndRegenerate(reasonId){
+      const ids = state.currentCandidates.map(x=>x.recipe.id);
+      if(!ids.length){ generateCandidates(true); return; }
+      registerReject(ids, reasonId);
+      ids.forEach(id => state.excludedToday.add(id));
+      applyReasonFilter(reasonId, ids);
+      generateCandidates(false);
+    }
+
+    function rejectOneAndRegenerate(id, reasonId){
+      registerReject([id], reasonId);
+      state.excludedToday.add(id);
+      applyReasonFilter(reasonId, [id]);
+      generateCandidates(false);
+    }
+
+    function registerReject(ids, reasonId){
+      ids.forEach(id => {
+        const stats = data.stats[id] || {};
+        stats.rejected = (stats.rejected || 0) + 1;
+        stats.reasons = stats.reasons || {};
+        stats.reasons[reasonId] = (stats.reasons[reasonId] || 0) + 1;
+        data.stats[id] = stats;
+      });
+      saveData();
+    }
+
+    function applyReasonFilter(reasonId, ids){
+      if(reasonId === 'noMeat') state.filtersToday.noMeat = true;
+      if(reasonId === 'noFish') state.filtersToday.noFish = true;
+      if(reasonId === 'heavy') state.filtersToday.preferLight = true;
+      if(reasonId === 'tooHard') state.filtersToday.preferEasy = true;
+      if(reasonId === 'tooMuchShopping') state.filtersToday.limitShopping = true;
+      if(reasonId === 'child') state.filtersToday.preferChild = true;
+      if(reasonId === 'recent'){
+        const first = recipeById(ids[0]);
+        if(first) state.filtersToday.avoidRecentCategory = first.category;
+      }
+    }
+
+    function showRejectBox(id){
+      document.getElementById(`reject-${id}`)?.classList.toggle('hidden');
+    }
+
+    function viewRecipes(){
+      const q = state.recipeQuery.trim().toLowerCase();
+      let list = data.recipes;
+      if(q){
+        list = list.filter(r => [r.name,r.category,r.mainType,...r.ingredients,...r.tags].join(' ').toLowerCase().includes(q));
+      }
+      return `
+        <section class="section">
+          <div class="card">
+            <h2>鉄板レシピ・候補レシピ</h2>
+            <input type="text" value="${escAttr(state.recipeQuery)}" placeholder="検索：キャベツ、辛い、丼など" oninput="state.recipeQuery=this.value; render()">
+            <div class="stats" style="margin-top:10px">
+              <div class="stat"><b>${data.recipes.length}</b><span class="small">登録</span></div>
+              <div class="stat"><b>${data.recipes.filter(r=>r.teppan).length}</b><span class="small">鉄板</span></div>
+              <div class="stat"><b>${data.recipes.filter(r=>r.spicy).length}</b><span class="small">辛い</span></div>
+            </div>
+          </div>
+
+          <details class="card">
+            <summary><b>新しいレシピを登録</b></summary>
+            ${recipeForm()}
+          </details>
+
+          <div class="list">
+            ${list.map(r => recipeLine(r)).join('') || '<div class="empty">該当するレシピがありません。</div>'}
+          </div>
+        </section>
+      `;
+    }
+
+    function recipeLine(r){
+      return `
+        <div class="recipe-line">
+          <div>
+            <div class="name">${r.name}</div>
+            <div class="meta">${r.category} / ${r.time}分 / ${r.childModeLabel || childLabel(r.childMode)}</div>
+            <div class="chips" style="margin-top:5px">
+              ${r.tags.slice(0,4).map(t=>`<span class="tag ${t.includes('辛')?'hot':''}">${t}</span>`).join('')}
+            </div>
+          </div>
+          <div class="row" style="justify-content:flex-end">
+            <button class="mini-btn" onclick="toggleTeppan('${r.id}')">${r.teppan?'鉄板解除':'鉄板'}</button>
+            <button class="mini-btn" onclick="openRecipe('${r.id}')">見る</button>
+          </div>
+        </div>
+      `;
+    }
+
+    function recipeForm(){
+      return `
+        <form onsubmit="addRecipe(event)">
+          <label class="label">レシピ名</label>
+          <input name="name" required placeholder="例：豚こまキャベツ味噌炒め">
+
+          <div class="grid2">
+            <div>
+              <label class="label">カテゴリ</label>
+              <input name="category" placeholder="例：炒め物">
+            </div>
+            <div>
+              <label class="label">メイン分類</label>
+              <select name="mainType">
+                <option>肉</option><option>魚</option><option>卵・豆腐</option><option>野菜</option><option>主食</option><option>汁物</option><option>辛い</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid2">
+            <div>
+              <label class="label">調理時間 分</label>
+              <input name="time" type="number" value="20" min="1">
+            </div>
+            <div>
+              <label class="label">子供対応</label>
+              <select name="childMode">
+                <option value="ok">子供OK</option>
+                <option value="adapt">子供アレンジ可</option>
+                <option value="separate">子供別メニュー前提</option>
+              </select>
+            </div>
+          </div>
+
+          <label class="label">材料 全体</label>
+          <textarea name="ingredients" required placeholder="豚こま, キャベツ, 玉ねぎ, 味噌"></textarea>
+
+          <label class="label">必須食材 買い物リスト対象</label>
+          <textarea name="required" placeholder="豚こま, キャベツ"></textarea>
+
+          <label class="label">タグ</label>
+          <input name="tags" placeholder="子供OK, 疲れている日, パパ好み, 辛い">
+
+          <label class="label">作り方メモ</label>
+          <textarea name="steps" placeholder="1. 切る&#10;2. 炒める&#10;3. 味付けする"></textarea>
+
+          <div class="grid2">
+            <div>
+              <label class="label">参考サイト名</label>
+              <input name="sourceName" placeholder="DELISH KITCHEN など">
+            </div>
+            <div>
+              <label class="label">参考URL</label>
+              <input name="sourceUrl" type="url" placeholder="https://...">
+            </div>
+          </div>
+
+          <label class="label">家族メモ</label>
+          <textarea name="memo" placeholder="子供はピーマンなし、辛味は後入れ、など"></textarea>
+
+          <button class="primary block" style="margin-top:12px">登録する</button>
+        </form>
+      `;
+    }
+
+    function addRecipe(e){
+      e.preventDefault();
+      const fd = new FormData(e.target);
+      const name = fd.get('name').trim();
+      const ingredients = parseList(fd.get('ingredients'));
+      const required = parseList(fd.get('required'));
+      const tags = parseList(fd.get('tags'));
+      const childMode = fd.get('childMode');
+      const spicy = tags.some(t => t.includes('辛')) || fd.get('mainType') === '辛い';
+      const r = {
+        id:'c' + Date.now(),
+        name,
+        category: fd.get('category').trim() || '自作',
+        mainType: fd.get('mainType'),
+        ingredients,
+        required: required.length ? required : ingredients,
+        optional: [],
+        tags,
+        time: Number(fd.get('time')) || 20,
+        difficulty: 'かんたん',
+        childMode,
+        spicy,
+        light: '普通',
+        steps: parseLines(fd.get('steps')),
+        memo: fd.get('memo').trim(),
+        sourceName: fd.get('sourceName').trim(),
+        sourceUrl: fd.get('sourceUrl').trim(),
+        custom: true,
+        teppan: true
+      };
+      data.recipes.unshift(r);
+      saveData();
+      e.target.reset();
+      render();
+      openRecipe(r.id);
+    }
+
+    function viewShopping(){
+      return `
+        <section class="section">
+          <div class="card">
+            <h2>買い物リスト</h2>
+            <div class="small">「これにする」を押した料理の不足食材を表示します。調味料やご飯は基本的に除外しています。</div>
+          </div>
+          ${data.shoppingList.length ? `
+            <div class="list">
+              ${data.shoppingList.map((item,idx) => `
+                <label class="shopping-item ${data.shoppingDone[item.name]?'done':''}">
+                  <input type="checkbox" ${data.shoppingDone[item.name]?'checked':''} onchange="data.shoppingDone['${esc(item.name)}']=this.checked; saveData(); render()">
+                  <span>${item.name}</span>
+                </label>`).join('')}
+            </div>
+            <div class="grid2" style="margin-top:12px">
+              <button class="secondary" onclick="copyShoppingList()">コピー</button>
+              <button class="danger" onclick="clearShoppingList()">リストを消す</button>
+            </div>
+          ` : `<div class="empty">まだ買い物リストはありません。今日の候補から「これにする」を押すと作成されます。</div>`}
+          <div class="card">
+            <h3>手動追加</h3>
+            <div class="row">
+              <input id="manualShoppingInput" type="text" placeholder="例：牛乳">
+              <button class="secondary" onclick="addManualShopping()">追加</button>
+            </div>
+          </div>
+        </section>
+      `;
+    }
+
+    function viewSettings(){
+      return `
+        <section class="section">
+          <div class="card">
+            <h2>家族NG・好み</h2>
+            <div class="notice">「完全NG」は大人分は常に除外。子供分は「子供も同じもの」モードのときだけ強く除外します。</div>
+          </div>
+          ${data.family.members.map(m => memberForm(m)).join('')}
+          <button class="primary block" onclick="saveMembersFromInputs()">家族設定を保存</button>
+
+          <div class="card">
+            <h3>最近作った料理</h3>
+            ${data.history.length ? data.history.slice(0,10).map(h => `<div class="recipe-line"><div><div class="name">${h.name}</div><div class="meta">${h.date}</div></div><button class="mini-btn" onclick="removeHistory('${h.at}')">削除</button></div>`).join('') : '<div class="empty">まだ履歴がありません。</div>'}
+          </div>
+        </section>
+      `;
+    }
+
+    function memberForm(m){
+      return `
+        <div class="card">
+          <h3>${m.name}</h3>
+          <label class="label">完全NG</label>
+          <input id="${m.id}-hardNg" value="${escAttr(m.hardNg)}" placeholder="例：ねぎ, きのこ">
+          <label class="label">苦手</label>
+          <input id="${m.id}-dislikes" value="${escAttr(m.dislikes)}" placeholder="例：なす, ピーマン">
+          <label class="label">好き・優先したい</label>
+          <input id="${m.id}-likes" value="${escAttr(m.likes)}" placeholder="例：辛いもの, 卵, 麺類">
+        </div>
+      `;
+    }
+
+    function saveMembersFromInputs(){
+      data.family.members.forEach(m => {
+        m.hardNg = document.getElementById(`${m.id}-hardNg`).value.trim();
+        m.dislikes = document.getElementById(`${m.id}-dislikes`).value.trim();
+        m.likes = document.getElementById(`${m.id}-likes`).value.trim();
+      });
+      saveData();
+      alert('保存しました');
+      render();
+    }
+
+    function viewData(){
+      return `
+        <section class="section">
+          <div class="card">
+            <h2>データ管理</h2>
+            <div class="notice">スマホのブラウザ内に保存しています。端末変更・ブラウザ変更・キャッシュ削除に備えて、たまにJSONを書き出してください。</div>
+            <div class="grid2" style="margin-top:12px">
+              <button class="primary" onclick="exportJson()">JSONを書き出す</button>
+              <label class="secondary" style="text-align:center">
+                JSONを読み込む
+                <input type="file" accept="application/json" style="display:none" onchange="importJson(event)">
+              </label>
+            </div>
+          </div>
+          <div class="card">
+            <h3>リセット</h3>
+            <p class="small">自分で追加したレシピ、家族NG、履歴、学習も消えます。バックアップ後に実行してください。</p>
+            <button class="danger block" onclick="resetAll()">初期状態に戻す</button>
+          </div>
+          <div class="card">
+            <h3>GitHub Pagesで使う手順</h3>
+            <ol class="small">
+              <li>このファイル名を <span class="kbd">index.html</span> にする</li>
+              <li>GitHubリポジトリにアップロードする</li>
+              <li>Settings → Pages → Deploy from branch を有効化する</li>
+              <li>発行されたURLをAndroidで開く</li>
+              <li>ブラウザの「ホーム画面に追加」を使うとアプリ風に開けます</li>
+            </ol>
+          </div>
+        </section>
+      `;
+    }
+
+    function openRecipe(id){
+      const r = recipeById(id);
+      if(!r) return;
+      document.getElementById('modalTitle').textContent = r.name;
+      const missing = missingIngredients(r);
+      const used = r.ingredients.filter(x => data.pantry.includes(x));
+      const siteLinks = externalSearchLinks(r.name);
+      document.getElementById('modalBody').innerHTML = `
+        <div class="chips">
+          <span class="tag">${r.category}</span>
+          <span class="tag">${r.time}分</span>
+          <span class="tag">${childLabel(r.childMode)}</span>
+          ${r.spicy ? '<span class="tag hot">辛い</span>' : ''}
+          ${r.teppan ? '<span class="tag good">鉄板</span>' : ''}
+        </div>
+
+        <div class="divider"></div>
+        <h3>材料メモ</h3>
+        <div>${r.ingredients.join('、')}</div>
+        <div style="margin-top:8px"><b>買い足し：</b>${missing.length ? missing.join('、') : 'なし'}</div>
+        ${used.length ? `<div><b>ありモノ：</b>${used.join('、')}</div>` : ''}
+
+        <div class="divider"></div>
+        <h3>作り方メモ</h3>
+        ${r.steps && r.steps.length ? `<ol>${r.steps.map(s=>`<li>${s}</li>`).join('')}</ol>` : '<p class="small">未登録</p>'}
+
+        ${r.memo ? `<div class="divider"></div><h3>家族メモ</h3><p>${escHtml(r.memo).replace(/\n/g,'<br>')}</p>` : ''}
+
+        <div class="divider"></div>
+        <h3>参考URL</h3>
+        ${r.sourceUrl ? `<p><a class="secondary block" href="${escAttr(r.sourceUrl)}" target="_blank" rel="noopener">${r.sourceName || '参考レシピを開く'}</a></p>` : '<p class="small">未登録。外部サイト検索から見つけて、よかったら登録フォームでURLを貼ってください。</p>'}
+
+        <div class="site-links">
+          ${siteLinks}
+        </div>
+
+        <div class="divider"></div>
+        <div class="grid2">
+          <button class="primary" onclick="chooseRecipe('${r.id}'); closeDialog()">これにする</button>
+          <button class="secondary" onclick="toggleTeppan('${r.id}'); openRecipe('${r.id}')">${r.teppan ? '鉄板解除' : '鉄板にする'}</button>
+        </div>
+        ${r.custom ? `<button class="danger block" style="margin-top:8px" onclick="deleteRecipe('${r.id}')">この自作レシピを削除</button>` : ''}
+      `;
+      document.getElementById('recipeDialog').showModal();
+    }
+
+    function externalSearchLinks(name){
+      const q = encodeURIComponent(name);
+      const google = encodeURIComponent(name + ' レシピ');
+      const links = [
+        ['DELISH KITCHENで探す', `https://delishkitchen.tv/search?q=${q}`],
+        ['クラシルで探す', `https://www.kurashiru.com/search?query=${q}`],
+        ['楽天レシピで探す', `https://recipe.rakuten.co.jp/search/${q}/`],
+        ['白ごはん.comを検索', `https://www.google.com/search?q=site%3Asirogohan.com+${google}`]
+      ];
+      return links.map(([label,url]) => `<a class="secondary" href="${url}" target="_blank" rel="noopener">${label}</a>`).join('');
+    }
+
+    function closeDialog(){
+      document.getElementById('recipeDialog').close();
+    }
+
+    function toggleTeppan(id){
+      const r = recipeById(id);
+      if(!r) return;
+      r.teppan = !r.teppan;
+      saveData();
+      render();
+    }
+
+    function deleteRecipe(id){
+      const r = recipeById(id);
+      if(!r || !r.custom) return;
+      if(!confirm(`${r.name}を削除しますか？`)) return;
+      data.recipes = data.recipes.filter(x => x.id !== id);
+      saveData();
+      closeDialog();
+      render();
+    }
+
+    function addCustomPantry(){
+      const input = document.getElementById('customPantryInput');
+      const val = input.value.trim();
+      if(!val) return;
+      if(!data.pantry.includes(val)) data.pantry.push(val);
+      input.value = '';
+      saveData();
+      render();
+    }
+    function addCustomBargain(){
+      const input = document.getElementById('customBargainInput');
+      const val = input.value.trim();
+      if(!val) return;
+      if(!data.bargain.includes(val)) data.bargain.push(val);
+      input.value = '';
+      saveData();
+      render();
+    }
+    function clearPantry(){
+      data.pantry = [];
+      saveData();
+      render();
+    }
+
+    function addManualShopping(){
+      const input = document.getElementById('manualShoppingInput');
+      const val = input.value.trim();
+      if(!val) return;
+      data.shoppingList.push({name:val, recipeId:null, recipeName:'手動', createdAt:new Date().toISOString()});
+      input.value = '';
+      saveData();
+      render();
+    }
+
+    function clearShoppingList(){
+      if(!confirm('買い物リストを消しますか？')) return;
+      data.shoppingList = [];
+      data.shoppingDone = {};
+      saveData();
+      render();
+    }
+
+    async function copyShoppingList(){
+      const text = data.shoppingList.map(x => `□ ${x.name}`).join('\n');
+      try{
+        await navigator.clipboard.writeText(text);
+        alert('コピーしました');
+      }catch(e){
+        alert(text);
+      }
+    }
+
+    function exportJson(){
+      const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `menu-selector-backup-${todayKey()}.json`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }
+
+    function importJson(e){
+      const file = e.target.files[0];
+      if(!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try{
+          const imported = JSON.parse(reader.result);
+          if(!imported.recipes || !Array.isArray(imported.recipes)) throw new Error('recipesがありません');
+          data = imported;
+          saveData();
+          state.currentCandidates = [];
+          alert('読み込みました');
+          render();
+        }catch(err){
+          alert('読み込みに失敗しました: ' + err.message);
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function resetAll(){
+      if(!confirm('全データを初期状態に戻しますか？')) return;
+      data = defaultData();
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      state.currentCandidates = [];
+      state.excludedToday = new Set();
+      state.filtersToday = {};
+      render();
+    }
+
+    function removeHistory(at){
+      data.history = data.history.filter(h => h.at !== at);
+      saveData();
+      render();
+    }
+
+    function recipeById(id){ return data.recipes.find(r => r.id === id); }
+    function lastCookedDate(id){
+      const h = data.history.find(x => x.recipeId === id);
+      return h ? h.date : null;
+    }
+    function daysSince(dateStr){
+      const then = new Date(dateStr + 'T00:00:00');
+      const now = new Date(todayKey() + 'T00:00:00');
+      return Math.floor((now - then) / 86400000);
+    }
+    function toggleArrayItem(arr, item){
+      const i = arr.indexOf(item);
+      if(i >= 0) arr.splice(i,1);
+      else arr.push(item);
+    }
+    function parseList(v){
+      return String(v || '').split(/[,\n、]/).map(x=>x.trim()).filter(Boolean);
+    }
+    function parseLines(v){
+      return String(v || '').split(/\n/).map(x=>x.replace(/^\s*\d+[.)、．]?\s*/,'').trim()).filter(Boolean);
+    }
+    function allTerms(vals){
+      return vals.flatMap(v => parseList(v)).filter(Boolean);
+    }
+    function recipeContains(r, term){
+      if(!term) return false;
+      const hay = [r.name, r.category, r.mainType, ...r.ingredients, ...r.tags].join(' ');
+      return hay.includes(term);
+    }
+    function childLabel(mode){
+      return mode === 'ok' ? '子供OK' : mode === 'adapt' ? '子供アレンジ可' : '子供別メニュー前提';
+    }
+    function esc(s){
+      return String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/\n/g,' ');
+    }
+    function escHtml(s){
+      return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+    function escAttr(s){ return escHtml(s).replace(/`/g,'&#96;'); }
+
+    render();
+  </script>
+</body>
+</html>
