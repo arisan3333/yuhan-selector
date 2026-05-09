@@ -62,6 +62,7 @@
       display:flex;flex-direction:column;align-items:center;gap:2px;
     }
     .tab span:first-child{font-size:18px}
+    .tab span:last-child{font-size:11px}
     .tab.active{background:#fff0dc;color:#9a4c12;font-weight:700}
     .section{margin:12px 0}
     .card{
@@ -138,6 +139,11 @@
     .warn{background:#fff0ed;border:1px solid #ffd1c9;color:#87352d;border-radius:14px;padding:10px 12px;font-size:13px}
     .list{display:grid;gap:8px}
     .recipe-line{display:flex;gap:8px;align-items:flex-start;justify-content:space-between;border:1px solid var(--line);border-radius:15px;padding:10px;background:#fff}
+    .recipe-line.teppan{background:linear-gradient(90deg,#fff2d8 0%,#fffdf8 78%);border-color:#f0bd7a;box-shadow:0 5px 18px rgba(208,121,28,.13)}
+    .recipe-line.teppan .name::before{content:'⭐ ';}
+    .recipe-line.idea{background:#fffdf9;border-style:dashed;opacity:.92}
+    .idea-notice{background:#f6f0e9;border:1px dashed #d9c8b8;color:#66584c;border-radius:14px;padding:10px 12px;font-size:13px}
+    .form-note{font-size:12px;color:var(--muted);margin-top:5px}
     .recipe-line .name{font-weight:800}
     .recipe-line .meta{font-size:12px;color:var(--muted)}
     .mini-btn{border:1px solid var(--line);background:#fff7ed;color:#75502c;border-radius:999px;padding:7px 9px;font-size:12px;font-weight:700;white-space:nowrap}
@@ -160,6 +166,38 @@
     .kbd{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;background:#f4eee8;border:1px solid #e3d5c7;border-radius:6px;padding:1px 5px}
     .site-links{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
     @media(max-width:430px){.site-links{grid-template-columns:1fr}}
+    .calendar-head{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:10px}
+    .calendar-head div{text-align:center;font-size:11px;color:var(--muted);font-weight:800}
+    .calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:4px}
+    .calendar-day{min-height:70px;border:1px solid var(--line);border-radius:12px;background:#fff;padding:5px;overflow:hidden}
+    .calendar-day.empty-day{background:rgba(255,255,255,.35);border-style:dashed}
+    .calendar-day.today{border-color:#f0a45d;box-shadow:inset 0 0 0 1px #f0a45d;background:#fff8ed}
+    .calendar-num{font-size:12px;font-weight:800;color:#5d4a3a;margin-bottom:3px}
+    .calendar-dish{display:block;font-size:10px;line-height:1.25;color:#5d4a3a;background:#fff1dd;border-radius:7px;padding:2px 4px;margin:2px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .history-card{display:grid;grid-template-columns:86px 1fr;gap:10px;align-items:start;border:1px solid var(--line);border-radius:15px;background:#fff;padding:10px}
+    .history-photo{width:86px;height:86px;border-radius:13px;border:1px solid var(--line);background:#fff8ef;object-fit:cover;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:12px;text-align:center;overflow:hidden}
+    .history-photo img{width:100%;height:100%;object-fit:cover;display:block}
+    @media(max-width:420px){.calendar-day{min-height:62px;padding:4px}.calendar-dish{font-size:9px}.history-card{grid-template-columns:74px 1fr}.history-photo{width:74px;height:74px}}
+
+    /* 分析パネル */
+    .cov-group{margin-bottom:14px}
+    .cov-group-title{font-weight:bold;font-size:13px;color:var(--muted);margin-bottom:6px}
+    .cov-cells{display:flex;flex-wrap:wrap;gap:6px}
+    .cov-cell{border:1px solid var(--line);background:#fff;border-radius:18px;padding:5px 10px;font-size:12px;display:inline-flex;align-items:center;gap:6px;cursor:pointer;color:var(--ink)}
+    .cov-cell span{background:rgba(0,0,0,.06);border-radius:10px;padding:1px 7px;font-size:11px;font-weight:bold}
+    .cov-cell.cov-zero{background:#fdecea;border-color:#f5b5ad;color:#b03224}
+    .cov-cell.cov-zero span{background:#b03224;color:#fff}
+    .cov-cell.cov-low{background:#fff4e0;border-color:#f0c98a}
+    .cov-cell.cov-low span{background:#d9892a;color:#fff}
+    .cov-cell.cov-mid{background:#fffae8;border-color:#e9d27a}
+    .cov-cell.cov-high{background:#eaf5e7;border-color:#a7c89c}
+    .cov-cell.cov-high span{background:#558a47;color:#fff}
+    .taste-row{display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px solid var(--line);font-size:14px}
+    .taste-row:last-child{border-bottom:none}
+    .taste-kind{font-size:10px;background:rgba(0,0,0,.05);padding:2px 6px;border-radius:8px;color:var(--muted)}
+    .gap-idea{padding:10px;border:1px solid var(--line);border-radius:12px;margin-bottom:8px;background:#fff}
+    .gap-idea .secondary,.gap-idea .ghost{font-size:12px;padding:4px 10px}
+
   </style>
 </head>
 <body>
@@ -168,7 +206,7 @@
       <div class="title">
         <div>
           <h1>今日なに食べる？</h1>
-          <div class="sub">ありモノ・旬・家族NGから夕飯候補を3つに絞る</div>
+          <div class="sub">あるもの・旬・家族NGから夕飯候補を3つに絞る <span style="font-size:11px;color:#9a8068">v20260509-analysis</span></div>
         </div>
         <span class="pill" id="recipeCountPill">🍳 100件</span>
       </div>
@@ -3797,7 +3835,7 @@
   {
     "id": "r094",
     "name": "スパイスカレー",
-    "category": "辛い・大人向け",
+    "category": "カレー・シチュー",
     "mainType": "辛い",
     "ingredients": [
       "カレー粉",
@@ -3840,7 +3878,7 @@
   {
     "id": "r095",
     "name": "キーマカレー",
-    "category": "辛い・大人向け",
+    "category": "カレー・シチュー",
     "mainType": "辛い",
     "ingredients": [
       "合いびき肉",
@@ -3883,7 +3921,7 @@
   {
     "id": "r096",
     "name": "ビビンバ",
-    "category": "辛い・大人向け",
+    "category": "丼・ご飯",
     "mainType": "辛い",
     "ingredients": [
       "ご飯",
@@ -3927,7 +3965,7 @@
   {
     "id": "r097",
     "name": "ヤンニョムチキン風",
-    "category": "辛い・大人向け",
+    "category": "焼き物",
     "mainType": "辛い",
     "ingredients": [
       "鶏もも",
@@ -3964,7 +4002,7 @@
   {
     "id": "r098",
     "name": "チリコンカン風",
-    "category": "辛い・大人向け",
+    "category": "煮物",
     "mainType": "辛い",
     "ingredients": [
       "合いびき肉",
@@ -4003,7 +4041,7 @@
   {
     "id": "r099",
     "name": "サルサチキン",
-    "category": "辛い・大人向け",
+    "category": "焼き物",
     "mainType": "辛い",
     "ingredients": [
       "鶏むね",
@@ -4045,7 +4083,7 @@
   {
     "id": "r100",
     "name": "ピリ辛担々春雨",
-    "category": "辛い・大人向け",
+    "category": "麺",
     "mainType": "辛い",
     "ingredients": [
       "春雨",
@@ -4086,6 +4124,3761 @@
 
   <script>
     const INITIAL_RECIPES = JSON.parse(document.getElementById('initial-recipes').textContent);
+const CURATED_URL_RECIPES = [
+  {
+    "id": "url001",
+    "name": "鶏肉の回鍋肉",
+    "category": "炒め物",
+    "mainType": "",
+    "ingredients": [
+      "鶏肉",
+      "キャベツ",
+      "ピーマン",
+      "味噌",
+      "豆板醤"
+    ],
+    "required": [
+      "鶏肉",
+      "キャベツ",
+      "ピーマン",
+      "味噌",
+      "豆板醤"
+    ],
+    "optional": [],
+    "tags": [
+      "辛い",
+      "野菜消費",
+      "参考URLあり"
+    ],
+    "time": 15,
+    "difficulty": "かんたん",
+    "childMode": "separate",
+    "spicy": true,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://delishkitchen.tv/recipes/178594448672817574",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url002",
+    "name": "鶏もも肉とオイスターソースで肉野菜炒め",
+    "category": "炒め物",
+    "mainType": "",
+    "ingredients": [
+      "鶏もも",
+      "キャベツ",
+      "にんじん",
+      "ピーマン",
+      "オイスターソース"
+    ],
+    "required": [
+      "鶏もも",
+      "キャベツ",
+      "にんじん",
+      "ピーマン",
+      "オイスターソース"
+    ],
+    "optional": [],
+    "tags": [
+      "野菜消費",
+      "参考URLあり"
+    ],
+    "time": 20,
+    "difficulty": "かんたん",
+    "childMode": "unknown",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://www.kurashiru.com/recipes/ec853624-8702-4e9a-b314-ca76fbde809a",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url003",
+    "name": "鶏むね肉と夏野菜の酢豚風",
+    "category": "炒め物",
+    "mainType": "",
+    "ingredients": [
+      "鶏むね",
+      "なす",
+      "ピーマン",
+      "玉ねぎ",
+      "酢"
+    ],
+    "required": [
+      "鶏むね",
+      "なす",
+      "ピーマン",
+      "玉ねぎ",
+      "酢"
+    ],
+    "optional": [],
+    "tags": [
+      "野菜消費",
+      "参考URLあり"
+    ],
+    "time": 30,
+    "difficulty": "普通",
+    "childMode": "unknown",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://delishkitchen.tv/recipes/148173434692567529",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url004",
+    "name": "鶏もも肉の甘酢丼",
+    "category": "丼・ご飯",
+    "mainType": "",
+    "ingredients": [
+      "鶏もも",
+      "ご飯",
+      "キャベツ",
+      "卵"
+    ],
+    "required": [
+      "鶏もも",
+      "ご飯",
+      "キャベツ",
+      "卵"
+    ],
+    "optional": [],
+    "tags": [
+      "子供OK",
+      "参考URLあり"
+    ],
+    "time": 25,
+    "difficulty": "普通",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://www.kurashiru.com/recipes/81cc6d66-8e41-44e0-9a48-ef25526dd2ac",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url005",
+    "name": "カラフル野菜のチキンソテー",
+    "category": "焼き物",
+    "mainType": "",
+    "ingredients": [
+      "鶏もも",
+      "トマト",
+      "きゅうり",
+      "玉ねぎ"
+    ],
+    "required": [
+      "鶏もも",
+      "トマト",
+      "きゅうり",
+      "玉ねぎ"
+    ],
+    "optional": [],
+    "tags": [
+      "野菜消費",
+      "参考URLあり"
+    ],
+    "time": 30,
+    "difficulty": "普通",
+    "childMode": "unknown",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://delishkitchen.tv/recipes/140214173819732467",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url006",
+    "name": "鶏むね肉と夏野菜のオイスターソース炒め",
+    "category": "炒め物",
+    "mainType": "",
+    "ingredients": [
+      "鶏むね",
+      "ズッキーニ",
+      "なす",
+      "パプリカ",
+      "オイスターソース"
+    ],
+    "required": [
+      "鶏むね",
+      "ズッキーニ",
+      "なす",
+      "パプリカ",
+      "オイスターソース"
+    ],
+    "optional": [],
+    "tags": [
+      "野菜消費",
+      "参考URLあり"
+    ],
+    "time": 25,
+    "difficulty": "普通",
+    "childMode": "unknown",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://www.kurashiru.com/recipes/2ecf1102-d9a3-4ac2-84a2-325e893be8de",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url007",
+    "name": "鶏と野菜の黒酢あん",
+    "category": "炒め物",
+    "mainType": "",
+    "ingredients": [
+      "鶏もも",
+      "じゃがいも",
+      "れんこん",
+      "にんじん",
+      "なす",
+      "玉ねぎ"
+    ],
+    "required": [
+      "鶏もも",
+      "じゃがいも",
+      "れんこん",
+      "にんじん",
+      "なす",
+      "玉ねぎ"
+    ],
+    "optional": [],
+    "tags": [
+      "野菜消費",
+      "参考URLあり"
+    ],
+    "time": 30,
+    "difficulty": "普通",
+    "childMode": "unknown",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://delishkitchen.tv/recipes/177048180737705087",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url008",
+    "name": "ガリポンチキン",
+    "category": "焼き物",
+    "mainType": "",
+    "ingredients": [
+      "鶏もも",
+      "なす",
+      "ピーマン",
+      "ポン酢",
+      "にんにく"
+    ],
+    "required": [
+      "鶏もも",
+      "なす",
+      "ピーマン",
+      "ポン酢",
+      "にんにく"
+    ],
+    "optional": [],
+    "tags": [
+      "疲れている日",
+      "参考URLあり"
+    ],
+    "time": 20,
+    "difficulty": "かんたん",
+    "childMode": "unknown",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://www.kurashiru.com/recipes/4212db0c-3e4c-4453-8ed1-2bf004b8ce07",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url009",
+    "name": "チキンとキャベツのガーリック炒め",
+    "category": "炒め物",
+    "mainType": "",
+    "ingredients": [
+      "鶏もも",
+      "キャベツ",
+      "にんにく"
+    ],
+    "required": [
+      "鶏もも",
+      "キャベツ",
+      "にんにく"
+    ],
+    "optional": [],
+    "tags": [
+      "疲れている日",
+      "参考URLあり"
+    ],
+    "time": 15,
+    "difficulty": "かんたん",
+    "childMode": "unknown",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://www.kurashiru.com/recipes/3b9cf86a-f3ba-4529-a3cf-67d67a20d31b",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url010",
+    "name": "鶏むね肉キャベツポン酢炒め",
+    "category": "炒め物",
+    "mainType": "",
+    "ingredients": [
+      "鶏むね",
+      "キャベツ",
+      "ポン酢"
+    ],
+    "required": [
+      "鶏むね",
+      "キャベツ",
+      "ポン酢"
+    ],
+    "optional": [],
+    "tags": [
+      "疲れている日",
+      "参考URLあり"
+    ],
+    "time": 15,
+    "difficulty": "かんたん",
+    "childMode": "unknown",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://delishkitchen.tv/recipes/149658203695612323",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url011",
+    "name": "ごぼうの甘辛炒め",
+    "category": "副菜",
+    "mainType": "",
+    "ingredients": [
+      "ごぼう",
+      "片栗粉",
+      "醤油",
+      "みりん"
+    ],
+    "required": [
+      "ごぼう",
+      "片栗粉",
+      "醤油",
+      "みりん"
+    ],
+    "optional": [],
+    "tags": [
+      "買い物少なめ",
+      "参考URLあり"
+    ],
+    "time": 15,
+    "difficulty": "かんたん",
+    "childMode": "unknown",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://delishkitchen.tv/recipes/389962718083286122",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url012",
+    "name": "ごぼうの甘酢炒め",
+    "category": "副菜",
+    "mainType": "",
+    "ingredients": [
+      "ごぼう",
+      "酢",
+      "醤油",
+      "みりん",
+      "鷹の爪"
+    ],
+    "required": [
+      "ごぼう",
+      "酢",
+      "醤油",
+      "みりん",
+      "鷹の爪"
+    ],
+    "optional": [],
+    "tags": [
+      "辛い",
+      "買い物少なめ",
+      "参考URLあり"
+    ],
+    "time": 15,
+    "difficulty": "かんたん",
+    "childMode": "separate",
+    "spicy": true,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://www.kurashiru.com/recipes/15e35bd7-7204-4421-988c-930d4f7dc805",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url013",
+    "name": "肉味噌ごぼう",
+    "category": "炒め物",
+    "mainType": "",
+    "ingredients": [
+      "ごぼう",
+      "豚ひき肉",
+      "味噌"
+    ],
+    "required": [
+      "ごぼう",
+      "豚ひき肉",
+      "味噌"
+    ],
+    "optional": [],
+    "tags": [
+      "買い物少なめ",
+      "参考URLあり"
+    ],
+    "time": 20,
+    "difficulty": "かんたん",
+    "childMode": "unknown",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://delishkitchen.tv/recipes/153566520000119053",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url014",
+    "name": "基本の鶏ごぼう",
+    "category": "煮物",
+    "mainType": "",
+    "ingredients": [
+      "鶏もも",
+      "ごぼう",
+      "こんにゃく",
+      "しょうが"
+    ],
+    "required": [
+      "鶏もも",
+      "ごぼう",
+      "こんにゃく",
+      "しょうが"
+    ],
+    "optional": [],
+    "tags": [
+      "子供OK",
+      "参考URLあり"
+    ],
+    "time": 30,
+    "difficulty": "普通",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://delishkitchen.tv/recipes/201083436671173713",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url015",
+    "name": "きんぴらごぼう",
+    "category": "副菜",
+    "mainType": "",
+    "ingredients": [
+      "ごぼう",
+      "にんじん",
+      "醤油",
+      "みりん"
+    ],
+    "required": [
+      "ごぼう",
+      "にんじん",
+      "醤油",
+      "みりん"
+    ],
+    "optional": [],
+    "tags": [
+      "買い物少なめ",
+      "参考URLあり"
+    ],
+    "time": 15,
+    "difficulty": "かんたん",
+    "childMode": "unknown",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://www.kurashiru.com/recipes/28d7d286-bca7-4aac-bcf7-abb3d74a45c1",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url016",
+    "name": "ごぼうの甘辛揚げ",
+    "category": "副菜",
+    "mainType": "",
+    "ingredients": [
+      "ごぼう",
+      "醤油",
+      "みりん",
+      "ごま"
+    ],
+    "required": [
+      "ごぼう",
+      "醤油",
+      "みりん",
+      "ごま"
+    ],
+    "optional": [],
+    "tags": [
+      "買い物少なめ",
+      "参考URLあり"
+    ],
+    "time": 20,
+    "difficulty": "かんたん",
+    "childMode": "unknown",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://www.kurashiru.com/recipes/e5a575ee-7e20-4b23-880d-7573f535f2c4",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url017",
+    "name": "ごぼうのツナマヨ炒め",
+    "category": "副菜",
+    "mainType": "",
+    "ingredients": [
+      "ごぼう",
+      "にんじん",
+      "ツナ缶",
+      "マヨネーズ"
+    ],
+    "required": [
+      "ごぼう",
+      "にんじん",
+      "ツナ缶",
+      "マヨネーズ"
+    ],
+    "optional": [],
+    "tags": [
+      "買い物少なめ",
+      "参考URLあり"
+    ],
+    "time": 15,
+    "difficulty": "かんたん",
+    "childMode": "unknown",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://delishkitchen.tv/recipes/158901890543780332",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url018",
+    "name": "鯛とごぼうの炊き合わせ",
+    "category": "魚",
+    "mainType": "",
+    "ingredients": [
+      "鯛",
+      "ごぼう",
+      "しょうが"
+    ],
+    "required": [
+      "鯛",
+      "ごぼう",
+      "しょうが"
+    ],
+    "optional": [],
+    "tags": [
+      "魚メイン",
+      "参考URLあり"
+    ],
+    "time": 30,
+    "difficulty": "普通",
+    "childMode": "unknown",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://www.kurashiru.com/recipes/135209ab-b800-4b93-90ed-446e7d17ec6b",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url019",
+    "name": "カリカリ甘辛れんこん",
+    "category": "副菜",
+    "mainType": "",
+    "ingredients": [
+      "れんこん",
+      "醤油",
+      "みりん"
+    ],
+    "required": [
+      "れんこん",
+      "醤油",
+      "みりん"
+    ],
+    "optional": [],
+    "tags": [
+      "買い物少なめ",
+      "参考URLあり"
+    ],
+    "time": 15,
+    "difficulty": "かんたん",
+    "childMode": "unknown",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://delishkitchen.tv/recipes/207614726748766566",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url020",
+    "name": "コロコロ甘辛れんこん",
+    "category": "副菜",
+    "mainType": "",
+    "ingredients": [
+      "れんこん",
+      "醤油",
+      "みりん"
+    ],
+    "required": [
+      "れんこん",
+      "醤油",
+      "みりん"
+    ],
+    "optional": [],
+    "tags": [
+      "買い物少なめ",
+      "参考URLあり"
+    ],
+    "time": 15,
+    "difficulty": "かんたん",
+    "childMode": "unknown",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://delishkitchen.tv/recipes/528265701702500775",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url021",
+    "name": "れんこんの塩昆布炒め",
+    "category": "副菜",
+    "mainType": "",
+    "ingredients": [
+      "れんこん",
+      "塩昆布",
+      "ごま油"
+    ],
+    "required": [
+      "れんこん",
+      "塩昆布",
+      "ごま油"
+    ],
+    "optional": [],
+    "tags": [
+      "買い物少なめ",
+      "参考URLあり"
+    ],
+    "time": 10,
+    "difficulty": "かんたん",
+    "childMode": "unknown",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://delishkitchen.tv/recipes/211095001243844911",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url022",
+    "name": "れんこんのおかかポン酢炒め",
+    "category": "副菜",
+    "mainType": "",
+    "ingredients": [
+      "れんこん",
+      "大葉",
+      "ポン酢",
+      "かつお節"
+    ],
+    "required": [
+      "れんこん",
+      "大葉",
+      "ポン酢",
+      "かつお節"
+    ],
+    "optional": [],
+    "tags": [
+      "軽め",
+      "参考URLあり"
+    ],
+    "time": 10,
+    "difficulty": "かんたん",
+    "childMode": "unknown",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://delishkitchen.tv/recipes/157882193367007635",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url023",
+    "name": "鶏もも肉と大根の照り煮",
+    "category": "煮物",
+    "mainType": "",
+    "ingredients": [
+      "鶏もも",
+      "大根",
+      "しょうが"
+    ],
+    "required": [
+      "鶏もも",
+      "大根",
+      "しょうが"
+    ],
+    "optional": [],
+    "tags": [
+      "子供OK",
+      "参考URLあり"
+    ],
+    "time": 30,
+    "difficulty": "普通",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://delishkitchen.tv/recipes/256741660581429733",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url024",
+    "name": "鶏むね肉のみぞれ煮",
+    "category": "煮物",
+    "mainType": "",
+    "ingredients": [
+      "鶏むね",
+      "大根",
+      "めんつゆ",
+      "しょうが"
+    ],
+    "required": [
+      "鶏むね",
+      "大根",
+      "めんつゆ",
+      "しょうが"
+    ],
+    "optional": [],
+    "tags": [
+      "軽め",
+      "参考URLあり"
+    ],
+    "time": 20,
+    "difficulty": "かんたん",
+    "childMode": "unknown",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://delishkitchen.tv/recipes/123239335653802431",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url025",
+    "name": "鶏だんごと大根の煮物",
+    "category": "煮物",
+    "mainType": "",
+    "ingredients": [
+      "鶏ひき肉",
+      "大根",
+      "ねぎ"
+    ],
+    "required": [
+      "鶏ひき肉",
+      "大根",
+      "ねぎ"
+    ],
+    "optional": [],
+    "tags": [
+      "子供OK",
+      "参考URLあり"
+    ],
+    "time": 30,
+    "difficulty": "普通",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://delishkitchen.tv/recipes/293705697852391834",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url026",
+    "name": "鶏と大根の角煮風",
+    "category": "煮物",
+    "mainType": "",
+    "ingredients": [
+      "鶏もも",
+      "大根",
+      "卵",
+      "ポン酢"
+    ],
+    "required": [
+      "鶏もも",
+      "大根",
+      "卵",
+      "ポン酢"
+    ],
+    "optional": [],
+    "tags": [
+      "子供OK",
+      "参考URLあり"
+    ],
+    "time": 30,
+    "difficulty": "普通",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://delishkitchen.tv/recipes/587832215191159937",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url027",
+    "name": "大根ステーキ",
+    "category": "焼き物",
+    "mainType": "",
+    "ingredients": [
+      "大根",
+      "バター",
+      "ポン酢"
+    ],
+    "required": [
+      "大根",
+      "バター",
+      "ポン酢"
+    ],
+    "optional": [],
+    "tags": [
+      "買い物少なめ",
+      "参考URLあり"
+    ],
+    "time": 15,
+    "difficulty": "かんたん",
+    "childMode": "unknown",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://www.mizkan.co.jp/ouchirecipe/recipe/?menu_id=18802",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url028",
+    "name": "豚肉と小松菜の卵炒め",
+    "category": "炒め物",
+    "mainType": "",
+    "ingredients": [
+      "豚こま",
+      "小松菜",
+      "卵"
+    ],
+    "required": [
+      "豚こま",
+      "小松菜",
+      "卵"
+    ],
+    "optional": [],
+    "tags": [
+      "野菜消費",
+      "参考URLあり"
+    ],
+    "time": 15,
+    "difficulty": "かんたん",
+    "childMode": "unknown",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://delishkitchen.tv/recipes/201516027857600934",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url029",
+    "name": "豚バラ肉と小松菜の中華風卵炒め",
+    "category": "炒め物",
+    "mainType": "",
+    "ingredients": [
+      "豚バラ",
+      "小松菜",
+      "卵",
+      "オイスターソース"
+    ],
+    "required": [
+      "豚バラ",
+      "小松菜",
+      "卵",
+      "オイスターソース"
+    ],
+    "optional": [],
+    "tags": [
+      "野菜消費",
+      "参考URLあり"
+    ],
+    "time": 15,
+    "difficulty": "かんたん",
+    "childMode": "unknown",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://www.kurashiru.com/recipes/bb0bd365-3ff8-43a4-820f-1ad5d734f799",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url030",
+    "name": "卵と小松菜の炒めもの",
+    "category": "炒め物",
+    "mainType": "",
+    "ingredients": [
+      "小松菜",
+      "豚バラ",
+      "卵"
+    ],
+    "required": [
+      "小松菜",
+      "豚バラ",
+      "卵"
+    ],
+    "optional": [],
+    "tags": [
+      "野菜消費",
+      "参考URLあり"
+    ],
+    "time": 20,
+    "difficulty": "かんたん",
+    "childMode": "unknown",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://delishkitchen.tv/recipes/169048687211708819",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url031",
+    "name": "小松菜と豚肉の卵炒め",
+    "category": "炒め物",
+    "mainType": "",
+    "ingredients": [
+      "小松菜",
+      "豚もも",
+      "卵"
+    ],
+    "required": [
+      "小松菜",
+      "豚もも",
+      "卵"
+    ],
+    "optional": [],
+    "tags": [
+      "野菜消費",
+      "参考URLあり"
+    ],
+    "time": 15,
+    "difficulty": "かんたん",
+    "childMode": "unknown",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://www.kurashiru.com/recipes/56878d30-8938-48e0-a99c-6bfc02e8f9f1",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url032",
+    "name": "小松菜と豚バラの中華炒め",
+    "category": "炒め物",
+    "mainType": "",
+    "ingredients": [
+      "豚バラ",
+      "卵",
+      "小松菜",
+      "オイスターソース"
+    ],
+    "required": [
+      "豚バラ",
+      "卵",
+      "小松菜",
+      "オイスターソース"
+    ],
+    "optional": [],
+    "tags": [
+      "野菜消費",
+      "参考URLあり"
+    ],
+    "time": 15,
+    "difficulty": "かんたん",
+    "childMode": "unknown",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://delishkitchen.tv/recipes/223389866866508054",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url033",
+    "name": "豚ひき肉と小松菜の卵炒め",
+    "category": "炒め物",
+    "mainType": "",
+    "ingredients": [
+      "豚ひき肉",
+      "小松菜",
+      "卵"
+    ],
+    "required": [
+      "豚ひき肉",
+      "小松菜",
+      "卵"
+    ],
+    "optional": [],
+    "tags": [
+      "野菜消費",
+      "参考URLあり"
+    ],
+    "time": 15,
+    "difficulty": "かんたん",
+    "childMode": "unknown",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://www.kurashiru.com/recipes/b91a5814-aff1-44db-badd-434582de97a0",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url034",
+    "name": "小松菜と豚肉のあんかけごはん",
+    "category": "丼・ご飯",
+    "mainType": "",
+    "ingredients": [
+      "豚肉",
+      "小松菜",
+      "卵",
+      "ご飯",
+      "にんじん"
+    ],
+    "required": [
+      "豚肉",
+      "小松菜",
+      "卵",
+      "ご飯",
+      "にんじん"
+    ],
+    "optional": [],
+    "tags": [
+      "野菜消費",
+      "参考URLあり"
+    ],
+    "time": 25,
+    "difficulty": "普通",
+    "childMode": "unknown",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://delishkitchen.tv/recipes/139644506050920867",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url035",
+    "name": "豚肉となすの照り炒め",
+    "category": "炒め物",
+    "mainType": "",
+    "ingredients": [
+      "豚こま",
+      "なす",
+      "ポン酢"
+    ],
+    "required": [
+      "豚こま",
+      "なす",
+      "ポン酢"
+    ],
+    "optional": [],
+    "tags": [
+      "野菜消費",
+      "参考URLあり"
+    ],
+    "time": 15,
+    "difficulty": "かんたん",
+    "childMode": "unknown",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://delishkitchen.tv/recipes/314018940663628189",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url036",
+    "name": "ナスと豚バラ肉のバタポン炒め",
+    "category": "炒め物",
+    "mainType": "",
+    "ingredients": [
+      "豚バラ",
+      "なす",
+      "ポン酢",
+      "バター",
+      "大葉"
+    ],
+    "required": [
+      "豚バラ",
+      "なす",
+      "ポン酢",
+      "バター",
+      "大葉"
+    ],
+    "optional": [],
+    "tags": [
+      "疲れている日",
+      "参考URLあり"
+    ],
+    "time": 15,
+    "difficulty": "かんたん",
+    "childMode": "unknown",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://www.kurashiru.com/recipes/227a452f-46d9-4c2c-a3e1-2685dd74b11a",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url037",
+    "name": "ナスと豚バラのみそ炒め煮",
+    "category": "炒め物",
+    "mainType": "",
+    "ingredients": [
+      "豚バラ",
+      "なす",
+      "パプリカ",
+      "味噌"
+    ],
+    "required": [
+      "豚バラ",
+      "なす",
+      "パプリカ",
+      "味噌"
+    ],
+    "optional": [],
+    "tags": [
+      "野菜消費",
+      "参考URLあり"
+    ],
+    "time": 20,
+    "difficulty": "かんたん",
+    "childMode": "unknown",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://delishkitchen.tv/recipes/213866414270841965",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url038",
+    "name": "豚ロースとナスのオイスター炒め",
+    "category": "炒め物",
+    "mainType": "",
+    "ingredients": [
+      "豚ロース",
+      "なす",
+      "オイスターソース"
+    ],
+    "required": [
+      "豚ロース",
+      "なす",
+      "オイスターソース"
+    ],
+    "optional": [],
+    "tags": [
+      "野菜消費",
+      "参考URLあり"
+    ],
+    "time": 20,
+    "difficulty": "かんたん",
+    "childMode": "unknown",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://www.kurashiru.com/recipes/b93b6575-d194-465f-8020-01cfc99d9367",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url039",
+    "name": "豚となすのなべしぎ",
+    "category": "炒め物",
+    "mainType": "",
+    "ingredients": [
+      "豚切り落とし",
+      "なす",
+      "ピーマン",
+      "玉ねぎ",
+      "味噌"
+    ],
+    "required": [
+      "豚切り落とし",
+      "なす",
+      "ピーマン",
+      "玉ねぎ",
+      "味噌"
+    ],
+    "optional": [],
+    "tags": [
+      "野菜消費",
+      "参考URLあり"
+    ],
+    "time": 20,
+    "difficulty": "かんたん",
+    "childMode": "unknown",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://delishkitchen.tv/recipes/387640760079483208",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url040",
+    "name": "なすと豚肉の和風びたし",
+    "category": "炒め物",
+    "mainType": "",
+    "ingredients": [
+      "豚こま",
+      "なす",
+      "新玉ねぎ",
+      "にんにく"
+    ],
+    "required": [
+      "豚こま",
+      "なす",
+      "新玉ねぎ",
+      "にんにく"
+    ],
+    "optional": [],
+    "tags": [
+      "軽め",
+      "参考URLあり"
+    ],
+    "time": 20,
+    "difficulty": "かんたん",
+    "childMode": "unknown",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://www.kurashiru.com/recipes/c0f41fbb-c1c4-4dcd-9c3c-55c0a3686ca5",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url041",
+    "name": "豚肉とピーマンの細切り炒め",
+    "category": "炒め物",
+    "mainType": "",
+    "ingredients": [
+      "豚肉",
+      "ピーマン",
+      "オイスターソース"
+    ],
+    "required": [
+      "豚肉",
+      "ピーマン",
+      "オイスターソース"
+    ],
+    "optional": [],
+    "tags": [
+      "野菜消費",
+      "参考URLあり"
+    ],
+    "time": 15,
+    "difficulty": "かんたん",
+    "childMode": "unknown",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://delishkitchen.tv/recipes/184135195744534886",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url042",
+    "name": "豚肉とピーマンの甘辛炒め",
+    "category": "炒め物",
+    "mainType": "",
+    "ingredients": [
+      "豚こま",
+      "ピーマン",
+      "醤油"
+    ],
+    "required": [
+      "豚こま",
+      "ピーマン",
+      "醤油"
+    ],
+    "optional": [],
+    "tags": [
+      "買い物少なめ",
+      "参考URLあり"
+    ],
+    "time": 15,
+    "difficulty": "かんたん",
+    "childMode": "unknown",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://delishkitchen.tv/recipes/371017975030874404",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url043",
+    "name": "無限ピーマン",
+    "category": "副菜",
+    "mainType": "",
+    "ingredients": [
+      "ピーマン",
+      "ツナ缶",
+      "ごま油"
+    ],
+    "required": [
+      "ピーマン",
+      "ツナ缶",
+      "ごま油"
+    ],
+    "optional": [],
+    "tags": [
+      "買い物少なめ",
+      "参考URLあり"
+    ],
+    "time": 5,
+    "difficulty": "かんたん",
+    "childMode": "unknown",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://park.ajinomoto.co.jp/recipe/card/800270/",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url044",
+    "name": "豚こまとピーマンの味噌炒め",
+    "category": "炒め物",
+    "mainType": "",
+    "ingredients": [
+      "豚こま",
+      "ピーマン",
+      "玉ねぎ",
+      "味噌"
+    ],
+    "required": [
+      "豚こま",
+      "ピーマン",
+      "玉ねぎ",
+      "味噌"
+    ],
+    "optional": [],
+    "tags": [
+      "野菜消費",
+      "参考URLあり"
+    ],
+    "time": 15,
+    "difficulty": "かんたん",
+    "childMode": "unknown",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://delishkitchen.tv/recipes/371448822947119396",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url045",
+    "name": "豚バラ肉と玉ねぎのオイスター炒め",
+    "category": "炒め物",
+    "mainType": "",
+    "ingredients": [
+      "豚バラ",
+      "玉ねぎ",
+      "ピーマン",
+      "オイスターソース"
+    ],
+    "required": [
+      "豚バラ",
+      "玉ねぎ",
+      "ピーマン",
+      "オイスターソース"
+    ],
+    "optional": [],
+    "tags": [
+      "疲れている日",
+      "参考URLあり"
+    ],
+    "time": 15,
+    "difficulty": "かんたん",
+    "childMode": "unknown",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://delishkitchen.tv/recipes/257224730266829285",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url046",
+    "name": "豚とキャベツのみそ炒め",
+    "category": "炒め物",
+    "mainType": "",
+    "ingredients": [
+      "豚肉",
+      "キャベツ",
+      "にんにく",
+      "味噌"
+    ],
+    "required": [
+      "豚肉",
+      "キャベツ",
+      "にんにく",
+      "味噌"
+    ],
+    "optional": [],
+    "tags": [
+      "野菜消費",
+      "参考URLあり"
+    ],
+    "time": 15,
+    "difficulty": "かんたん",
+    "childMode": "unknown",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://delishkitchen.tv/recipes/204011258012239082",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url047",
+    "name": "豚たまキャベツの中華炒め",
+    "category": "炒め物",
+    "mainType": "",
+    "ingredients": [
+      "豚こま",
+      "卵",
+      "キャベツ",
+      "オイスターソース"
+    ],
+    "required": [
+      "豚こま",
+      "卵",
+      "キャベツ",
+      "オイスターソース"
+    ],
+    "optional": [],
+    "tags": [
+      "子供OK",
+      "参考URLあり"
+    ],
+    "time": 10,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://delishkitchen.tv/recipes/516940291400270977",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url048",
+    "name": "キャベツと豚肉のにんにく醤油炒め",
+    "category": "炒め物",
+    "mainType": "",
+    "ingredients": [
+      "豚こま",
+      "キャベツ",
+      "にんにく",
+      "醤油"
+    ],
+    "required": [
+      "豚こま",
+      "キャベツ",
+      "にんにく",
+      "醤油"
+    ],
+    "optional": [],
+    "tags": [
+      "疲れている日",
+      "参考URLあり"
+    ],
+    "time": 10,
+    "difficulty": "かんたん",
+    "childMode": "unknown",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://delishkitchen.tv/recipes/206180664968479078",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url049",
+    "name": "キャベツの豚肉巻きレンジ蒸し",
+    "category": "蒸し物",
+    "mainType": "",
+    "ingredients": [
+      "豚バラ",
+      "キャベツ",
+      "ねぎ",
+      "みょうが"
+    ],
+    "required": [
+      "豚バラ",
+      "キャベツ",
+      "ねぎ",
+      "みょうが"
+    ],
+    "optional": [],
+    "tags": [
+      "野菜消費",
+      "参考URLあり"
+    ],
+    "time": 20,
+    "difficulty": "かんたん",
+    "childMode": "unknown",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://www.kurashiru.com/recipes/2b8361c9-6c90-4c0c-8948-89a611e01d96",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url050",
+    "name": "豚肉とキャベツの甘辛みそ炒め",
+    "category": "炒め物",
+    "mainType": "",
+    "ingredients": [
+      "豚ロース",
+      "キャベツ",
+      "味噌",
+      "豆板醤"
+    ],
+    "required": [
+      "豚ロース",
+      "キャベツ",
+      "味噌",
+      "豆板醤"
+    ],
+    "optional": [],
+    "tags": [
+      "辛い",
+      "野菜消費",
+      "参考URLあり"
+    ],
+    "time": 20,
+    "difficulty": "かんたん",
+    "childMode": "separate",
+    "spicy": true,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://www.kurashiru.com/recipes/cdd9235c-0721-4f51-a610-d044dfa021f6",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url051",
+    "name": "豚バラキャベツのフライパン蒸し",
+    "category": "蒸し物",
+    "mainType": "",
+    "ingredients": [
+      "豚バラ",
+      "キャベツ",
+      "ポン酢"
+    ],
+    "required": [
+      "豚バラ",
+      "キャベツ",
+      "ポン酢"
+    ],
+    "optional": [],
+    "tags": [
+      "疲れている日",
+      "参考URLあり"
+    ],
+    "time": 15,
+    "difficulty": "かんたん",
+    "childMode": "unknown",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://delishkitchen.tv/recipes/289556722517804090",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url052",
+    "name": "豚肉とキャベツのめんつゆ甘辛丼",
+    "category": "丼・ご飯",
+    "mainType": "",
+    "ingredients": [
+      "豚こま",
+      "キャベツ",
+      "ご飯",
+      "めんつゆ"
+    ],
+    "required": [
+      "豚こま",
+      "キャベツ",
+      "ご飯",
+      "めんつゆ"
+    ],
+    "optional": [],
+    "tags": [
+      "疲れている日",
+      "参考URLあり"
+    ],
+    "time": 10,
+    "difficulty": "かんたん",
+    "childMode": "unknown",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://www.kurashiru.com/recipes/80d91c73-e12b-4b14-826a-45ce03de6ebf",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url053",
+    "name": "豚こまともやしの炒め物",
+    "category": "炒め物",
+    "mainType": "",
+    "ingredients": [
+      "豚こま",
+      "もやし",
+      "オイスターソース"
+    ],
+    "required": [
+      "豚こま",
+      "もやし",
+      "オイスターソース"
+    ],
+    "optional": [],
+    "tags": [
+      "買い物少なめ",
+      "参考URLあり"
+    ],
+    "time": 10,
+    "difficulty": "かんたん",
+    "childMode": "unknown",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://delishkitchen.tv/recipes/233678306187149791",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url054",
+    "name": "豚ロースともやしの甘辛炒め",
+    "category": "炒め物",
+    "mainType": "",
+    "ingredients": [
+      "豚ロース",
+      "もやし",
+      "醤油",
+      "みりん"
+    ],
+    "required": [
+      "豚ロース",
+      "もやし",
+      "醤油",
+      "みりん"
+    ],
+    "optional": [],
+    "tags": [
+      "買い物少なめ",
+      "参考URLあり"
+    ],
+    "time": 15,
+    "difficulty": "かんたん",
+    "childMode": "unknown",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://www.kurashiru.com/recipes/a9233e71-c620-443d-957b-d7a542f27526",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url055",
+    "name": "もやしの豚平焼き",
+    "category": "焼き物",
+    "mainType": "",
+    "ingredients": [
+      "豚バラ",
+      "卵",
+      "もやし",
+      "お好み焼きソース"
+    ],
+    "required": [
+      "豚バラ",
+      "卵",
+      "もやし",
+      "お好み焼きソース"
+    ],
+    "optional": [],
+    "tags": [
+      "買い物少なめ",
+      "子供OK",
+      "参考URLあり"
+    ],
+    "time": 15,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://delishkitchen.tv/recipes/207018173759751191",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url056",
+    "name": "もやしと豚肉の中華炒め風",
+    "category": "炒め物",
+    "mainType": "",
+    "ingredients": [
+      "豚バラ",
+      "もやし",
+      "鶏ガラスープ"
+    ],
+    "required": [
+      "豚バラ",
+      "もやし",
+      "鶏ガラスープ"
+    ],
+    "optional": [],
+    "tags": [
+      "疲れている日",
+      "参考URLあり"
+    ],
+    "time": 10,
+    "difficulty": "かんたん",
+    "childMode": "unknown",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://www.kurashiru.com/recipes/cbdddcf7-0f9d-479e-8125-50e6b26aa96e",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url057",
+    "name": "豚バラともやしの塩だれ炒め",
+    "category": "炒め物",
+    "mainType": "",
+    "ingredients": [
+      "豚バラ",
+      "もやし",
+      "レモン汁"
+    ],
+    "required": [
+      "豚バラ",
+      "もやし",
+      "レモン汁"
+    ],
+    "optional": [],
+    "tags": [
+      "疲れている日",
+      "参考URLあり"
+    ],
+    "time": 10,
+    "difficulty": "かんたん",
+    "childMode": "unknown",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://delishkitchen.tv/recipes/206286512961094679",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url058",
+    "name": "豚もやしニラ炒め",
+    "category": "炒め物",
+    "mainType": "",
+    "ingredients": [
+      "豚バラ",
+      "もやし",
+      "ニラ",
+      "鷹の爪"
+    ],
+    "required": [
+      "豚バラ",
+      "もやし",
+      "ニラ",
+      "鷹の爪"
+    ],
+    "optional": [],
+    "tags": [
+      "辛い",
+      "買い物少なめ",
+      "参考URLあり"
+    ],
+    "time": 10,
+    "difficulty": "かんたん",
+    "childMode": "separate",
+    "spicy": true,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://www.kurashiru.com/recipes/8e633eb8-5891-405a-8c87-8ad0adfe8fca",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url059",
+    "name": "サバの照り焼き",
+    "category": "魚",
+    "mainType": "",
+    "ingredients": [
+      "さば",
+      "ねぎ",
+      "醤油",
+      "みりん"
+    ],
+    "required": [
+      "さば",
+      "ねぎ",
+      "醤油",
+      "みりん"
+    ],
+    "optional": [],
+    "tags": [
+      "魚メイン",
+      "参考URLあり"
+    ],
+    "time": 20,
+    "difficulty": "かんたん",
+    "childMode": "unknown",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://delishkitchen.tv/recipes/216477197584565407",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url060",
+    "name": "焼きサバの南蛮漬け",
+    "category": "魚",
+    "mainType": "",
+    "ingredients": [
+      "さば",
+      "玉ねぎ",
+      "にんじん",
+      "ピーマン",
+      "酢"
+    ],
+    "required": [
+      "さば",
+      "玉ねぎ",
+      "にんじん",
+      "ピーマン",
+      "酢"
+    ],
+    "optional": [],
+    "tags": [
+      "魚メイン",
+      "野菜消費",
+      "参考URLあり"
+    ],
+    "time": 30,
+    "difficulty": "普通",
+    "childMode": "unknown",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://www.kurashiru.com/recipes/ed57a6bf-f034-480f-b52a-4d31862d67a7",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url061",
+    "name": "塩サバのさっぱり焼き",
+    "category": "魚",
+    "mainType": "",
+    "ingredients": [
+      "さば",
+      "片栗粉",
+      "醤油"
+    ],
+    "required": [
+      "さば",
+      "片栗粉",
+      "醤油"
+    ],
+    "optional": [],
+    "tags": [
+      "魚メイン",
+      "参考URLあり"
+    ],
+    "time": 20,
+    "difficulty": "かんたん",
+    "childMode": "unknown",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://delishkitchen.tv/recipes/207622429420290406",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url062",
+    "name": "サバ缶とキャベツの卵炒め",
+    "category": "炒め物",
+    "mainType": "",
+    "ingredients": [
+      "さば缶",
+      "キャベツ",
+      "卵"
+    ],
+    "required": [
+      "さば缶",
+      "キャベツ",
+      "卵"
+    ],
+    "optional": [],
+    "tags": [
+      "買い物少なめ",
+      "参考URLあり"
+    ],
+    "time": 15,
+    "difficulty": "かんたん",
+    "childMode": "unknown",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://www.kurashiru.com/recipes/006116fd-ce7a-45c2-9190-6de84f7fe843",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url063",
+    "name": "冷凍サバの味噌煮",
+    "category": "魚",
+    "mainType": "",
+    "ingredients": [
+      "さば",
+      "ねぎ",
+      "しょうが",
+      "味噌"
+    ],
+    "required": [
+      "さば",
+      "ねぎ",
+      "しょうが",
+      "味噌"
+    ],
+    "optional": [],
+    "tags": [
+      "魚メイン",
+      "参考URLあり"
+    ],
+    "time": 25,
+    "difficulty": "普通",
+    "childMode": "unknown",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://delishkitchen.tv/recipes/449561114036929616",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url064",
+    "name": "さばの味噌煮",
+    "category": "魚",
+    "mainType": "",
+    "ingredients": [
+      "さば",
+      "しょうが",
+      "味噌"
+    ],
+    "required": [
+      "さば",
+      "しょうが",
+      "味噌"
+    ],
+    "optional": [],
+    "tags": [
+      "魚メイン",
+      "参考URLあり"
+    ],
+    "time": 25,
+    "difficulty": "普通",
+    "childMode": "unknown",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://www.kurashiru.com/recipes/9f45e150-c4b7-4955-b3a5-aad29911c738",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url065",
+    "name": "サバ缶で時短卵とじ",
+    "category": "卵・豆腐",
+    "mainType": "",
+    "ingredients": [
+      "さば缶",
+      "しめじ",
+      "玉ねぎ",
+      "卵"
+    ],
+    "required": [
+      "さば缶",
+      "しめじ",
+      "玉ねぎ",
+      "卵"
+    ],
+    "optional": [],
+    "tags": [
+      "買い物少なめ",
+      "参考URLあり"
+    ],
+    "time": 15,
+    "difficulty": "かんたん",
+    "childMode": "unknown",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://www.kurashiru.com/recipes/a4cc3b86-5146-4134-8cbd-57a34cc3d79b",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url066",
+    "name": "サバ缶で簡単みぞれ煮",
+    "category": "魚",
+    "mainType": "",
+    "ingredients": [
+      "さば缶",
+      "大根"
+    ],
+    "required": [
+      "さば缶",
+      "大根"
+    ],
+    "optional": [],
+    "tags": [
+      "軽め",
+      "参考URLあり"
+    ],
+    "time": 10,
+    "difficulty": "かんたん",
+    "childMode": "unknown",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://www.kurashiru.com/recipes/1393130f-882e-4c03-b0ef-88faf4031074",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url067",
+    "name": "さばの竜田揚げ",
+    "category": "魚",
+    "mainType": "",
+    "ingredients": [
+      "さば",
+      "しょうが",
+      "片栗粉"
+    ],
+    "required": [
+      "さば",
+      "しょうが",
+      "片栗粉"
+    ],
+    "optional": [],
+    "tags": [
+      "魚メイン",
+      "参考URLあり"
+    ],
+    "time": 25,
+    "difficulty": "普通",
+    "childMode": "unknown",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://www.kurashiru.com/recipes/98ed10a2-29df-4b18-ad0d-cd497f42efb3",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url068",
+    "name": "鮭の甘辛焼き",
+    "category": "魚",
+    "mainType": "",
+    "ingredients": [
+      "鮭",
+      "かいわれ",
+      "醤油",
+      "酢"
+    ],
+    "required": [
+      "鮭",
+      "かいわれ",
+      "醤油",
+      "酢"
+    ],
+    "optional": [],
+    "tags": [
+      "魚メイン",
+      "参考URLあり"
+    ],
+    "time": 15,
+    "difficulty": "かんたん",
+    "childMode": "unknown",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://delishkitchen.tv/recipes/118207774671765828",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url069",
+    "name": "キャベツと鮭の味噌バター炒め",
+    "category": "魚",
+    "mainType": "",
+    "ingredients": [
+      "鮭",
+      "キャベツ",
+      "味噌",
+      "バター"
+    ],
+    "required": [
+      "鮭",
+      "キャベツ",
+      "味噌",
+      "バター"
+    ],
+    "optional": [],
+    "tags": [
+      "魚メイン",
+      "野菜消費",
+      "参考URLあり"
+    ],
+    "time": 20,
+    "difficulty": "かんたん",
+    "childMode": "unknown",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://www.kurashiru.com/recipes/ba8604fc-8b85-4a39-a211-20c1a2de1014",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url070",
+    "name": "生鮭のバターぽん酢焼き",
+    "category": "魚",
+    "mainType": "",
+    "ingredients": [
+      "鮭",
+      "バター",
+      "ポン酢"
+    ],
+    "required": [
+      "鮭",
+      "バター",
+      "ポン酢"
+    ],
+    "optional": [],
+    "tags": [
+      "魚メイン",
+      "参考URLあり"
+    ],
+    "time": 15,
+    "difficulty": "かんたん",
+    "childMode": "unknown",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://delishkitchen.tv/recipes/161644944405037548",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url071",
+    "name": "鮭ときのこのガーリックバター醤油炒め",
+    "category": "魚",
+    "mainType": "",
+    "ingredients": [
+      "鮭",
+      "きのこ",
+      "長芋",
+      "バター",
+      "にんにく"
+    ],
+    "required": [
+      "鮭",
+      "きのこ",
+      "長芋",
+      "バター",
+      "にんにく"
+    ],
+    "optional": [],
+    "tags": [
+      "魚メイン",
+      "参考URLあり"
+    ],
+    "time": 15,
+    "difficulty": "かんたん",
+    "childMode": "unknown",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://www.kurashiru.com/recipes/fa65b819-e4b8-49db-a8d2-469f2a46de7f",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url072",
+    "name": "鮭とキャベツのめんつゆマヨ炒め",
+    "category": "魚",
+    "mainType": "",
+    "ingredients": [
+      "鮭",
+      "キャベツ",
+      "めんつゆ",
+      "マヨネーズ"
+    ],
+    "required": [
+      "鮭",
+      "キャベツ",
+      "めんつゆ",
+      "マヨネーズ"
+    ],
+    "optional": [],
+    "tags": [
+      "魚メイン",
+      "野菜消費",
+      "参考URLあり"
+    ],
+    "time": 20,
+    "difficulty": "かんたん",
+    "childMode": "unknown",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://delishkitchen.tv/recipes/211687704214111452",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url073",
+    "name": "鮭の味噌マヨレンジ蒸し",
+    "category": "魚",
+    "mainType": "",
+    "ingredients": [
+      "鮭",
+      "きのこ",
+      "味噌",
+      "マヨネーズ"
+    ],
+    "required": [
+      "鮭",
+      "きのこ",
+      "味噌",
+      "マヨネーズ"
+    ],
+    "optional": [],
+    "tags": [
+      "疲れている日",
+      "魚メイン",
+      "参考URLあり"
+    ],
+    "time": 15,
+    "difficulty": "かんたん",
+    "childMode": "unknown",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://www.kurashiru.com/recipes/a187ebc0-2b87-4e30-8ba6-13b126f4d632",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url074",
+    "name": "くずし豆腐の卵とじ",
+    "category": "卵・豆腐",
+    "mainType": "",
+    "ingredients": [
+      "豆腐",
+      "玉ねぎ",
+      "卵"
+    ],
+    "required": [
+      "豆腐",
+      "玉ねぎ",
+      "卵"
+    ],
+    "optional": [],
+    "tags": [
+      "買い物少なめ",
+      "軽め",
+      "参考URLあり"
+    ],
+    "time": 15,
+    "difficulty": "かんたん",
+    "childMode": "unknown",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://delishkitchen.tv/recipes/198060648083489190",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url075",
+    "name": "豆腐の卵あんかけ",
+    "category": "卵・豆腐",
+    "mainType": "",
+    "ingredients": [
+      "豆腐",
+      "卵",
+      "中華だし"
+    ],
+    "required": [
+      "豆腐",
+      "卵",
+      "中華だし"
+    ],
+    "optional": [],
+    "tags": [
+      "軽め",
+      "買い物少なめ",
+      "参考URLあり"
+    ],
+    "time": 15,
+    "difficulty": "かんたん",
+    "childMode": "unknown",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://delishkitchen.tv/recipes/397951067544880179",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url076",
+    "name": "豆腐と卵の雑炊",
+    "category": "丼・ご飯",
+    "mainType": "",
+    "ingredients": [
+      "ご飯",
+      "豆腐",
+      "卵"
+    ],
+    "required": [
+      "ご飯",
+      "豆腐",
+      "卵"
+    ],
+    "optional": [],
+    "tags": [
+      "軽め",
+      "参考URLあり"
+    ],
+    "time": 15,
+    "difficulty": "かんたん",
+    "childMode": "unknown",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://delishkitchen.tv/recipes/172806511267938796",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url077",
+    "name": "豆腐の親子とじ",
+    "category": "卵・豆腐",
+    "mainType": "",
+    "ingredients": [
+      "鶏もも",
+      "豆腐",
+      "卵",
+      "玉ねぎ"
+    ],
+    "required": [
+      "鶏もも",
+      "豆腐",
+      "卵",
+      "玉ねぎ"
+    ],
+    "optional": [],
+    "tags": [
+      "子供OK",
+      "参考URLあり"
+    ],
+    "time": 20,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://delishkitchen.tv/recipes/290558452638417213",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url078",
+    "name": "納豆卵かけご飯",
+    "category": "丼・ご飯",
+    "mainType": "",
+    "ingredients": [
+      "ご飯",
+      "卵",
+      "納豆"
+    ],
+    "required": [
+      "ご飯",
+      "卵",
+      "納豆"
+    ],
+    "optional": [],
+    "tags": [
+      "買い物少なめ",
+      "参考URLあり"
+    ],
+    "time": 5,
+    "difficulty": "かんたん",
+    "childMode": "unknown",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://delishkitchen.tv/recipes/383857360952624172",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url079",
+    "name": "納豆レタスチャーハン",
+    "category": "丼・ご飯",
+    "mainType": "",
+    "ingredients": [
+      "納豆",
+      "レタス",
+      "ご飯",
+      "卵"
+    ],
+    "required": [
+      "納豆",
+      "レタス",
+      "ご飯",
+      "卵"
+    ],
+    "optional": [],
+    "tags": [
+      "買い物少なめ",
+      "参考URLあり"
+    ],
+    "time": 15,
+    "difficulty": "かんたん",
+    "childMode": "unknown",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://www.kurashiru.com/recipes/1c7a102b-835d-4d77-b39c-b7f2ab3a4432",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url080",
+    "name": "納豆チャーハン",
+    "category": "丼・ご飯",
+    "mainType": "",
+    "ingredients": [
+      "納豆",
+      "卵",
+      "ご飯",
+      "にんじん"
+    ],
+    "required": [
+      "納豆",
+      "卵",
+      "ご飯",
+      "にんじん"
+    ],
+    "optional": [],
+    "tags": [
+      "子供OK",
+      "参考URLあり"
+    ],
+    "time": 15,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://delishkitchen.tv/recipes/208178090512220518",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url081",
+    "name": "納豆入り卵焼き",
+    "category": "卵・豆腐",
+    "mainType": "",
+    "ingredients": [
+      "卵",
+      "納豆",
+      "大葉"
+    ],
+    "required": [
+      "卵",
+      "納豆",
+      "大葉"
+    ],
+    "optional": [],
+    "tags": [
+      "買い物少なめ",
+      "参考URLあり"
+    ],
+    "time": 10,
+    "difficulty": "かんたん",
+    "childMode": "unknown",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://www.kurashiru.com/recipes/d21154a7-9b14-4d8c-8b25-0f2d1f7f8597",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url082",
+    "name": "納豆アボカド丼",
+    "category": "丼・ご飯",
+    "mainType": "",
+    "ingredients": [
+      "ご飯",
+      "納豆",
+      "アボカド",
+      "温泉卵"
+    ],
+    "required": [
+      "ご飯",
+      "納豆",
+      "アボカド",
+      "温泉卵"
+    ],
+    "optional": [],
+    "tags": [
+      "買い物少なめ",
+      "参考URLあり"
+    ],
+    "time": 10,
+    "difficulty": "かんたん",
+    "childMode": "unknown",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://delishkitchen.tv/recipes/202887780148184298",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url083",
+    "name": "キムチ酢納豆ごはん",
+    "category": "丼・ご飯",
+    "mainType": "",
+    "ingredients": [
+      "ご飯",
+      "納豆",
+      "キムチ",
+      "かいわれ大根"
+    ],
+    "required": [
+      "ご飯",
+      "納豆",
+      "キムチ",
+      "かいわれ大根"
+    ],
+    "optional": [],
+    "tags": [
+      "辛い",
+      "買い物少なめ",
+      "参考URLあり"
+    ],
+    "time": 5,
+    "difficulty": "かんたん",
+    "childMode": "separate",
+    "spicy": true,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://www.kurashiru.com/recipes/ff7a28bd-ce35-4dda-817c-848362763886",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url084",
+    "name": "豚バラと小松菜の納豆丼",
+    "category": "丼・ご飯",
+    "mainType": "",
+    "ingredients": [
+      "ご飯",
+      "豚バラ",
+      "納豆",
+      "小松菜"
+    ],
+    "required": [
+      "ご飯",
+      "豚バラ",
+      "納豆",
+      "小松菜"
+    ],
+    "optional": [],
+    "tags": [
+      "野菜消費",
+      "参考URLあり"
+    ],
+    "time": 15,
+    "difficulty": "かんたん",
+    "childMode": "unknown",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://delishkitchen.tv/recipes/172080877482803603",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url085",
+    "name": "油揚げの納豆チーズ包み",
+    "category": "焼き物",
+    "mainType": "",
+    "ingredients": [
+      "油揚げ",
+      "納豆",
+      "チーズ",
+      "大葉"
+    ],
+    "required": [
+      "油揚げ",
+      "納豆",
+      "チーズ",
+      "大葉"
+    ],
+    "optional": [],
+    "tags": [
+      "買い物少なめ",
+      "参考URLあり"
+    ],
+    "time": 15,
+    "difficulty": "かんたん",
+    "childMode": "unknown",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://www.kurashiru.com/recipes/f6370541-2aae-472c-bead-1911ceb55af9",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url086",
+    "name": "じゃがいもと豚バラのガリバタ炒め",
+    "category": "炒め物",
+    "mainType": "",
+    "ingredients": [
+      "豚バラ",
+      "じゃがいも",
+      "にんにく",
+      "バター"
+    ],
+    "required": [
+      "豚バラ",
+      "じゃがいも",
+      "にんにく",
+      "バター"
+    ],
+    "optional": [],
+    "tags": [
+      "子供OK",
+      "参考URLあり"
+    ],
+    "time": 20,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://delishkitchen.tv/recipes/487201205081080231",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url087",
+    "name": "じゃがいもと豚肉のガーリック炒め",
+    "category": "炒め物",
+    "mainType": "",
+    "ingredients": [
+      "じゃがいも",
+      "豚バラ",
+      "にんにく"
+    ],
+    "required": [
+      "じゃがいも",
+      "豚バラ",
+      "にんにく"
+    ],
+    "optional": [],
+    "tags": [
+      "子供OK",
+      "参考URLあり"
+    ],
+    "time": 20,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://www.kurashiru.com/recipes/ba47fe0a-4e28-423a-a773-a0d4d40b4778",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url088",
+    "name": "じゃがいもと豚バラ肉の旨塩炒め",
+    "category": "炒め物",
+    "mainType": "",
+    "ingredients": [
+      "豚バラ",
+      "じゃがいも",
+      "豆苗"
+    ],
+    "required": [
+      "豚バラ",
+      "じゃがいも",
+      "豆苗"
+    ],
+    "optional": [],
+    "tags": [
+      "野菜消費",
+      "参考URLあり"
+    ],
+    "time": 15,
+    "difficulty": "かんたん",
+    "childMode": "unknown",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://delishkitchen.tv/recipes/244717518155940915",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url089",
+    "name": "じゃがいもと豚肉の青椒肉絲風",
+    "category": "炒め物",
+    "mainType": "",
+    "ingredients": [
+      "じゃがいも",
+      "豚肉",
+      "ピーマン"
+    ],
+    "required": [
+      "じゃがいも",
+      "豚肉",
+      "ピーマン"
+    ],
+    "optional": [],
+    "tags": [
+      "野菜消費",
+      "参考URLあり"
+    ],
+    "time": 20,
+    "difficulty": "かんたん",
+    "childMode": "unknown",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://delishkitchen.tv/recipes/251834441788294313",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url090",
+    "name": "じゃがいもと豚バラ肉のバター醤油炒め",
+    "category": "炒め物",
+    "mainType": "",
+    "ingredients": [
+      "じゃがいも",
+      "豚バラ",
+      "バター"
+    ],
+    "required": [
+      "じゃがいも",
+      "豚バラ",
+      "バター"
+    ],
+    "optional": [],
+    "tags": [
+      "子供OK",
+      "参考URLあり"
+    ],
+    "time": 20,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://www.kurashiru.com/recipes/f7b8eaf2-efcd-4c66-9390-3fe20c638d45",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url091",
+    "name": "豚バラ肉と玉ねぎの甘辛炒め",
+    "category": "炒め物",
+    "mainType": "",
+    "ingredients": [
+      "豚バラ",
+      "玉ねぎ"
+    ],
+    "required": [
+      "豚バラ",
+      "玉ねぎ"
+    ],
+    "optional": [],
+    "tags": [
+      "買い物少なめ",
+      "参考URLあり"
+    ],
+    "time": 15,
+    "difficulty": "かんたん",
+    "childMode": "unknown",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://delishkitchen.tv/recipes/245581622575890778",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url092",
+    "name": "玉ねぎと豚こま切れ肉の生姜焼き",
+    "category": "焼き物",
+    "mainType": "",
+    "ingredients": [
+      "豚こま",
+      "玉ねぎ",
+      "キャベツ",
+      "生姜"
+    ],
+    "required": [
+      "豚こま",
+      "玉ねぎ",
+      "キャベツ",
+      "生姜"
+    ],
+    "optional": [],
+    "tags": [
+      "子供OK",
+      "参考URLあり"
+    ],
+    "time": 20,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://www.kurashiru.com/recipes/19124a50-5b58-4fb1-b66e-5b422e468bd2",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url093",
+    "name": "豚肉と玉ねぎのオイスターソース丼",
+    "category": "丼・ご飯",
+    "mainType": "",
+    "ingredients": [
+      "豚肉",
+      "玉ねぎ",
+      "ピーマン",
+      "ご飯",
+      "オイスターソース"
+    ],
+    "required": [
+      "豚肉",
+      "玉ねぎ",
+      "ピーマン",
+      "ご飯",
+      "オイスターソース"
+    ],
+    "optional": [],
+    "tags": [
+      "野菜消費",
+      "参考URLあり"
+    ],
+    "time": 15,
+    "difficulty": "かんたん",
+    "childMode": "unknown",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://delishkitchen.tv/recipes/218613643888034854",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url094",
+    "name": "豚肉と玉ねぎのみそ炒め",
+    "category": "炒め物",
+    "mainType": "",
+    "ingredients": [
+      "豚こま",
+      "玉ねぎ",
+      "味噌"
+    ],
+    "required": [
+      "豚こま",
+      "玉ねぎ",
+      "味噌"
+    ],
+    "optional": [],
+    "tags": [
+      "買い物少なめ",
+      "参考URLあり"
+    ],
+    "time": 15,
+    "difficulty": "かんたん",
+    "childMode": "unknown",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://www.kurashiru.com/recipes/91e8ac70-390a-4c97-a56e-03344970962f",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url095",
+    "name": "新玉ねぎの豚肉包み焼き",
+    "category": "焼き物",
+    "mainType": "",
+    "ingredients": [
+      "新玉ねぎ",
+      "豚肉",
+      "キャベツ",
+      "トマト"
+    ],
+    "required": [
+      "新玉ねぎ",
+      "豚肉",
+      "キャベツ",
+      "トマト"
+    ],
+    "optional": [],
+    "tags": [
+      "季節もの",
+      "参考URLあり"
+    ],
+    "time": 20,
+    "difficulty": "かんたん",
+    "childMode": "unknown",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://delishkitchen.tv/recipes/195847360570459168",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url096",
+    "name": "豚バラ肉と玉ねぎのポン酢炒め",
+    "category": "炒め物",
+    "mainType": "",
+    "ingredients": [
+      "豚バラ",
+      "玉ねぎ",
+      "ポン酢"
+    ],
+    "required": [
+      "豚バラ",
+      "玉ねぎ",
+      "ポン酢"
+    ],
+    "optional": [],
+    "tags": [
+      "買い物少なめ",
+      "参考URLあり"
+    ],
+    "time": 15,
+    "difficulty": "かんたん",
+    "childMode": "unknown",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://www.kurashiru.com/recipes/4c00bfac-279e-4d2c-82ef-50b182bdb41a",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url097",
+    "name": "豚丼",
+    "category": "丼・ご飯",
+    "mainType": "",
+    "ingredients": [
+      "豚こま",
+      "玉ねぎ",
+      "ご飯",
+      "しょうが"
+    ],
+    "required": [
+      "豚こま",
+      "玉ねぎ",
+      "ご飯",
+      "しょうが"
+    ],
+    "optional": [],
+    "tags": [
+      "子供OK",
+      "参考URLあり"
+    ],
+    "time": 15,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://delishkitchen.tv/recipes/186858939030176166",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url098",
+    "name": "新たまねぎと豚肉のポン酢炒め",
+    "category": "炒め物",
+    "mainType": "",
+    "ingredients": [
+      "豚バラ",
+      "新玉ねぎ",
+      "なす",
+      "にんにく"
+    ],
+    "required": [
+      "豚バラ",
+      "新玉ねぎ",
+      "なす",
+      "にんにく"
+    ],
+    "optional": [],
+    "tags": [
+      "季節もの",
+      "野菜消費",
+      "参考URLあり"
+    ],
+    "time": 20,
+    "difficulty": "かんたん",
+    "childMode": "unknown",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://delishkitchen.tv/recipes/245595827140034906",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url099",
+    "name": "基本の照り焼きチキン",
+    "category": "焼き物",
+    "mainType": "",
+    "ingredients": [
+      "鶏もも",
+      "醤油",
+      "みりん"
+    ],
+    "required": [
+      "鶏もも",
+      "醤油",
+      "みりん"
+    ],
+    "optional": [],
+    "tags": [
+      "子供OK",
+      "参考URLあり"
+    ],
+    "time": 25,
+    "difficulty": "普通",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://delishkitchen.tv/recipes/196290755478684070",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  },
+  {
+    "id": "url100",
+    "name": "照り焼きチキン",
+    "category": "焼き物",
+    "mainType": "",
+    "ingredients": [
+      "鶏もも",
+      "片栗粉",
+      "醤油",
+      "みりん"
+    ],
+    "required": [
+      "鶏もも",
+      "片栗粉",
+      "醤油",
+      "みりん"
+    ],
+    "optional": [],
+    "tags": [
+      "子供OK",
+      "参考URLあり"
+    ],
+    "time": 20,
+    "difficulty": "かんたん",
+    "childMode": "ok",
+    "spicy": false,
+    "light": "普通",
+    "steps": [
+      "詳しい作り方は参考URLで確認する。",
+      "家族の好みや辛さに合わせて調整する。"
+    ],
+    "memo": "外部レシピを参考URLとして登録済み。本文はコピーせず、必要に応じて自分用メモを追記してください。",
+    "sourceUrl": "https://www.kurashiru.com/recipes/459512b1-1c95-4a59-917d-4363f440d0a7",
+    "sourceKind": "url",
+    "custom": false,
+    "teppan": false,
+    "curatedUrl": true
+  }
+];
     const STORAGE_KEY = 'menu_selector_personal_v1';
     const TODAY = new Date();
     const todayKey = () => {
@@ -4152,8 +7945,12 @@
       excludedToday: new Set(),
       filtersToday: {},
       recipeQuery: '',
+      recipeSort: 'teppan',
       ingredientQuery: '',
-      relaxedNotice: ''
+      relaxedNotice: '',
+      analysisOpen: false,
+      analysisTab: 'coverage',
+      historyMonth: `${TODAY.getFullYear()}-${String(TODAY.getMonth()+1).padStart(2,'0')}`
     };
 
     function defaultData(){
@@ -4182,6 +7979,257 @@
       return JSON.parse(JSON.stringify(obj));
     }
 
+    function recipeHash(s){
+      let h = 0;
+      const text = String(s || '');
+      for(let i=0; i<text.length; i++){
+        h = ((h << 5) - h) + text.charCodeAt(i);
+        h |= 0;
+      }
+      return Math.abs(h).toString(36);
+    }
+
+    function stockRecipe(name, ingredients, category, tags = [], time = 15, light = '普通'){
+      const spicy = tags.includes('辛い') || /ピリ辛|キムチ|担々|麻婆/.test(name);
+      const finalTags = uniqueList(tags.concat(['アイデア候補'], spicy ? ['辛い'] : []));
+      const required = deriveShoppingIngredients(ingredients);
+      const recipe = {
+        id: `stock_${recipeHash(name)}`,
+        name,
+        category,
+        mainType: inferMainType({name, category, ingredients, required}),
+        ingredients: uniqueList(ingredients),
+        required,
+        optional: [],
+        tags: finalTags,
+        time,
+        difficulty: time <= 20 ? 'かんたん' : '普通',
+        childMode: childModeFromTags(finalTags),
+        spicy,
+        light,
+        steps: [
+          '材料を食べやすく準備する。',
+          '火の通りにくいものから加熱する。',
+          '味を調えて仕上げる。'
+        ],
+        memo: '外部レシピ未確認のアイデア候補です。作る前にネット検索で参考URLを確認し、よければ編集して鉄板化してください。',
+        sourceName: '',
+        sourceUrl: '',
+        sourceKind: 'idea',
+        custom: false,
+        teppan: false,
+        stock: true
+      };
+      return recipe;
+    }
+
+    function stockTemplatesForIngredient(ing){
+      const group = categorizeIngredient(ing);
+      const easy = ['買い物少なめ','疲れている日'];
+      const child = ['子供OK'];
+      if(group === '野菜・根菜'){
+        return [
+          stockRecipe(`${ing}と豚こまのきんぴら風`, [ing,'豚こま','醤油','みりん'], '炒め物', easy, 15),
+          stockRecipe(`${ing}と鶏ももの甘辛煮`, [ing,'鶏もも','醤油','みりん'], '煮物', child, 25),
+          stockRecipe(`${ing}の味噌汁`, [ing,'味噌','だし'], '汁物・スープ', ['買い物少なめ','子供OK'], 10, '軽め'),
+          stockRecipe(`${ing}とツナの和え物`, [ing,'ツナ缶','マヨネーズ','ポン酢'], '副菜', ['買い物少なめ'], 10, '軽め'),
+          stockRecipe(`${ing}入りカレー`, [ing,'豚こま','玉ねぎ','カレールー'], 'カレー・シチュー', child, 30, '重め')
+        ];
+      }
+      if(group === '野菜・葉物'){
+        return [
+          stockRecipe(`${ing}と卵の炒め物`, [ing,'卵','醤油'], '炒め物', easy.concat(child), 10),
+          stockRecipe(`${ing}と豚こまの炒め物`, [ing,'豚こま','醤油'], '炒め物', easy, 15),
+          stockRecipe(`${ing}のナムル`, [ing,'ごま油','塩'], '副菜', ['買い物少なめ'], 8, '軽め'),
+          stockRecipe(`${ing}の味噌汁`, [ing,'味噌','だし'], '汁物・スープ', child, 10, '軽め'),
+          stockRecipe(`${ing}とツナの和え物`, [ing,'ツナ缶','マヨネーズ'], '副菜', ['買い物少なめ'], 10, '軽め')
+        ];
+      }
+      if(group === '野菜・果菜'){
+        return [
+          stockRecipe(`${ing}と豚こまの味噌炒め`, [ing,'豚こま','味噌','みりん'], '炒め物', easy, 15),
+          stockRecipe(`${ing}と卵の炒め物`, [ing,'卵','醤油'], '炒め物', easy.concat(child), 10),
+          stockRecipe(`${ing}のチーズ焼き`, [ing,'チーズ'], '焼き物', child, 15),
+          stockRecipe(`${ing}のさっぱり和え`, [ing,'ポン酢'], '副菜', ['買い物少なめ'], 8, '軽め'),
+          stockRecipe(`${ing}とひき肉のカレー炒め`, [ing,'豚ひき肉','カレー粉'], '炒め物', ['辛い'], 15)
+        ];
+      }
+      if(group === 'きのこ'){
+        return [
+          stockRecipe(`${ing}のバター醤油炒め`, [ing,'バター','醤油'], '炒め物', easy, 10),
+          stockRecipe(`${ing}と鮭のホイル焼き`, [ing,'鮭','バター'], '魚', ['子供アレンジ可'], 20),
+          stockRecipe(`${ing}の和風パスタ`, [ing,'パスタ','醤油','バター'], 'パスタ', easy, 15),
+          stockRecipe(`${ing}のスープ`, [ing,'卵','中華だし'], '汁物・スープ', child, 10, '軽め'),
+          stockRecipe(`${ing}の炊き込みご飯風`, [ing,'ご飯','油揚げ','醤油'], '丼・ご飯', child, 25)
+        ];
+      }
+      if(group === '豆・その他野菜'){
+        return [
+          stockRecipe(`${ing}と豚こまの炒め物`, [ing,'豚こま','醤油'], '炒め物', easy, 15),
+          stockRecipe(`${ing}のナムル`, [ing,'ごま油','塩'], '副菜', ['買い物少なめ'], 8, '軽め'),
+          stockRecipe(`${ing}と卵の炒め物`, [ing,'卵'], '炒め物', easy.concat(child), 10),
+          stockRecipe(`${ing}のスープ`, [ing,'中華だし'], '汁物・スープ', child, 10, '軽め'),
+          stockRecipe(`${ing}入り焼きうどん`, [ing,'うどん','豚こま'], '麺', easy, 15)
+        ];
+      }
+      if(group === '肉'){
+        return [
+          stockRecipe(`${ing}の生姜焼き風`, [ing,'玉ねぎ','生姜','醤油'], '焼き物', easy, 15),
+          stockRecipe(`${ing}とキャベツの炒め物`, [ing,'キャベツ','醤油'], '炒め物', easy, 15),
+          stockRecipe(`${ing}丼`, [ing,'玉ねぎ','ご飯','醤油'], '丼・ご飯', child, 15),
+          stockRecipe(`${ing}カレー`, [ing,'玉ねぎ','にんじん','カレールー'], 'カレー・シチュー', child, 30, '重め'),
+          stockRecipe(`${ing}と野菜のスープ`, [ing,'キャベツ','にんじん','中華だし'], '汁物・スープ', ['子供OK'], 20)
+        ];
+      }
+      if(group === '魚・海鮮'){
+        return [
+          stockRecipe(`${ing}の照り焼き`, [ing,'醤油','みりん'], '魚', child, 15),
+          stockRecipe(`${ing}のホイル焼き`, [ing,'玉ねぎ','きのこ','バター'], '魚', ['子供アレンジ可'], 20),
+          stockRecipe(`${ing}と野菜の蒸し焼き`, [ing,'キャベツ','にんじん'], '魚', ['子供アレンジ可'], 20, '軽め'),
+          stockRecipe(`${ing}の和風パスタ`, [ing,'パスタ','醤油'], 'パスタ', easy, 15),
+          stockRecipe(`${ing}丼`, [ing,'ご飯','大葉'], '丼・ご飯', ['買い物少なめ'], 10)
+        ];
+      }
+      if(group === '卵・豆腐・大豆'){
+        if(ing === '納豆'){
+          return [
+            stockRecipe('納豆パスタ', ['納豆','パスタ','大葉','醤油'], 'パスタ', easy, 15),
+            stockRecipe('納豆チャーハン', ['納豆','ご飯','卵'], '丼・ご飯', easy, 10),
+            stockRecipe('納豆オムレツ', ['納豆','卵'], '卵・豆腐', child, 10),
+            stockRecipe('納豆キムチ丼', ['納豆','キムチ','ご飯'], '丼・ご飯', ['辛い'], 8),
+            stockRecipe('納豆そば', ['納豆','そば','大葉'], '麺', easy, 10)
+          ];
+        }
+        if(/豆腐|厚揚げ/.test(ing)){
+          return [
+            stockRecipe(`${ing}ステーキ`, [ing,'醤油','片栗粉'], '卵・豆腐', easy.concat(child), 15),
+            stockRecipe(`麻婆${ing}`, [ing,'豚ひき肉','豆板醤'], '卵・豆腐', ['辛い'], 20),
+            stockRecipe(`${ing}チャンプルー`, [ing,'卵','豚こま'], '炒め物', child, 20),
+            stockRecipe(`${ing}のあんかけ`, [ing,'きのこ','中華だし'], '卵・豆腐', ['子供OK'], 15, '軽め'),
+            stockRecipe(`${ing}の味噌汁`, [ing,'味噌','だし'], '汁物・スープ', ['子供OK','買い物少なめ'], 10, '軽め')
+          ];
+        }
+        return [
+          stockRecipe(`${ing}と卵の炒め物`, [ing,'卵'], '炒め物', easy.concat(child), 10),
+          stockRecipe(`${ing}丼`, [ing,'ご飯','醤油'], '丼・ご飯', ['買い物少なめ'], 10),
+          stockRecipe(`${ing}入り味噌汁`, [ing,'味噌','だし'], '汁物・スープ', ['子供OK'], 10, '軽め'),
+          stockRecipe(`${ing}と野菜の炒め物`, [ing,'キャベツ','にんじん'], '炒め物', easy, 15),
+          stockRecipe(`${ing}のチーズ焼き`, [ing,'チーズ'], '焼き物', child, 15)
+        ];
+      }
+      if(group === '主食'){
+        return [
+          stockRecipe(`${ing}の野菜炒め合わせ`, [ing,'キャベツ','にんじん','豚こま'], '主食', easy, 15),
+          stockRecipe(`${ing}と卵の簡単メニュー`, [ing,'卵'], '主食', easy.concat(child), 10),
+          stockRecipe(`${ing}のツナ和え`, [ing,'ツナ缶'], '主食', ['買い物少なめ'], 10),
+          stockRecipe(`${ing}のピリ辛アレンジ`, [ing,'キムチ'], '主食', ['辛い'], 10),
+          stockRecipe(`${ing}の野菜スープ添え`, [ing,'キャベツ','中華だし'], '主食', ['子供OK'], 15)
+        ];
+      }
+      return [
+        stockRecipe(`${ing}の卵炒め`, [ing,'卵'], '炒め物', easy, 10),
+        stockRecipe(`${ing}と野菜の炒め物`, [ing,'キャベツ','にんじん'], '炒め物', easy, 15),
+        stockRecipe(`${ing}の和え物`, [ing,'ポン酢'], '副菜', ['買い物少なめ'], 8, '軽め'),
+        stockRecipe(`${ing}入りスープ`, [ing,'中華だし'], '汁物・スープ', ['子供OK'], 10, '軽め'),
+        stockRecipe(`${ing}のパスタ`, [ing,'パスタ'], 'パスタ', easy, 15)
+      ];
+    }
+
+    function ensureStockForIngredient(target, ing){
+      if(!ing) return 0;
+      target.recipes = Array.isArray(target.recipes) ? target.recipes : [];
+      const existingNames = new Set(target.recipes.map(r => String(r.name || '').trim()));
+      let added = 0;
+      stockTemplatesForIngredient(ing).forEach(r => {
+        if(!existingNames.has(r.name)){
+          target.recipes.push(r);
+          existingNames.add(r.name);
+          added++;
+        }
+      });
+      return added;
+    }
+
+
+    function ensureCuratedUrlRecipes(target){
+      if(!target || !Array.isArray(target.recipes)) return 0;
+      const existingIds = new Set(target.recipes.map(r => String(r.id || '')));
+      const existingUrls = new Set(target.recipes.map(r => String(r.sourceUrl || '').trim()).filter(Boolean));
+      const additions = [];
+      CURATED_URL_RECIPES.forEach(r => {
+        if(existingIds.has(r.id) || existingUrls.has(String(r.sourceUrl || '').trim())) return;
+        const item = structuredCloneSafe(r);
+        item.mainType = inferMainType(item);
+        item.required = deriveShoppingIngredients(item.ingredients || []);
+        item.childMode = childModeFromTags(item.tags || []);
+        additions.push(item);
+      });
+      if(additions.length){
+        target.recipes = additions.concat(target.recipes);
+        target.curatedUrlRecipeVersion = 1;
+      }
+      return additions.length;
+    }
+
+    function ensureIngredientStockRecipes(target){
+      const baseIngredients = Object.values(COMMON_INGREDIENTS).flat();
+      const extraIngredients = [];
+      if(Array.isArray(target.customIngredients)) extraIngredients.push(...target.customIngredients);
+      if(Array.isArray(target.pantry)) extraIngredients.push(...target.pantry);
+      if(Array.isArray(target.bargain)) extraIngredients.push(...target.bargain);
+      let added = 0;
+      uniqueList(baseIngredients.concat(extraIngredients)).forEach(ing => {
+        added += ensureStockForIngredient(target, ing);
+      });
+      target.stockRecipeVersion = 2;
+      return added;
+    }
+
+    function normalizeCategory(r){
+      const category = r?.category || '';
+      if(category !== '辛い・大人向け') return category || '自作';
+      const hay = [r.name, ...(r.ingredients || []), ...(r.required || [])].join(' ');
+      if(/カレー|シチュー/.test(hay)) return 'カレー・シチュー';
+      if(/ビビンバ|丼|ご飯|チャーハン|炒飯/.test(hay)) return '丼・ご飯';
+      if(/春雨|うどん|麺|パスタ|そば|そうめん/.test(hay)) return '麺';
+      if(/スンドゥブ|スープ|汁|鍋/.test(hay)) return '汁物・スープ';
+      if(/チリコンカン|煮/.test(hay)) return '煮物';
+      if(/チキン|鶏|焼き/.test(hay)) return '焼き物';
+      return '炒め物';
+    }
+
+    function childModeFromTags(tags){
+      const list = Array.isArray(tags) ? tags : parseList(tags);
+      if(list.includes('子供OK')) return 'ok';
+      if(list.includes('子供アレンジ可')) return 'adapt';
+      if(list.includes('子供別メニュー前提')) return 'separate';
+      return 'unknown';
+    }
+
+    function recipeHasSource(r){
+      return !!(r && r.sourceUrl && String(r.sourceUrl).trim());
+    }
+
+    function isIdeaRecipe(r){
+      if(!r) return false;
+      if(recipeHasSource(r) || r.teppan || r.custom || r.modified) return false;
+      return !!r.stock || r.sourceKind === 'idea' || String(r.id || '').startsWith('stock_') || (Array.isArray(r.tags) && r.tags.includes('アイデア候補'));
+    }
+
+    function visibleRecipeTags(r, limit = 4){
+      const tags = Array.isArray(r?.tags) ? r.tags : [];
+      return tags.filter(t => t !== 'アイデア候補').slice(0, limit);
+    }
+
+    function qualityBadgesHtml(r){
+      const badges = [];
+      if(r.teppan) badges.push('<span class="tag good">鉄板</span>');
+      if(recipeHasSource(r)) badges.push('<span class="tag blue">参考URLあり</span>');
+      if(isIdeaRecipe(r)) badges.push('<span class="tag">アイデア候補</span>');
+      if((r.custom || r.modified) && !r.teppan) badges.push('<span class="tag blue">自作・編集済み</span>');
+      return badges.join('');
+    }
+
     function normalizeLoadedData(obj){
       // 旧版データの表示名を補正する。
       // 「パパ好み」はユーザーが好み設定を入れていなくても出てしまうため、
@@ -4190,7 +8238,32 @@
         obj.recipes.forEach(r => {
           if(Array.isArray(r.tags)){
             r.tags = [...new Set(r.tags.map(t => (t === 'パパ好み' || t === '辛いもの好き向け') ? '辛い' : t))];
+          } else {
+            r.tags = [];
           }
+          if(r.spicy && !r.tags.includes('辛い')) r.tags.push('辛い');
+          if(r.stock || r.sourceKind === 'idea' || String(r.id || '').startsWith('stock_')){
+            r.stock = true;
+            r.sourceKind = 'idea';
+            if(!recipeHasSource(r) && !r.tags.includes('アイデア候補')) r.tags.push('アイデア候補');
+          }
+          if(recipeHasSource(r)){
+            r.sourceKind = 'url';
+            r.tags = r.tags.filter(t => t !== 'アイデア候補');
+            r.stock = false;
+          }
+          r.category = normalizeCategory(r);
+          if(!r.childMode || r.childMode === 'unknown') r.childMode = childModeFromTags(r.tags);
+          if(!r.mainType || r.mainType === '辛い' || r.mainType === '辛いもの好き向け' || r.mainType === 'パパ好み'){
+            r.mainType = inferMainType(r);
+          }
+        });
+      }
+      if(Array.isArray(obj.history)){
+        obj.history.forEach(h => {
+          if(!h.at) h.at = `${h.date || todayKey()}-${Math.random().toString(36).slice(2)}`;
+          if(!h.date && h.at && /^\d{4}-\d{2}-\d{2}/.test(h.at)) h.date = h.at.slice(0,10);
+          if(!h.date) h.date = todayKey();
         });
       }
       // 初期値として入っていたパパの好みは、未編集と判断できる場合のみ空に戻す。
@@ -4205,7 +8278,12 @@
     function loadData(){
       try{
         const raw = localStorage.getItem(STORAGE_KEY);
-        if(!raw) return normalizeLoadedData(defaultData());
+        if(!raw){
+          const fresh = normalizeLoadedData(defaultData());
+          ensureCuratedUrlRecipes(fresh);
+          ensureIngredientStockRecipes(fresh);
+          return fresh;
+        }
         const saved = JSON.parse(raw);
         const base = defaultData();
         const merged = {...base, ...saved};
@@ -4221,10 +8299,16 @@
         merged.bargain = saved.bargain || [];
         merged.shoppingList = saved.shoppingList || [];
         merged.shoppingDone = saved.shoppingDone || {};
-        return normalizeLoadedData(merged);
+        const normalized = normalizeLoadedData(merged);
+        ensureCuratedUrlRecipes(normalized);
+        ensureIngredientStockRecipes(normalized);
+        return normalized;
       }catch(e){
         console.warn(e);
-        return normalizeLoadedData(defaultData());
+        const fresh = normalizeLoadedData(defaultData());
+        ensureCuratedUrlRecipes(fresh);
+        ensureIngredientStockRecipes(fresh);
+        return fresh;
       }
     }
 
@@ -4245,6 +8329,7 @@
       if(activeTab === 'today') view.innerHTML = viewToday();
       if(activeTab === 'recipes') view.innerHTML = viewRecipes();
       if(activeTab === 'shopping') view.innerHTML = viewShopping();
+      if(activeTab === 'history') view.innerHTML = viewHistory();
       if(activeTab === 'settings') view.innerHTML = viewSettings();
       if(activeTab === 'data') view.innerHTML = viewData();
     }
@@ -4264,7 +8349,7 @@
           <div class="card">
             <h2>今日の条件</h2>
             <div class="chips">
-              ${modeChip('pantry','ありモノから')}
+              ${modeChip('pantry','あるものから')}
               ${modeChip('empty','冷蔵庫なんもない')}
               ${modeChip('shopping','買い物前提')}
               ${modeChip('tired','疲れている')}
@@ -4392,6 +8477,21 @@
       return '缶詰・乾物・その他';
     }
 
+    function inferMainType(recipe){
+      const name = recipe?.name || '';
+      const category = recipe?.category || '';
+      const ingredients = Array.isArray(recipe?.ingredients) ? recipe.ingredients : [];
+      const required = Array.isArray(recipe?.required) ? recipe.required : [];
+      const hay = [name, category, ...ingredients, ...required].join(' ');
+      if(/鮭|サーモン|さば|鯖|ぶり|たら|白身魚|しらす|ツナ|まぐろ|魚|えび|海老|いか|イカ|ほたて|帆立|かにかま/.test(hay)) return '魚';
+      if(/豚|鶏|牛|ひき肉|挽き肉|肉|ウインナー|ベーコン|ハム|ソーセージ|ささみ/.test(hay)) return '肉';
+      if(/豆腐|厚揚げ|油揚げ|納豆|卵|玉子|たまご|大豆|豆乳/.test(hay)) return '卵・豆腐';
+      if(/丼|ご飯|チャーハン|炒飯|オムライス|麺|うどん|そば|そうめん|パスタ|焼きそば|春雨|パン/.test(hay)) return '主食';
+      if(/汁物|スープ|味噌汁|みそ汁|豚汁|鍋/.test(hay)) return '汁物';
+      if(/野菜|キャベツ|白菜|小松菜|ほうれん草|レタス|なす|トマト|きゅうり|大根|にんじん|玉ねぎ|じゃがいも|ピーマン|ブロッコリー|もやし|きのこ|しめじ|えのき/.test(hay)) return '野菜';
+      return 'その他';
+    }
+
     function renderCandidates(){
       if(!state.currentCandidates.length){
         return `<div class="empty" style="margin-top:12px">条件を選んで「今日の候補を3つ出す」を押してください。</div>`;
@@ -4411,9 +8511,9 @@
       const missing = missingIngredients(r);
       const used = r.ingredients.filter(x => hasIngredientInList(x, data.pantry));
       const tags = [
-        r.childMode === 'ok' ? '<span class="tag good">子供OK</span>' : r.childMode === 'adapt' ? '<span class="tag blue">子供アレンジ可</span>' : '<span class="tag bad">子供別</span>',
+        childTagHtml(r.childMode),
         r.spicy ? '<span class="tag hot">辛い</span>' : '',
-        r.teppan ? '<span class="tag good">鉄板</span>' : '',
+        qualityBadgesHtml(r),
         `<span class="tag">${r.time}分</span>`
       ].filter(Boolean).join('');
       return `
@@ -4425,9 +8525,10 @@
             </div>
             <span class="score">${Math.round(item.score)}点</span>
           </div>
-          <div class="small" style="margin-top:8px">カテゴリ：${r.category} / ${r.mainType}</div>
+          <div class="small" style="margin-top:8px">カテゴリ：${r.category}</div>
+          ${isIdeaRecipe(r) ? '<div class="idea-notice" style="margin-top:8px">外部レシピ未確認のアイデア候補です。作る前に詳細からネット検索し、よければ参考URLを登録してください。</div>' : ''}
           <div style="margin-top:8px">
-            ${used.length ? `<div><b>使うありモノ：</b>${used.join('、')}</div>` : `<div><b>使うありモノ：</b>少なめ</div>`}
+            ${used.length ? `<div><b>使うあるもの：</b>${used.join('、')}</div>` : `<div><b>使うあるもの：</b>少なめ</div>`}
             <div><b>買い足し：</b>${missing.length ? missing.join('、') : 'なし'}</div>
           </div>
           <ul class="reasons">${item.reasons.slice(0,5).map(x=>`<li>${x}</li>`).join('')}</ul>
@@ -4485,12 +8586,15 @@
       const stats = data.stats[r.id] || {};
       if(stats.accepted){ score += Math.min(8, stats.accepted * 1.5); reasons.push('過去に選んだ実績あり'); }
       if(stats.rejected){ score -= Math.min(8, stats.rejected * 0.7); }
+      if(recipeHasSource(r)){ score += 7; reasons.push('参考URLあり'); }
+      if((r.custom || r.modified) && !isIdeaRecipe(r)){ score += 4; reasons.push('自作・編集済み'); }
+      if(isIdeaRecipe(r)){ score -= 8; reasons.push('外部未確認のアイデア候補'); }
 
       const pantryHits = r.ingredients.filter(x => hasIngredientInList(x, data.pantry));
       const missing = missingIngredients(r);
       if(state.modes.pantry && !state.modes.empty){
         score += pantryHits.length * 6;
-        if(pantryHits.length) reasons.push(`ありモノを${pantryHits.length}個使える`);
+        if(pantryHits.length) reasons.push(`あるものを${pantryHits.length}個使える`);
         score -= missing.length * (state.filtersToday.limitShopping ? 3.2 : 1.4);
         if(!missing.length) { score += 8; reasons.push('買い足しなし'); }
       }
@@ -4571,8 +8675,18 @@
       return r.mainType === '魚' || r.ingredients.some(x => /魚|鮭|さば|ぶり|しらす|ツナ/.test(x));
     }
 
+    function deriveShoppingIngredients(ingredients){
+      return uniqueList((ingredients || [])
+        .map(x => String(x || '').trim())
+        .filter(Boolean)
+        .filter(x => !STAPLES.has(x))
+        .filter(x => x !== 'ご飯')
+        .filter(x => !/^(水|お湯|油|サラダ油|ごま油)$/.test(x)));
+    }
+
     function missingIngredients(r){
-      return r.required
+      const base = Array.isArray(r.required) && r.required.length ? r.required : deriveShoppingIngredients(r.ingredients || []);
+      return base
         .filter(x => !hasIngredientInList(x, data.pantry))
         .filter(x => !STAPLES.has(x))
         .filter(x => x !== 'ご飯');
@@ -4584,7 +8698,7 @@
       const stats = data.stats[id] || {};
       stats.accepted = (stats.accepted || 0) + 1;
       data.stats[id] = stats;
-      data.history.unshift({recipeId:id, name:r.name, date:todayKey(), at:new Date().toISOString()});
+      data.history.unshift({recipeId:id, name:r.name, date:todayKey(), at:new Date().toISOString(), photoDataUrl:'', memo:''});
       data.history = data.history.slice(0,120);
       const missing = missingIngredients(r);
       data.shoppingList = missing.map(name => ({name, recipeId:id, recipeName:r.name, createdAt:new Date().toISOString()}));
@@ -4638,27 +8752,302 @@
       document.getElementById(`reject-${id}`)?.classList.toggle('hidden');
     }
 
+    // ========== 分析機能 ==========
+    // 主要食材リスト(カバレッジ可視化対象)
+    const COVERAGE_INGREDIENTS = {
+      '主菜（肉・魚）': ['鶏もも','鶏むね','鶏ささみ','豚こま','豚バラ','豚ロース','牛こま','牛肉','合挽肉','鶏ひき肉','豚ひき肉','鮭','鯖','ぶり','まぐろ','たら','えび','いか','ホタテ','ツナ','卵','豆腐','厚揚げ','油揚げ','納豆'],
+      '葉物・実野菜': ['キャベツ','白菜','レタス','ほうれん草','小松菜','水菜','ニラ','ねぎ','長ねぎ','玉ねぎ','ピーマン','パプリカ','なす','トマト','ミニトマト','きゅうり','ズッキーニ','ゴーヤ','オクラ','アスパラ','ブロッコリー','カリフラワー','スナップエンドウ','枝豆','とうもろこし','かぼちゃ'],
+      '根菜・きのこ・芋': ['にんじん','大根','じゃがいも','さつまいも','里芋','ごぼう','れんこん','かぶ','しめじ','まいたけ','エリンギ','えのき','しいたけ','マッシュルーム','長芋'],
+      '主食・乾物・その他': ['ご飯','米','うどん','そば','パスタ','中華麺','食パン','餃子の皮','春巻きの皮','春雨','わかめ','ひじき','切り干し大根','高野豆腐','チーズ','牛乳','ヨーグルト']
+    };
+
+    // 食材名でレシピをカウント(ゆるい部分一致)
+    function countRecipesWithIngredient(ingName, recipes){
+      const target = String(ingName).toLowerCase();
+      return recipes.filter(r => {
+        const all = (r.ingredients || []).map(x => String(x).toLowerCase()).join('|');
+        return all.includes(target);
+      }).length;
+    }
+
+    // 食材カバレッジを計算
+    function computeCoverage(){
+      const result = {};
+      Object.entries(COVERAGE_INGREDIENTS).forEach(([group, items]) => {
+        result[group] = items.map(name => ({
+          name,
+          count: countRecipesWithIngredient(name, data.recipes),
+          inPantry: hasIngredientInList(name, data.pantry)
+        }));
+      });
+      return result;
+    }
+
+    // タグ・カテゴリの傾向(全レシピ vs 鉄板/履歴)
+    function computeTagDistribution(){
+      // タグ集計対象は category + tags(ノイズが少ないもの)
+      function tagsOf(r){
+        const t = [];
+        if(r.category) t.push('cat:' + r.category);
+        (r.tags || []).forEach(tg => {
+          if(tg === '参考URLあり') return;
+          if(tg === '楽天レシピ') return;
+          t.push('tag:' + tg);
+        });
+        if(r.spicy) t.push('attr:辛い');
+        if(r.time && r.time <= 15) t.push('attr:時短');
+        if(r.childMode === 'ok') t.push('attr:子供OK');
+        if(r.childMode === 'separate') t.push('attr:子供別');
+        return t;
+      }
+      const all = {};
+      const liked = {};
+      // 鉄板 + 履歴を「好き」とみなす
+      const likedIds = new Set(data.recipes.filter(r => r.teppan).map(r => r.id));
+      (data.history || []).forEach(h => likedIds.add(h.recipeId));
+      data.recipes.forEach(r => {
+        const t = tagsOf(r);
+        const isLiked = likedIds.has(r.id);
+        const stats = data.stats[r.id] || {};
+        const accepted = stats.accepted || 0;
+        const weight = isLiked ? 1 + accepted * 0.5 : 0;
+        t.forEach(tg => {
+          all[tg] = (all[tg] || 0) + 1;
+          if(weight > 0) liked[tg] = (liked[tg] || 0) + weight;
+        });
+      });
+      // 各タグの「好み度」= (好きレシピでの出現率) / (全レシピでの出現率)
+      const totalLiked = Object.values(liked).reduce((a,b)=>a+b, 0) || 1;
+      const totalAll = Object.values(all).reduce((a,b)=>a+b, 0) || 1;
+      const score = {};
+      Object.keys(all).forEach(tg => {
+        const allRate = (all[tg] || 0) / totalAll;
+        const likedRate = (liked[tg] || 0) / totalLiked;
+        score[tg] = {
+          allCount: all[tg] || 0,
+          likedCount: liked[tg] || 0,
+          ratio: allRate > 0 ? likedRate / allRate : 0
+        };
+      });
+      return score;
+    }
+
+    // 好みベクトル(レシピ類似度ソート用)
+    function computePreferenceVector(){
+      const dist = computeTagDistribution();
+      const vec = {};
+      Object.entries(dist).forEach(([tg, s]) => {
+        if(s.likedCount > 0) vec[tg] = s.likedCount; // 出現回数を重みに
+      });
+      return vec;
+    }
+
+    // 個別レシピと好みベクトルの近さ
+    function recipeSimilarityScore(r, prefVec){
+      if(!prefVec) prefVec = computePreferenceVector();
+      let score = 0;
+      const tags = [];
+      if(r.category) tags.push('cat:' + r.category);
+      (r.tags || []).forEach(tg => {
+        if(tg === '参考URLあり') return;
+        if(tg === '楽天レシピ') return;
+        tags.push('tag:' + tg);
+      });
+      if(r.spicy) tags.push('attr:辛い');
+      if(r.time && r.time <= 15) tags.push('attr:時短');
+      if(r.childMode === 'ok') tags.push('attr:子供OK');
+      if(r.childMode === 'separate') tags.push('attr:子供別');
+      tags.forEach(tg => { score += (prefVec[tg] || 0); });
+      return score;
+    }
+
+    // カテゴリのカバレッジ(空き枠検出)
+    function computeCategoryCoverage(){
+      const cats = {};
+      data.recipes.forEach(r => {
+        const c = r.category || '未分類';
+        cats[c] = (cats[c] || 0) + 1;
+      });
+      return cats;
+    }
+
+    // 分析パネル本体
+    function analysisPanel(){
+      const tab = state.analysisTab || 'coverage';
+      return `
+        <div class="chips" style="margin:10px 0">
+          <label class="chip ${tab==='coverage'?'on':''}"><input type="radio" name="analysisTab" ${tab==='coverage'?'checked':''} onchange="state.analysisTab='coverage'; render()"> 食材カバー</label>
+          <label class="chip ${tab==='taste'?'on':''}"><input type="radio" name="analysisTab" ${tab==='taste'?'checked':''} onchange="state.analysisTab='taste'; render()"> 好み傾向</label>
+          <label class="chip ${tab==='gaps'?'on':''}"><input type="radio" name="analysisTab" ${tab==='gaps'?'checked':''} onchange="state.analysisTab='gaps'; render()"> 空き枠の提案</label>
+        </div>
+        ${tab === 'coverage' ? analysisCoverageView() : ''}
+        ${tab === 'taste' ? analysisTasteView() : ''}
+        ${tab === 'gaps' ? analysisGapsView() : ''}
+      `;
+    }
+
+    // 機能A: 食材カバレッジ
+    function analysisCoverageView(){
+      const cov = computeCoverage();
+      const rows = Object.entries(cov).map(([group, items]) => {
+        const sorted = [...items].sort((a,b) => a.count - b.count);
+        const cells = sorted.map(it => {
+          const cls = it.count === 0 ? 'cov-zero' : it.count <= 2 ? 'cov-low' : it.count <= 5 ? 'cov-mid' : 'cov-high';
+          const inPantry = it.inPantry ? '🛒' : '';
+          return `<button class="cov-cell ${cls}" onclick="state.recipeQuery='${escAttr(it.name)}'; render()" title="クリックして検索">${it.name}${inPantry}<span>${it.count}</span></button>`;
+        }).join('');
+        return `<div class="cov-group"><div class="cov-group-title">${group}</div><div class="cov-cells">${cells}</div></div>`;
+      }).join('');
+      const zeroes = [];
+      Object.values(cov).flat().forEach(it => { if(it.count === 0) zeroes.push(it.name); });
+      const fewest = Object.values(cov).flat().filter(it => it.count > 0).sort((a,b) => a.count - b.count).slice(0, 8);
+      return `
+        <div class="small" style="color:var(--muted);margin-bottom:8px">食材ごとの登録レシピ数。<b style="color:var(--accent)">赤=0件</b>、<b>橙=少ない</b>、緑=多い。タップで検索。🛒は冷蔵庫にある食材。</div>
+        ${rows}
+        ${zeroes.length ? `<div class="card" style="margin-top:12px;background:#fff8ef"><b>📭 レシピがない食材(${zeroes.length}個)</b><div class="small" style="margin-top:6px">${zeroes.join('、')}</div><div class="small" style="margin-top:6px;color:var(--muted)">これらの食材を使うレシピを追加すると、レパートリーがぐっと広がります。</div></div>` : ''}
+        ${fewest.length ? `<div class="card" style="margin-top:8px"><b>🔻 レシピが少ない食材TOP8</b><div class="small" style="margin-top:6px">${fewest.map(it => `${it.name}(${it.count})`).join('、')}</div></div>` : ''}
+      `;
+    }
+
+    // 機能B: 好み傾向
+    function analysisTasteView(){
+      const dist = computeTagDistribution();
+      const rows = Object.entries(dist)
+        .filter(([,s]) => s.likedCount >= 1)
+        .sort((a,b) => b[1].likedCount - a[1].likedCount)
+        .slice(0, 20);
+      if(!rows.length) return `<div class="empty">まだ鉄板登録や履歴が少なくて好み傾向が出ません。鉄板にしたり「これにする」を何回かしてみてください。</div>`;
+      const items = rows.map(([tg, s]) => {
+        const label = tg.startsWith('cat:') ? tg.slice(4) : tg.startsWith('tag:') ? tg.slice(4) : tg.startsWith('attr:') ? tg.slice(5) : tg;
+        const kind = tg.startsWith('cat:') ? 'カテゴリ' : tg.startsWith('attr:') ? '属性' : 'タグ';
+        const star = s.ratio >= 1.5 ? '⭐️' : s.ratio >= 1.2 ? '✨' : '';
+        return `<div class="taste-row"><span class="taste-kind">${kind}</span><b>${label}</b> ${star}<span class="small" style="margin-left:auto;color:var(--muted)">好き${s.likedCount}回 / 全${s.allCount}件</span></div>`;
+      }).join('');
+      const likedIds = new Set(data.recipes.filter(r => r.teppan).map(r => r.id));
+      (data.history || []).forEach(h => likedIds.add(h.recipeId));
+      return `
+        <div class="small" style="color:var(--muted);margin-bottom:8px">鉄板登録(${data.recipes.filter(r => r.teppan).length}件)と履歴(${(data.history||[]).length}件)から、ありささん家の好み傾向を集計。⭐️は特に偏っているもの。</div>
+        ${items}
+        <div class="card" style="margin-top:12px;background:#f5e9d4">
+          <b>💡 似た系統のレシピを上に</b>
+          <div class="small" style="margin-top:6px">並び替えで「<b>好み傾向に近い順</b>」を選ぶと、好きな系統のレシピが上にきます。</div>
+          <button class="primary" style="margin-top:8px" onclick="state.recipeSort='similar'; state.analysisOpen=false; render(); window.scrollTo(0,0)">好み順で並べる</button>
+        </div>
+      `;
+    }
+
+    // 機能D(プチ版): 空き枠の提案
+    function analysisGapsView(){
+      const cats = computeCategoryCoverage();
+      const sortedCats = Object.entries(cats).sort((a,b) => a[1] - b[1]);
+      const lowCats = sortedCats.filter(([,n]) => n < 5).slice(0, 8);
+      const highCats = sortedCats.slice(-5).reverse();
+      // 「鉄板の食材 × 少ないカテゴリ」で組み合わせ提案
+      const teppanIngs = new Set();
+      data.recipes.filter(r => r.teppan).forEach(r => (r.ingredients || []).forEach(i => teppanIngs.add(i)));
+      const cov = computeCoverage();
+      const sparseIngs = Object.values(cov).flat().filter(it => it.count <= 2).map(it => it.name);
+      const ideas = [];
+      lowCats.forEach(([cat]) => {
+        sparseIngs.slice(0, 3).forEach(ing => {
+          ideas.push({cat, ing});
+        });
+      });
+      const ideasHtml = ideas.slice(0, 12).map(({cat, ing}) => {
+        const q = encodeURIComponent(`${ing} ${cat} レシピ`);
+        return `<div class="gap-idea">
+          <div><b>${ing}</b> × <b>${cat}</b></div>
+          <div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap">
+            <a class="secondary" href="https://www.google.com/search?q=${q}" target="_blank" rel="noopener">ググる</a>
+            <a class="secondary" href="https://cookpad.com/jp/search/${encodeURIComponent(ing+' '+cat)}" target="_blank" rel="noopener">クックパッド</a>
+            <a class="secondary" href="https://recipe.rakuten.co.jp/search/${encodeURIComponent(ing+' '+cat)}/" target="_blank" rel="noopener">楽天</a>
+            <button class="ghost" onclick="addIdeaRecipeFromGap('${escAttr(ing)}', '${escAttr(cat)}')">候補に追加</button>
+          </div>
+        </div>`;
+      }).join('');
+      return `
+        <div class="small" style="color:var(--muted);margin-bottom:8px">登録が少ないカテゴリ・食材から、レシピを増やせそうな組み合わせを提案します。</div>
+        <div class="card">
+          <b>📊 カテゴリ別レシピ数</b>
+          <div class="small" style="margin-top:6px"><span style="color:var(--muted)">少ない: </span>${lowCats.map(([c,n]) => `${c}(${n})`).join('、') || 'なし'}</div>
+          <div class="small" style="margin-top:4px"><span style="color:var(--muted)">多い: </span>${highCats.map(([c,n]) => `${c}(${n})`).join('、')}</div>
+        </div>
+        ${ideas.length ? `<div class="card" style="margin-top:8px"><b>💡 組み合わせアイデア</b><div class="small" style="margin-top:6px;color:var(--muted)">少ないカテゴリ × レシピ数の少ない食材。気になったらネット検索 or 候補に追加。</div><div style="margin-top:8px">${ideasHtml}</div></div>` : ''}
+      `;
+    }
+
+    // 「候補に追加」ボタン用
+    function addIdeaRecipeFromGap(ing, cat){
+      if(!confirm(`「${ing} × ${cat}」のアイデア候補を追加しますか？\n後でレシピタブで編集してURLを足してください。`)) return;
+      const id = 'idea_' + Date.now().toString(36);
+      const item = {
+        id,
+        name: `${ing}の${cat}（要検索）`,
+        category: cat,
+        mainType: '',
+        ingredients: [ing],
+        required: [ing],
+        optional: [],
+        tags: ['アイデア候補', '要検索'],
+        time: 20,
+        difficulty: 'かんたん',
+        childMode: 'separate',
+        spicy: false,
+        light: '普通',
+        steps: ['ネット検索でレシピを確認してから作ること。', 'よかったらこのレシピにURLを登録する。'],
+        memo: `${ing}を使った${cat}を試してみたい時用の枠。`,
+        sourceUrl: '',
+        sourceKind: '',
+        custom: true,
+        teppan: false
+      };
+      data.recipes.unshift(item);
+      saveData();
+      render();
+      alert('候補に追加しました。レシピタブで編集できます。');
+    }
+    // ========== /分析機能 ==========
+
     function viewRecipes(){
       const q = state.recipeQuery.trim().toLowerCase();
       let list = data.recipes;
       if(q){
         list = list.filter(r => [r.name,r.category,r.mainType,...r.ingredients,...r.tags].join(' ').toLowerCase().includes(q));
       }
+      list = sortRecipeList(list);
       return `
         <section class="section">
           <div class="card">
             <h2>鉄板レシピ・候補レシピ</h2>
-            <input type="text" value="${escAttr(state.recipeQuery)}" placeholder="検索：キャベツ、辛い、丼など" oninput="state.recipeQuery=this.value; render()">
+            <div class="grid2">
+              <input type="text" value="${escAttr(state.recipeQuery)}" placeholder="検索：キャベツ、辛い、丼など" oninput="state.recipeQuery=this.value; render()">
+              <select onchange="state.recipeSort=this.value; render()">
+                <option value="teppan" ${state.recipeSort==='teppan'?'selected':''}>並び替え：鉄板を上</option>
+                <option value="recent" ${state.recipeSort==='recent'?'selected':''}>最近作った順</option>
+                <option value="time" ${state.recipeSort==='time'?'selected':''}>時短順</option>
+                <option value="category" ${state.recipeSort==='category'?'selected':''}>カテゴリ順</option>
+                <option value="custom" ${state.recipeSort==='custom'?'selected':''}>追加したレシピを上</option>
+                <option value="url" ${state.recipeSort==='url'?'selected':''}>参考URLありを上</option>
+                <option value="ideaLast" ${state.recipeSort==='ideaLast'?'selected':''}>アイデア候補を下</option>
+                <option value="similar" ${state.recipeSort==='similar'?'selected':''}>好み傾向に近い順</option>
+                <option value="name" ${state.recipeSort==='name'?'selected':''}>名前順</option>
+              </select>
+            </div>
             <div class="stats" style="margin-top:10px">
               <div class="stat"><b>${data.recipes.length}</b><span class="small">登録</span></div>
               <div class="stat"><b>${data.recipes.filter(r=>r.teppan).length}</b><span class="small">鉄板</span></div>
-              <div class="stat"><b>${data.recipes.filter(r=>r.spicy).length}</b><span class="small">辛い</span></div>
+              <div class="stat"><b>${data.recipes.filter(r=>recipeHasSource(r)).length}</b><span class="small">URLあり</span></div>
             </div>
           </div>
 
+          <details class="card" ${state.analysisOpen ? 'open' : ''} ontoggle="state.analysisOpen=this.open">
+            <summary><b>📊 レパートリー分析</b><span class="small" style="margin-left:8px;color:var(--muted)">食材カバー・好み傾向・空き枠の提案</span></summary>
+            ${analysisPanel()}
+          </details>
+
           <details class="card">
             <summary><b>新しいレシピを登録</b></summary>
-            ${recipeForm()}
+            ${recipeForm(null, 'new')}
           </details>
 
           <div class="list">
@@ -4668,87 +9057,183 @@
       `;
     }
 
+    function sortRecipeList(list){
+      const mode = state.recipeSort || 'teppan';
+      const arr = [...list];
+      const last = r => lastCookedDate(r.id) || '';
+      const byName = (a,b) => String(a.name || '').localeCompare(String(b.name || ''), 'ja');
+      // 好み傾向ソートのために事前計算
+      let prefVec = null;
+      if(mode === 'similar'){
+        prefVec = computePreferenceVector();
+      }
+      arr.sort((a,b) => {
+        if(mode === 'recent') return (last(b)).localeCompare(last(a)) || byName(a,b);
+        if(mode === 'time') return (Number(a.time)||999) - (Number(b.time)||999) || byName(a,b);
+        if(mode === 'category') return String(a.category||'').localeCompare(String(b.category||''), 'ja') || byName(a,b);
+        if(mode === 'custom') return Number(!!b.custom || !!b.modified) - Number(!!a.custom || !!a.modified) || byName(a,b);
+        if(mode === 'url') return Number(recipeHasSource(b)) - Number(recipeHasSource(a)) || byName(a,b);
+        if(mode === 'ideaLast') return Number(isIdeaRecipe(a)) - Number(isIdeaRecipe(b)) || byName(a,b);
+        if(mode === 'similar'){
+          const sa = recipeSimilarityScore(a, prefVec);
+          const sb = recipeSimilarityScore(b, prefVec);
+          return sb - sa || byName(a,b);
+        }
+        if(mode === 'name') return byName(a,b);
+        return Number(!!b.teppan) - Number(!!a.teppan) || Number(recipeHasSource(b)) - Number(recipeHasSource(a)) || Number(!!b.custom || !!b.modified) - Number(!!a.custom || !!a.modified) || Number(isIdeaRecipe(a)) - Number(isIdeaRecipe(b)) || byName(a,b);
+      });
+      return arr;
+    }
+
     function recipeLine(r){
+      const cooked = lastCookedDate(r.id);
       return `
-        <div class="recipe-line">
+        <div class="recipe-line ${r.teppan ? 'teppan' : ''} ${isIdeaRecipe(r) ? 'idea' : ''}">
           <div>
             <div class="name">${r.name}</div>
-            <div class="meta">${r.category} / ${r.time}分 / ${r.childModeLabel || childLabel(r.childMode)}</div>
+            <div class="meta">${r.category} / ${r.time}分${cooked ? ` / 最終 ${cooked}` : ''}</div>
             <div class="chips" style="margin-top:5px">
-              ${r.tags.slice(0,4).map(t=>`<span class="tag ${t.includes('辛')?'hot':''}">${t}</span>`).join('')}
+              ${qualityBadgesHtml(r)}
+              ${visibleRecipeTags(r,4).map(t=>`<span class="tag ${t.includes('辛')?'hot':''}">${t}</span>`).join('')}
             </div>
           </div>
           <div class="row" style="justify-content:flex-end">
             <button class="mini-btn" onclick="toggleTeppan('${r.id}')">${r.teppan?'鉄板解除':'鉄板'}</button>
+            <button class="mini-btn" onclick="editRecipe('${r.id}')">編集</button>
             <button class="mini-btn" onclick="openRecipe('${r.id}')">見る</button>
           </div>
         </div>
       `;
     }
 
-    function recipeForm(){
+    function recipeForm(recipe = null, prefix = 'new'){
+      const isEdit = !!recipe;
+      const r = recipe || {};
+      const tags = Array.isArray(r.tags) ? r.tags : [];
+      const category = r.category || '炒め物';
       return `
-        <form onsubmit="addRecipe(event)">
+        <form onsubmit="${isEdit ? `updateRecipe(event, '${r.id}')` : 'addRecipe(event)'}">
           <label class="label">レシピ名</label>
-          <input name="name" required placeholder="例：豚こまキャベツ味噌炒め">
+          <input name="name" required value="${escAttr(r.name || '')}" placeholder="例：豚こまキャベツ味噌炒め">
 
-          <div class="grid2">
-            <div>
-              <label class="label">カテゴリ</label>
-              <input name="category" placeholder="例：炒め物">
-            </div>
-            <div>
-              <label class="label">メイン分類</label>
-              <select name="mainType">
-                <option>肉</option><option>魚</option><option>卵・豆腐</option><option>野菜</option><option>主食</option><option>汁物</option><option>辛い</option>
-              </select>
-            </div>
+          <div class="notice" style="margin:10px 0">
+            <b>カテゴリ</b>は料理の形、<b>タグ</b>は条件です。辛い・子供OK・疲れている日などはタグで管理します。
           </div>
 
-          <div class="grid2">
-            <div>
-              <label class="label">調理時間 分</label>
-              <input name="time" type="number" value="20" min="1">
-            </div>
-            <div>
-              <label class="label">子供対応</label>
-              <select name="childMode">
-                <option value="ok">子供OK</option>
-                <option value="adapt">子供アレンジ可</option>
-                <option value="separate">子供別メニュー前提</option>
-              </select>
-            </div>
+          <label class="label">カテゴリ（料理の形）</label>
+          <select name="category">
+            ${recipeCategoryOptions(category)}
+          </select>
+          <div class="form-note">丼、パスタ、炒め物など「どんな料理か」の分類。</div>
+
+          <label class="label">調理時間 分</label>
+          <input name="time" type="number" value="${escAttr(r.time || 20)}" min="1">
+
+          <label class="label">材料</label>
+          <textarea name="ingredients" required placeholder="納豆, パスタ, いか, 大葉, たらこ, バター, 昆布だし">${escHtml((r.ingredients || []).join(', '))}</textarea>
+          <div class="form-note">材料だけ入力すればOK。調味料・常備品は買い物リストから自動で除きます。</div>
+
+          <label class="label">タグ（選択式・複数可）</label>
+          <select id="${prefix}RecipeTagSelect" onchange="addRecipeTagFromSelect(this, '${prefix}')">
+            <option value="">タグを選んで追加</option>
+            <option value="子供OK">子供OK</option>
+            <option value="子供アレンジ可">子供アレンジ可</option>
+            <option value="子供別メニュー前提">子供別メニュー前提</option>
+            <option value="疲れている日">疲れている日</option>
+            <option value="15分以内">15分以内</option>
+            <option value="買い物少なめ">買い物少なめ</option>
+            <option value="野菜消費">野菜消費</option>
+            <option value="作り置き">作り置き</option>
+            <option value="辛い">辛い</option>
+            <option value="あっさり">あっさり</option>
+            <option value="こってり">こってり</option>
+            <option value="節約">節約</option>
+            <option value="大人向け">大人向け</option>
+            <option value="弁当向き">弁当向き</option>
+          </select>
+          <input type="hidden" name="tags" id="${prefix}RecipeTags" value="${escAttr(tags.join(', '))}">
+          <div id="${prefix}RecipeTagChips" class="chips" style="margin-top:8px">${recipeTagChipsHtml(tags, prefix)}</div>
+          <div class="grid2" style="margin-top:8px">
+            <input id="${prefix}RecipeCustomTag" type="text" placeholder="任意タグを追加">
+            <button type="button" class="mini-btn" onclick="addCustomRecipeTag('${prefix}')">タグ追加</button>
           </div>
-
-          <label class="label">材料 全体</label>
-          <textarea name="ingredients" required placeholder="豚こま, キャベツ, 玉ねぎ, 味噌"></textarea>
-
-          <label class="label">必須食材 買い物リスト対象</label>
-          <textarea name="required" placeholder="豚こま, キャベツ"></textarea>
-
-          <label class="label">タグ</label>
-          <input name="tags" placeholder="子供OK, 疲れている日, 辛い, 辛い">
 
           <label class="label">作り方メモ</label>
-          <textarea name="steps" placeholder="1. 切る&#10;2. 炒める&#10;3. 味付けする"></textarea>
+          <textarea name="steps" placeholder="野菜を切る&#10;肉を炒める&#10;味付けする">${escHtml((r.steps || []).join('\n'))}</textarea>
+          <div class="form-note">1、2、3は入力不要。改行ごとに表示時に自動で番号が付きます。</div>
 
-          <div class="grid2">
-            <div>
-              <label class="label">参考サイト名</label>
-              <input name="sourceName" placeholder="DELISH KITCHEN など">
-            </div>
-            <div>
-              <label class="label">参考URL</label>
-              <input name="sourceUrl" type="url" placeholder="https://...">
-            </div>
+          <div class="card flat" style="margin:12px 0 0;padding:10px">
+            <h3 style="margin-bottom:6px">参考URL</h3>
+            <button type="button" class="secondary block" onclick="searchRecipeFromForm(this)">ネット検索して参考URLを探す</button>
+            <label class="label" style="margin-top:8px">参考URL</label>
+            <input name="sourceUrl" value="${escAttr(r.sourceUrl || '')}" type="url" placeholder="https://...">
+            <div class="form-note">検索で見つけたページのURLをコピーして貼ればOK。サイト名の入力は不要です。</div>
           </div>
 
           <label class="label">家族メモ</label>
-          <textarea name="memo" placeholder="子供はピーマンなし、辛味は後入れ、など"></textarea>
+          <textarea name="memo" placeholder="子供はピーマンなし、辛味は後入れ、など">${escHtml(r.memo || '')}</textarea>
 
-          <button class="primary block" style="margin-top:12px">登録する</button>
+          <button class="primary block" style="margin-top:12px">${isEdit ? '更新する' : '登録する'}</button>
         </form>
       `;
+    }
+
+    function recipeCategoryOptions(selected){
+      const cats = ['丼・ご飯','麺','パスタ','炒め物','焼き物','煮物','揚げ物','汁物・スープ','鍋','カレー・シチュー','サラダ・副菜','その他・自作'];
+      return cats.map(c => `<option value="${escAttr(c)}" ${c===selected ? 'selected' : ''}>${c}</option>`).join('');
+    }
+
+    function recipeTagChipsHtml(tags, prefix){
+      if(!tags || !tags.length) return '<span class="small">まだタグなし</span>';
+      return tags.map(t => `<button type="button" class="tag ${t.includes('辛')?'hot':''}" onclick="removeRecipeTag('${escAttr(t)}', '${prefix}')">${escHtml(t)} ×</button>`).join('');
+    }
+
+    function addRecipeTagFromSelect(sel, prefix = 'new'){
+      const tag = (sel.value || '').trim();
+      if(tag) addRecipeTag(tag, prefix);
+      sel.value = '';
+    }
+
+    function addCustomRecipeTag(prefix = 'new'){
+      const input = document.getElementById(`${prefix}RecipeCustomTag`);
+      if(!input) return;
+      const tag = input.value.trim();
+      if(tag) addRecipeTag(tag, prefix);
+      input.value = '';
+    }
+
+    function addRecipeTag(tag, prefix = 'new'){
+      const hidden = document.getElementById(`${prefix}RecipeTags`);
+      if(!hidden) return;
+      const tags = parseList(hidden.value);
+      if(!tags.includes(tag)) tags.push(tag);
+      hidden.value = tags.join(', ');
+      renderRecipeTagChips(prefix);
+    }
+
+    function removeRecipeTag(tag, prefix = 'new'){
+      const hidden = document.getElementById(`${prefix}RecipeTags`);
+      if(!hidden) return;
+      const tags = parseList(hidden.value).filter(t => t !== tag);
+      hidden.value = tags.join(', ');
+      renderRecipeTagChips(prefix);
+    }
+
+    function renderRecipeTagChips(prefix = 'new'){
+      const hidden = document.getElementById(`${prefix}RecipeTags`);
+      const box = document.getElementById(`${prefix}RecipeTagChips`);
+      if(!hidden || !box) return;
+      const tags = parseList(hidden.value);
+      box.innerHTML = recipeTagChipsHtml(tags, prefix);
+    }
+
+    function searchRecipeFromForm(btn){
+      const form = btn.closest('form');
+      if(!form) return;
+      const name = (form.querySelector('[name="name"]')?.value || '').trim();
+      const ingredients = parseList(form.querySelector('[name="ingredients"]')?.value || '').slice(0,3).join(' ');
+      const q = (name || ingredients || '夕飯') + ' レシピ';
+      window.open(`https://www.google.com/search?q=${encodeURIComponent(q)}`, '_blank', 'noopener');
     }
 
     function addRecipe(e){
@@ -4756,17 +9241,19 @@
       const fd = new FormData(e.target);
       const name = fd.get('name').trim();
       const ingredients = parseList(fd.get('ingredients'));
-      const required = parseList(fd.get('required'));
-      const tags = parseList(fd.get('tags'));
-      const childMode = fd.get('childMode');
-      const spicy = tags.some(t => t.includes('辛')) || fd.get('mainType') === '辛い';
+      const required = deriveShoppingIngredients(ingredients);
+      const tags = parseList(fd.get('tags')).filter(t => t !== 'アイデア候補');
+      const sourceUrl = (fd.get('sourceUrl') || '').trim();
+      const spicy = tags.some(t => t.includes('辛'));
+      if(spicy && !tags.includes('辛い')) tags.push('辛い');
+      const childMode = childModeFromTags(tags);
       const r = {
         id:'c' + Date.now(),
         name,
         category: fd.get('category').trim() || '自作',
-        mainType: fd.get('mainType'),
+        mainType: inferMainType({name, category: fd.get('category').trim() || '自作', ingredients, required}),
         ingredients,
-        required: required.length ? required : ingredients,
+        required,
         optional: [],
         tags,
         time: Number(fd.get('time')) || 20,
@@ -4776,8 +9263,9 @@
         light: '普通',
         steps: parseLines(fd.get('steps')),
         memo: fd.get('memo').trim(),
-        sourceName: fd.get('sourceName').trim(),
-        sourceUrl: fd.get('sourceUrl').trim(),
+        sourceName: '',
+        sourceUrl,
+        sourceKind: sourceUrl ? 'url' : 'custom',
         custom: true,
         teppan: true
       };
@@ -4786,6 +9274,47 @@
       e.target.reset();
       render();
       openRecipe(r.id);
+    }
+
+    function editRecipe(id){
+      const r = recipeById(id);
+      if(!r) return;
+      document.getElementById('modalTitle').textContent = `編集：${r.name}`;
+      document.getElementById('modalBody').innerHTML = recipeForm(r, 'edit');
+      document.getElementById('recipeDialog').showModal();
+    }
+
+    function updateRecipe(e, id){
+      e.preventDefault();
+      const r = recipeById(id);
+      if(!r) return;
+      const fd = new FormData(e.target);
+      const name = fd.get('name').trim();
+      const ingredients = parseList(fd.get('ingredients'));
+      const required = deriveShoppingIngredients(ingredients);
+      const tags = parseList(fd.get('tags')).filter(t => t !== 'アイデア候補');
+      const sourceUrl = (fd.get('sourceUrl') || '').trim();
+      const spicy = tags.some(t => t.includes('辛'));
+      if(spicy && !tags.includes('辛い')) tags.push('辛い');
+      r.name = name;
+      r.category = fd.get('category').trim() || 'その他・自作';
+      r.ingredients = ingredients;
+      r.required = required;
+      r.tags = tags;
+      r.mainType = inferMainType({name, category:r.category, ingredients, required:r.required});
+      r.time = Number(fd.get('time')) || 20;
+      r.childMode = childModeFromTags(tags);
+      r.spicy = spicy;
+      r.steps = parseLines(fd.get('steps'));
+      r.memo = fd.get('memo').trim();
+      r.sourceName = '';
+      r.sourceUrl = sourceUrl;
+      r.sourceKind = sourceUrl ? 'url' : 'custom';
+      r.stock = false;
+      r.modified = true;
+      saveData();
+      render();
+      openRecipe(id);
     }
 
     function viewShopping(){
@@ -4816,6 +9345,105 @@
             </div>
           </div>
         </section>
+      `;
+    }
+
+    function viewHistory(){
+      const ym = state.historyMonth || `${TODAY.getFullYear()}-${String(TODAY.getMonth()+1).padStart(2,'0')}`;
+      const monthItems = data.history
+        .filter(h => (h.date || '').startsWith(ym))
+        .sort((a,b) => String(b.date || '').localeCompare(String(a.date || '')) || String(b.at || '').localeCompare(String(a.at || '')));
+      return `
+        <section class="section">
+          <div class="card">
+            <div class="between">
+              <h2>作った記録</h2>
+              <span class="pill">${monthItems.length}件</span>
+            </div>
+            <div class="small">「これにする」を押した料理がここに残ります。写真はスマホ内に圧縮保存され、JSONバックアップにも含まれます。</div>
+            <div class="grid3" style="margin-top:10px">
+              <button class="secondary" onclick="shiftHistoryMonth(-1)">前の月</button>
+              <button class="ghost" onclick="state.historyMonth='${TODAY.getFullYear()}-${String(TODAY.getMonth()+1).padStart(2,'0')}'; render()">今月</button>
+              <button class="secondary" onclick="shiftHistoryMonth(1)">次の月</button>
+            </div>
+            <h3 style="text-align:center;margin-top:12px">${historyMonthLabel(ym)}</h3>
+            ${historyCalendarHtml(ym)}
+          </div>
+
+          <div class="card">
+            <h2>この月の記録</h2>
+            ${monthItems.length ? `<div class="list">${monthItems.map(h => historyItemHtml(h)).join('')}</div>` : '<div class="empty">この月の記録はまだありません。</div>'}
+          </div>
+        </section>
+      `;
+    }
+
+    function historyMonthLabel(ym){
+      const [y,m] = String(ym || '').split('-').map(Number);
+      if(!y || !m) return '';
+      return `${y}年${m}月`;
+    }
+
+    function shiftHistoryMonth(delta){
+      const [y,m] = (state.historyMonth || todayKey().slice(0,7)).split('-').map(Number);
+      const d = new Date(y, (m || 1) - 1 + delta, 1);
+      state.historyMonth = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+      render();
+    }
+
+    function historyCalendarHtml(ym){
+      const [y,m] = ym.split('-').map(Number);
+      const first = new Date(y, m - 1, 1);
+      const lastDay = new Date(y, m, 0).getDate();
+      const start = first.getDay();
+      const cells = [];
+      for(let i=0;i<start;i++) cells.push('<div class="calendar-day empty-day"></div>');
+      for(let day=1; day<=lastDay; day++){
+        const date = `${y}-${String(m).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+        const items = data.history.filter(h => h.date === date);
+        const isToday = date === todayKey();
+        cells.push(`
+          <div class="calendar-day ${isToday ? 'today' : ''}">
+            <div class="calendar-num">${day}</div>
+            ${items.slice(0,2).map(h => `<span class="calendar-dish">${h.photoDataUrl ? '📷 ' : ''}${escHtml(h.name)}</span>`).join('')}
+            ${items.length > 2 ? `<span class="calendar-dish">+${items.length-2}件</span>` : ''}
+          </div>
+        `);
+      }
+      return `
+        <div class="calendar-head"><div>日</div><div>月</div><div>火</div><div>水</div><div>木</div><div>金</div><div>土</div></div>
+        <div class="calendar-grid">${cells.join('')}</div>
+      `;
+    }
+
+    function historyItemHtml(h){
+      const recipe = recipeById(h.recipeId);
+      const safeAt = escAttr(h.at || '');
+      return `
+        <div class="history-card">
+          <div class="history-photo">
+            ${h.photoDataUrl ? `<img src="${escAttr(h.photoDataUrl)}" alt="${escAttr(h.name)}">` : '<span>写真なし</span>'}
+          </div>
+          <div>
+            <div class="between">
+              <div>
+                <div class="name">${escHtml(h.name)}</div>
+                <div class="meta">${escHtml(h.date || '')}</div>
+              </div>
+            </div>
+            ${h.memo ? `<p class="small" style="margin:6px 0 0">${escHtml(h.memo).replace(/\n/g,'<br>')}</p>` : ''}
+            <div class="row" style="margin-top:8px">
+              ${recipe ? `<button class="mini-btn" onclick="openRecipe('${escAttr(h.recipeId)}')">レシピを見る</button>` : ''}
+              <label class="mini-btn">
+                写真${h.photoDataUrl ? '変更' : '追加'}
+                <input type="file" accept="image/*" style="display:none" onchange="handleHistoryPhoto(event, '${safeAt}')">
+              </label>
+              <button class="mini-btn" onclick="editHistoryMemo('${safeAt}')">メモ</button>
+              ${h.photoDataUrl ? `<button class="mini-btn" onclick="removeHistoryPhoto('${safeAt}')">写真削除</button>` : ''}
+              <button class="mini-btn" onclick="removeHistory('${safeAt}')">削除</button>
+            </div>
+          </div>
+        </div>
       `;
     }
 
@@ -4901,21 +9529,21 @@
       document.getElementById('modalTitle').textContent = r.name;
       const missing = missingIngredients(r);
       const used = r.ingredients.filter(x => hasIngredientInList(x, data.pantry));
-      const siteLinks = externalSearchLinks(r.name);
       document.getElementById('modalBody').innerHTML = `
         <div class="chips">
           <span class="tag">${r.category}</span>
           <span class="tag">${r.time}分</span>
-          <span class="tag">${childLabel(r.childMode)}</span>
+          ${childTagHtml(r.childMode)}
           ${r.spicy ? '<span class="tag hot">辛い</span>' : ''}
-          ${r.teppan ? '<span class="tag good">鉄板</span>' : ''}
+          ${qualityBadgesHtml(r)}
         </div>
+        ${isIdeaRecipe(r) ? `<div class="idea-notice" style="margin-top:12px"><b>アイデア候補です。</b><br>これは外部レシピを確認して登録したものではありません。作る前にネット検索し、よさそうなページのURLを編集画面で登録してください。</div>` : ''}
 
         <div class="divider"></div>
         <h3>材料メモ</h3>
         <div>${r.ingredients.join('、')}</div>
         <div style="margin-top:8px"><b>買い足し：</b>${missing.length ? missing.join('、') : 'なし'}</div>
-        ${used.length ? `<div><b>ありモノ：</b>${used.join('、')}</div>` : ''}
+        ${used.length ? `<div><b>あるもの：</b>${used.join('、')}</div>` : ''}
 
         <div class="divider"></div>
         <h3>作り方メモ</h3>
@@ -4925,20 +9553,24 @@
 
         <div class="divider"></div>
         <h3>参考URL</h3>
-        ${r.sourceUrl ? `<p><a class="secondary block" href="${escAttr(r.sourceUrl)}" target="_blank" rel="noopener">${r.sourceName || '参考レシピを開く'}</a></p>` : '<p class="small">未登録。外部サイト検索から見つけて、よかったら登録フォームでURLを貼ってください。</p>'}
-
-        <div class="site-links">
-          ${siteLinks}
-        </div>
+        ${r.sourceUrl ? `<p><a class="secondary block" href="${escAttr(r.sourceUrl)}" target="_blank" rel="noopener">参考レシピを開く</a></p>` : `<p class="small">未登録。まずネット検索で実在レシピを確認し、よさそうなら編集画面でURLを貼ってください。</p><button class="secondary block" onclick="searchRecipeByName('${r.id}')">この料理をネット検索</button>`}
 
         <div class="divider"></div>
-        <div class="grid2">
+        <div class="grid3">
           <button class="primary" onclick="chooseRecipe('${r.id}'); closeDialog()">これにする</button>
+          <button class="secondary" onclick="editRecipe('${r.id}')">編集</button>
           <button class="secondary" onclick="toggleTeppan('${r.id}'); openRecipe('${r.id}')">${r.teppan ? '鉄板解除' : '鉄板にする'}</button>
         </div>
         ${r.custom ? `<button class="danger block" style="margin-top:8px" onclick="deleteRecipe('${r.id}')">この自作レシピを削除</button>` : ''}
       `;
       document.getElementById('recipeDialog').showModal();
+    }
+
+    function searchRecipeByName(id){
+      const r = recipeById(id);
+      if(!r) return;
+      const q = `${r.name} レシピ ${r.ingredients.slice(0,3).join(' ')}`;
+      window.open(`https://www.google.com/search?q=${encodeURIComponent(q)}`, '_blank', 'noopener');
     }
 
     function externalSearchLinks(name){
@@ -4984,6 +9616,7 @@
         data.customIngredients = data.customIngredients || [];
         if(!data.customIngredients.includes(val)) data.customIngredients.push(val);
       }
+      ensureStockForIngredient(data, val);
       if(!data.pantry.includes(val)) data.pantry.push(val);
       input.value = '';
       saveData();
@@ -4994,6 +9627,12 @@
       const val = input.value.trim();
       if(!val) return;
       if(!data.bargain.includes(val)) data.bargain.push(val);
+      const baseSet = baseIngredientSet();
+      if(!baseSet.has(val)){
+        data.customIngredients = data.customIngredients || [];
+        if(!data.customIngredients.includes(val)) data.customIngredients.push(val);
+      }
+      ensureStockForIngredient(data, val);
       input.value = '';
       saveData();
       render();
@@ -5032,6 +9671,70 @@
       }
     }
 
+    function handleHistoryPhoto(event, at){
+      const file = event.target.files && event.target.files[0];
+      if(!file) return;
+      if(!file.type.startsWith('image/')){
+        alert('画像ファイルを選んでください');
+        return;
+      }
+      resizeImageFile(file, 960, 0.82).then(dataUrl => {
+        const h = data.history.find(x => x.at === at);
+        if(!h) return;
+        h.photoDataUrl = dataUrl;
+        saveData();
+        render();
+      }).catch(err => {
+        console.error(err);
+        alert('写真の読み込みに失敗しました');
+      });
+    }
+
+    function resizeImageFile(file, maxSize = 960, quality = 0.82){
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onerror = reject;
+        reader.onload = () => {
+          const img = new Image();
+          img.onerror = reject;
+          img.onload = () => {
+            let w = img.width;
+            let h = img.height;
+            const scale = Math.min(1, maxSize / Math.max(w, h));
+            w = Math.max(1, Math.round(w * scale));
+            h = Math.max(1, Math.round(h * scale));
+            const canvas = document.createElement('canvas');
+            canvas.width = w;
+            canvas.height = h;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, w, h);
+            resolve(canvas.toDataURL('image/jpeg', quality));
+          };
+          img.src = reader.result;
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function removeHistoryPhoto(at){
+      const h = data.history.find(x => x.at === at);
+      if(!h) return;
+      if(!confirm('この写真を削除しますか？')) return;
+      h.photoDataUrl = '';
+      saveData();
+      render();
+    }
+
+    function editHistoryMemo(at){
+      const h = data.history.find(x => x.at === at);
+      if(!h) return;
+      const memo = prompt('この日のメモ', h.memo || '');
+      if(memo === null) return;
+      h.memo = memo.trim();
+      saveData();
+      render();
+    }
+
     function exportJson(){
       const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
       const a = document.createElement('a');
@@ -5049,7 +9752,7 @@
         try{
           const imported = JSON.parse(reader.result);
           if(!imported.recipes || !Array.isArray(imported.recipes)) throw new Error('recipesがありません');
-          data = imported;
+          data = normalizeLoadedData(imported);
           saveData();
           state.currentCandidates = [];
           alert('読み込みました');
@@ -5129,7 +9832,16 @@
       return hay.includes(term);
     }
     function childLabel(mode){
-      return mode === 'ok' ? '子供OK' : mode === 'adapt' ? '子供アレンジ可' : '子供別メニュー前提';
+      if(mode === 'ok') return '子供OK';
+      if(mode === 'adapt') return '子供アレンジ可';
+      if(mode === 'separate') return '子供別メニュー前提';
+      return '子供対応未設定';
+    }
+    function childTagHtml(mode){
+      if(mode === 'ok') return '<span class="tag good">子供OK</span>';
+      if(mode === 'adapt') return '<span class="tag blue">子供アレンジ可</span>';
+      if(mode === 'separate') return '<span class="tag bad">子供別</span>';
+      return '';
     }
     function esc(s){
       return String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/\n/g,' ');
