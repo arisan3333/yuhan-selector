@@ -181,6 +181,11 @@
 
     /* 分析パネル */
     .cov-count{background:rgba(0,0,0,.08);border-radius:10px;padding:1px 7px;font-size:11px;font-weight:bold;margin-left:4px}
+    .ing-cells{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px}
+    .ing-cell{border:1px solid var(--line);background:#fff;border-radius:13px;padding:8px 10px;display:flex;flex-direction:column;gap:6px}
+    .ing-cell-name{font-size:13px;font-weight:700;color:var(--ink);display:flex;align-items:center}
+    .ing-cell-actions{display:flex;gap:4px;flex-wrap:wrap}
+    .ing-cell-actions .mini-btn{font-size:11px;padding:4px 7px;flex:1;text-align:center;min-width:0}
     .cov-group{margin-bottom:14px}
     .cov-group-title{font-weight:bold;font-size:13px;color:var(--muted);margin-bottom:6px}
     .cov-cells{display:flex;flex-wrap:wrap;gap:6px}
@@ -5264,37 +5269,56 @@ const CURATED_URL_RECIPES = [
       const zeroes = allItems.filter(it => it.count === 0);
       const fewest = allItems.filter(it => it.count > 0).sort((a,b) => a.count - b.count).slice(0, 12);
       const inPantryFewest = fewest.filter(it => it.inPantry);
+      const renderIngCell = (it, withCount = true) => `
+        <div class="ing-cell">
+          <div class="ing-cell-name">${it.name}${withCount ? `<span class="cov-count">${it.count}</span>` : ''}</div>
+          <div class="ing-cell-actions">
+            <button class="mini-btn ing-act-search" onclick="searchAndAddRecipe('${escAttr(it.name)}', 'nadia')" title="Nadiaで検索">🔍 Nadia</button>
+            <button class="mini-btn ing-act-search" onclick="searchAndAddRecipe('${escAttr(it.name)}', 'google')" title="Googleで検索">🔍 Google</button>
+            ${it.count > 0 ? `<button class="mini-btn" onclick="state.recipeQuery='${escAttr(it.name)}'; state.analysisOpen=false; render()" title="登録済みレシピを表示">📚 ${it.count}</button>` : ''}
+          </div>
+        </div>
+      `;
       return `
-        <div class="small" style="color:var(--muted);margin-bottom:10px">登録レシピ数が少ない食材を表示。タップで検索 or レシピ追加へ。</div>
+        <div class="small" style="color:var(--muted);margin-bottom:10px">レシピ数が少ない食材。<b>🔍探す</b> でネット検索→URL貼り付けで追加。<b>📚N件</b> で登録済みレシピを表示。</div>
         ${inPantryFewest.length ? `
           <div class="card" style="margin-top:0;background:#fff8ef">
             <b>🛒 冷蔵庫にあって、レシピ少なめ</b>
-            <div class="chips" style="margin-top:8px">
-              ${inPantryFewest.map(it => `<button class="chip" onclick="state.recipeQuery='${escAttr(it.name)}'; state.analysisOpen=false; render()">${it.name} <span class="cov-count">${it.count}</span></button>`).join('')}
+            <div class="ing-cells" style="margin-top:8px">
+              ${inPantryFewest.map(it => renderIngCell(it)).join('')}
             </div>
-            <div class="small" style="margin-top:6px;color:var(--muted)">これらの食材を使うレシピを増やすと活用しやすくなります。</div>
           </div>
         ` : ''}
         ${zeroes.length ? `
           <div class="card" style="margin-top:8px">
             <b>📭 レシピがない食材 (${zeroes.length})</b>
-            <div class="chips" style="margin-top:8px">${zeroes.slice(0,20).map(it => `<button class="chip" onclick="searchAndAddRecipe('${escAttr(it.name)}')">+ ${it.name}</button>`).join('')}</div>
+            <div class="ing-cells" style="margin-top:8px">
+              ${zeroes.slice(0,20).map(it => renderIngCell(it, false)).join('')}
+            </div>
             ${zeroes.length > 20 ? `<div class="small" style="margin-top:4px;color:var(--muted)">ほか${zeroes.length-20}件...</div>` : ''}
-            <div class="small" style="margin-top:6px;color:var(--muted)">タップでネット検索 → URL貼り付けで追加できます。</div>
           </div>
         ` : ''}
         <div class="card" style="margin-top:8px">
           <b>🔻 レシピが少ない食材</b>
-          <div class="chips" style="margin-top:8px">${fewest.map(it => `<button class="chip" onclick="state.recipeQuery='${escAttr(it.name)}'; state.analysisOpen=false; render()">${it.name} <span class="cov-count">${it.count}</span></button>`).join('')}</div>
+          <div class="ing-cells" style="margin-top:8px">
+            ${fewest.map(it => renderIngCell(it)).join('')}
+          </div>
         </div>
       `;
     }
 
     // 食材から検索画面に飛ばす(URL貼り付けフォームへ)
-    function searchAndAddRecipe(ing){
-      const q = encodeURIComponent(ing + ' レシピ 人気');
-      window.open(`https://www.google.com/search?q=${q}`, '_blank', 'noopener');
-      // 少し遅らせて分析閉じてフォームへ + 食材自動入力
+    function searchAndAddRecipe(ing, site = 'nadia'){
+      const q = encodeURIComponent(ing);
+      let url;
+      if(site === 'nadia'){
+        url = `https://oceans-nadia.com/search/recipes?keyword=${q}`;
+      }else if(site === 'sirogohan'){
+        url = `https://www.google.com/search?q=site%3Asirogohan.com+${encodeURIComponent(ing+' レシピ')}`;
+      }else{
+        url = `https://www.google.com/search?q=${encodeURIComponent(ing+' レシピ 人気')}`;
+      }
+      window.open(url, '_blank', 'noopener');
       setTimeout(() => {
         state.analysisOpen = false;
         state.quickAddOpen = true;
@@ -5358,7 +5382,7 @@ const CURATED_URL_RECIPES = [
           <div><b>${ing}</b> × <b>${cat}</b></div>
           <div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap">
             <a class="secondary" href="https://www.google.com/search?q=${q}" target="_blank" rel="noopener">ググる</a>
-            <a class="secondary" href="https://cookpad.com/jp/search/${encodeURIComponent(ing+' '+cat)}" target="_blank" rel="noopener">クックパッド</a>
+            <a class="secondary" href="https://oceans-nadia.com/search/recipes?keyword=${encodeURIComponent(ing+' '+cat)}" target="_blank" rel="noopener">Nadia</a>
             <a class="secondary" href="https://recipe.rakuten.co.jp/search/${encodeURIComponent(ing+' '+cat)}/" target="_blank" rel="noopener">楽天</a>
             <button class="ghost" onclick="prefillUrlForm('${escAttr(ing)}', '${escAttr(cat)}')">URLで追加へ</button>
           </div>
@@ -5420,7 +5444,8 @@ const CURATED_URL_RECIPES = [
           'orangepage.net': 'オレンジページ',
           'kyounoryouri.jp': 'みんなのきょうの料理',
           'macaro-ni.jp': 'macaroni',
-          'erecipe.woman.excite.co.jp': 'Eレシピ'
+          'erecipe.woman.excite.co.jp': 'Eレシピ',
+          'oceans-nadia.com': 'Nadia'
         };
         domainHint = map[host] || host;
       }catch(e){
@@ -5503,10 +5528,14 @@ const CURATED_URL_RECIPES = [
                 <option value="name" ${state.recipeSort==='name'?'selected':''}>名前順</option>
               </select>
             </div>
-            <div class="stats" style="margin-top:10px">
-              <div class="stat"><b>${data.recipes.length}</b><span class="small">登録</span></div>
-              <div class="stat"><b>${data.recipes.filter(r=>r.teppan).length}</b><span class="small">鉄板</span></div>
-              <div class="stat"><b>${data.recipes.filter(r=>recipeHasSource(r)).length}</b><span class="small">URLあり</span></div>
+            <div class="small" style="margin-top:10px;color:var(--muted)">
+              ${(() => {
+                const total = data.recipes.length;
+                const teppan = data.recipes.filter(r => r.teppan).length;
+                const parts = [`📚 ${total}件`];
+                if(teppan > 0) parts.push(`⭐ 鉄板 ${teppan}件`);
+                return parts.join(' ・ ');
+              })()}
             </div>
           </div>
 
@@ -5521,9 +5550,11 @@ const CURATED_URL_RECIPES = [
             <div class="chips" style="margin-bottom:10px">
               <span class="small" style="color:var(--muted)">サイトで探す:</span>
               <a class="secondary" href="https://www.sirogohan.com/" target="_blank" rel="noopener" style="font-size:12px;padding:3px 9px">白ごはん.com</a>
+              <a class="secondary" href="https://oceans-nadia.com/" target="_blank" rel="noopener" style="font-size:12px;padding:3px 9px">Nadia</a>
               <a class="secondary" href="https://delishkitchen.tv/" target="_blank" rel="noopener" style="font-size:12px;padding:3px 9px">DELISH KITCHEN</a>
               <a class="secondary" href="https://www.kurashiru.com/" target="_blank" rel="noopener" style="font-size:12px;padding:3px 9px">クラシル</a>
               <a class="secondary" href="https://recipe.rakuten.co.jp/" target="_blank" rel="noopener" style="font-size:12px;padding:3px 9px">楽天レシピ</a>
+              <a class="secondary" href="https://www.kyounoryouri.jp/" target="_blank" rel="noopener" style="font-size:12px;padding:3px 9px">きょうの料理</a>
             </div>
             <input type="text" id="quickUrlInput" placeholder="URLを貼り付け：https://..." style="width:100%;margin-bottom:8px">
             <input type="text" id="quickNameInput" placeholder="レシピ名(任意。空ならURLから推測)" style="width:100%;margin-bottom:8px">
@@ -6188,10 +6219,10 @@ const CURATED_URL_RECIPES = [
       const q = encodeURIComponent(name);
       const google = encodeURIComponent(name + ' レシピ');
       const links = [
+        ['Nadiaで探す', `https://oceans-nadia.com/search/recipes?keyword=${q}`],
+        ['白ごはん.comを検索', `https://www.google.com/search?q=site%3Asirogohan.com+${google}`],
         ['DELISH KITCHENで探す', `https://delishkitchen.tv/search?q=${q}`],
-        ['クラシルで探す', `https://www.kurashiru.com/search?query=${q}`],
-        ['楽天レシピで探す', `https://recipe.rakuten.co.jp/search/${q}/`],
-        ['白ごはん.comを検索', `https://www.google.com/search?q=site%3Asirogohan.com+${google}`]
+        ['楽天レシピで探す', `https://recipe.rakuten.co.jp/search/${q}/`]
       ];
       return links.map(([label,url]) => `<a class="secondary" href="${url}" target="_blank" rel="noopener">${label}</a>`).join('');
     }
