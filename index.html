@@ -4087,21 +4087,26 @@
     };
     const STAPLES = new Set(['醤油','みりん','砂糖','塩','こしょう','味噌','めんつゆ','中華だし','小麦粉','片栗粉','バター','マヨネーズ','ケチャップ','酢','生姜','にんにく','ポン酢','カレー粉','豆板醤','コチュジャン','ラー油','チリパウダー','ナンプラー','五香粉','レモン','油','ごま油','水','だし','カレールー','ハヤシルー']);
     const COMMON_INGREDIENTS = {
-      '野菜': ['キャベツ','にんじん','玉ねぎ','小松菜','なす','ピーマン','きゅうり','トマト','レタス','もやし','白菜','大根','じゃがいも','新じゃが','春キャベツ','新玉ねぎ','ズッキーニ','アスパラ','ニラ','きのこ','ごぼう','かぼちゃ','大葉'],
+      '野菜': ['キャベツ','にんじん','玉ねぎ','小松菜','なす','ピーマン','きゅうり','トマト','ミニトマト','レタス','もやし','白菜','大根','じゃがいも','新じゃが','春キャベツ','新玉ねぎ','ズッキーニ','アスパラ','ニラ','きのこ','ごぼう','かぼちゃ','大葉'],
       '肉・魚': ['豚こま','豚ロース','豚バラ','豚ひき肉','鶏もも','鶏むね','鶏ひき肉','牛こま','合いびき肉','ウインナー','ベーコン','鮭','さば','ぶり','白身魚','しらす','ツナ缶'],
       '卵・豆腐など': ['卵','豆腐','厚揚げ','油揚げ','チーズ','牛乳','豆乳','かにかま','ハム','キムチ','大豆','豆'],
       '主食': ['ご飯','うどん','焼きそば麺','中華麺','パスタ','春雨'],
       'その他': ['トマト缶','レトルトカレー','ひじき']
     };
+    const INGREDIENT_ALIASES = {
+      'トマト': ['ミニトマト'],
+      'ミニトマト': ['トマト']
+    };
+
     const SEASONAL = {
       1:['白菜','大根','ねぎ','ほうれん草','小松菜','春菊','れんこん','ごぼう'],
       2:['白菜','大根','ねぎ','ほうれん草','小松菜','ブロッコリー','菜の花'],
       3:['春キャベツ','新玉ねぎ','菜の花','アスパラ','新じゃが','スナップえんどう'],
       4:['春キャベツ','新玉ねぎ','新じゃが','アスパラ','レタス','たけのこ'],
       5:['春キャベツ','新玉ねぎ','新じゃが','アスパラ','レタス','きゅうり','なす','ピーマン','ズッキーニ'],
-      6:['トマト','きゅうり','なす','ピーマン','ズッキーニ','とうもろこし','オクラ','大葉'],
-      7:['トマト','きゅうり','なす','ピーマン','オクラ','とうもろこし','枝豆','ゴーヤ'],
-      8:['トマト','きゅうり','なす','ピーマン','オクラ','とうもろこし','枝豆','ゴーヤ'],
+      6:['トマト','ミニトマト','きゅうり','なす','ピーマン','ズッキーニ','とうもろこし','オクラ','大葉'],
+      7:['トマト','ミニトマト','きゅうり','なす','ピーマン','オクラ','とうもろこし','枝豆','ゴーヤ'],
+      8:['トマト','ミニトマト','きゅうり','なす','ピーマン','オクラ','とうもろこし','枝豆','ゴーヤ'],
       9:['なす','ピーマン','きのこ','さつまいも','かぼちゃ','れんこん'],
       10:['きのこ','さつまいも','かぼちゃ','れんこん','ごぼう','白菜'],
       11:['白菜','大根','ねぎ','ほうれん草','小松菜','れんこん','ごぼう'],
@@ -4267,7 +4272,8 @@
     }
 
     function ingredientGroups(groups, selected, target){
-      return Object.entries(groups).map(([group,items]) => `
+      const commonSet = new Set(Object.values(groups).flat());
+      const groupHtml = Object.entries(groups).map(([group,items]) => `
         <div class="ingredient-group">
           <div class="ingredient-title">${group}</div>
           <div class="chips">
@@ -4275,6 +4281,29 @@
           </div>
         </div>
       `).join('');
+      const customItems = selected.filter(x => !commonSet.has(x));
+      const customHtml = customItems.length ? `
+        <div class="ingredient-group">
+          <div class="ingredient-title">追加した食材</div>
+          <div class="chips">
+            ${customItems.map(x => `<label class="chip on"><input type="checkbox" checked onchange="toggleArrayItem(data.${target},'${esc(x)}'); saveData(); render()"> ${x}</label>`).join('')}
+          </div>
+        </div>
+      ` : '';
+      return groupHtml + customHtml;
+    }
+
+    function equivalentIngredients(name){
+      return new Set([name, ...(INGREDIENT_ALIASES[name] || [])]);
+    }
+
+    function hasEquivalentIngredient(list, name){
+      const equivalents = equivalentIngredients(name);
+      return list.some(item => equivalents.has(item) || equivalentIngredients(item).has(name));
+    }
+
+    function matchingRecipeIngredients(recipeIngredients, availableList){
+      return recipeIngredients.filter(x => hasEquivalentIngredient(availableList, x));
     }
 
     function renderCandidates(){
@@ -4294,7 +4323,7 @@
     function candidateCard(item, idx){
       const r = item.recipe;
       const missing = missingIngredients(r);
-      const used = r.ingredients.filter(x => data.pantry.includes(x));
+      const used = matchingRecipeIngredients(r.ingredients, data.pantry);
       const tags = [
         r.childMode === 'ok' ? '<span class="tag good">子供OK</span>' : r.childMode === 'adapt' ? '<span class="tag blue">子供アレンジ可</span>' : '<span class="tag bad">子供別</span>',
         r.spicy ? '<span class="tag hot">辛い</span>' : '',
@@ -4371,7 +4400,7 @@
       if(stats.accepted){ score += Math.min(8, stats.accepted * 1.5); reasons.push('過去に選んだ実績あり'); }
       if(stats.rejected){ score -= Math.min(8, stats.rejected * 0.7); }
 
-      const pantryHits = r.ingredients.filter(x => data.pantry.includes(x));
+      const pantryHits = matchingRecipeIngredients(r.ingredients, data.pantry);
       const missing = missingIngredients(r);
       if(state.modes.pantry && !state.modes.empty){
         score += pantryHits.length * 6;
@@ -4391,8 +4420,8 @@
 
       const month = TODAY.getMonth()+1;
       const seasonal = SEASONAL[month] || [];
-      const seasonalHits = r.ingredients.filter(x => seasonal.includes(x));
-      const bargainHits = r.ingredients.filter(x => data.bargain.includes(x));
+      const seasonalHits = matchingRecipeIngredients(r.ingredients, seasonal);
+      const bargainHits = matchingRecipeIngredients(r.ingredients, data.bargain);
       if(state.modes.seasonal){
         score += seasonalHits.length * 2.3;
         score += bargainHits.length * 5;
@@ -4458,7 +4487,7 @@
 
     function missingIngredients(r){
       return r.required
-        .filter(x => !data.pantry.includes(x))
+        .filter(x => !hasEquivalentIngredient(data.pantry, x))
         .filter(x => !STAPLES.has(x))
         .filter(x => x !== 'ご飯');
     }
@@ -4785,7 +4814,7 @@
       if(!r) return;
       document.getElementById('modalTitle').textContent = r.name;
       const missing = missingIngredients(r);
-      const used = r.ingredients.filter(x => data.pantry.includes(x));
+      const used = matchingRecipeIngredients(r.ingredients, data.pantry);
       const siteLinks = externalSearchLinks(r.name);
       document.getElementById('modalBody').innerHTML = `
         <div class="chips">
