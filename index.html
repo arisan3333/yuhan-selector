@@ -4168,7 +4168,7 @@ const CURATED_URL_RECIPES = [
       '豆・その他野菜': ['もやし','枝豆','スナップえんどう','ブロッコリー','菜の花','たけのこ'],
       '肉': ['豚こま','豚ロース','豚バラ','豚ひき肉','鶏もも','鶏むね','鶏ひき肉','牛こま','合いびき肉','ウインナー','ベーコン','ハム'],
       '魚・海鮮': ['鮭','さば','ぶり','白身魚','しらす','ツナ缶','えび','いか','たら','サーモン'],
-      '卵・豆腐・大豆': ['卵','豆腐','厚揚げ','油揚げ','納豆','チーズ','牛乳','豆乳','かにかま','キムチ','大豆','豆'],
+      '卵・豆腐・大豆': ['卵','豆腐','木綿豆腐','絹豆腐','厚揚げ','油揚げ','がんもどき','納豆','チーズ','牛乳','豆乳','かにかま','キムチ','大豆','豆','こんにゃく','しらたき','糸こんにゃく'],
       '主食': ['ご飯','うどん','焼きそば麺','中華麺','パスタ','春雨','そうめん','そば'],
       '缶詰・乾物・その他': ['トマト缶','レトルトカレー','ひじき','わかめ','海苔']
     };
@@ -4226,6 +4226,7 @@ const CURATED_URL_RECIPES = [
       analysisTab: 'coverage',
       coverageTab: 'pantry',
       quickAddOpen: false,
+      bulkAddOpen: false,
       aiHelperOpen: false,
       familyAddMember: null,
       familyAddKind: 'hardNg',
@@ -4721,22 +4722,11 @@ const CURATED_URL_RECIPES = [
             </div>
           ` : ''}
           <div class="row" style="margin-top:12px;gap:6px">
-            <input id="ingredientSearch" type="text" value="${escAttr(state.ingredientQuery)}" placeholder="食材を検索: 例 トマト、豚" oninput="state.ingredientQuery=this.value; renderPantryOnly()" style="flex:1">
-            ${q ? `<button class="ghost" onclick="state.ingredientQuery=''; render()">✕</button>` : ''}
+            <input id="ingredientSearch" type="text" value="${escAttr(state.ingredientQuery)}" placeholder="食材を検索: 例 トマト、豚" oninput="onPantrySearchInput(this.value)" style="flex:1">
+            <button class="ghost" id="ingredientSearchClear" style="${q?'':'display:none'}" onclick="document.getElementById('ingredientSearch').value=''; onPantrySearchInput('')">✕</button>
           </div>
-          ${recentlyUsed.length && !q ? `
-            <div style="margin-top:10px">
-              <div class="small" style="margin-bottom:4px">最近よく使う食材(タップで追加)</div>
-              <div class="chips">
-                ${recentlyUsed.map(x => `<button class="chip ${pantry.includes(x)?'on':''}" onclick="toggleArrayItem(data.pantry,'${esc(x)}'); saveData(); render()">${pantry.includes(x)?'✓':'+'} ${x}</button>`).join('')}
-              </div>
-            </div>
-          ` : ''}
-          <div style="margin-top:12px">
-            <details class="pantry-all" ${q ? 'open' : ''}>
-              <summary><b>カテゴリから選ぶ</b><span class="small">${q ? '検索中' : 'タップで開く'}</span></summary>
-              <div class="pantry-categories">${ingredientGroups(groups, pantry, 'pantry')}</div>
-            </details>
+          <div id="pantrySearchArea">
+            ${pantrySearchAreaContent(pantry, recentlyUsed, q, groups)}
           </div>
           <div class="row" style="margin-top:10px">
             <input id="customPantryInput" type="text" placeholder="食材を新規追加 例：空芯菜、納豆" style="flex:1">
@@ -4744,6 +4734,40 @@ const CURATED_URL_RECIPES = [
           </div>
         </div>
       `;
+    }
+
+    // 検索結果部分だけのHTML(input再生成しないために分離)
+    function pantrySearchAreaContent(pantry, recentlyUsed, q, groups){
+      return `
+        ${recentlyUsed.length && !q ? `
+          <div style="margin-top:10px">
+            <div class="small" style="margin-bottom:4px">最近よく使う食材(タップで追加)</div>
+            <div class="chips">
+              ${recentlyUsed.map(x => `<button class="chip ${pantry.includes(x)?'on':''}" onclick="toggleArrayItem(data.pantry,'${esc(x)}'); saveData(); render()">${pantry.includes(x)?'✓':'+'} ${x}</button>`).join('')}
+            </div>
+          </div>
+        ` : ''}
+        <div style="margin-top:12px">
+          <details class="pantry-all" ${q ? 'open' : ''}>
+            <summary><b>カテゴリから選ぶ</b><span class="small">${q ? '検索中' : 'タップで開く'}</span></summary>
+            <div class="pantry-categories">${ingredientGroups(groups, pantry, 'pantry')}</div>
+          </details>
+        </div>
+      `;
+    }
+
+    // 検索ボックスのoninput: フォーカスを保ったまま検索結果だけ更新
+    function onPantrySearchInput(v){
+      state.ingredientQuery = v;
+      const q = (v || '').trim();
+      const area = document.getElementById('pantrySearchArea');
+      const clearBtn = document.getElementById('ingredientSearchClear');
+      if(area){
+        const groups = ingredientCatalog();
+        const recentlyUsed = computeRecentlyUsedIngredients(8);
+        area.innerHTML = pantrySearchAreaContent(data.pantry || [], recentlyUsed, q, groups);
+      }
+      if(clearBtn) clearBtn.style.display = q ? '' : 'none';
     }
 
     // 履歴+鉄板から「最近よく使う食材」を抽出
@@ -4868,7 +4892,7 @@ const CURATED_URL_RECIPES = [
       if(/もやし|枝豆|豆苗|ブロッコリー|菜の花|たけのこ|スナップ/.test(s)) return '豆・その他野菜';
       if(/豚|鶏|牛|肉|ウインナー|ベーコン|ハム|ソーセージ|ささみ/.test(s)) return '肉';
       if(/魚|鮭|サーモン|さば|鯖|ぶり|しらす|ツナ|まぐろ|たら|白身|えび|海老|いか|イカ|ほたて|帆立|かにかま/.test(s)) return '魚・海鮮';
-      if(/卵|玉子|たまご|豆腐|厚揚げ|油揚げ|納豆|大豆|豆|チーズ|牛乳|豆乳/.test(s)) return '卵・豆腐・大豆';
+      if(/卵|玉子|たまご|豆腐|厚揚げ|油揚げ|納豆|大豆|豆|チーズ|牛乳|豆乳|こんにゃく|しらたき/.test(s)) return '卵・豆腐・大豆';
       if(/ご飯|米|うどん|そば|そうめん|麺|パスタ|春雨|パン/.test(s)) return '主食';
       if(/缶|乾物|ひじき|わかめ|海苔|キムチ|レトルト/.test(s)) return '缶詰・乾物・その他';
       return '缶詰・乾物・その他';
@@ -5525,6 +5549,70 @@ const CURATED_URL_RECIPES = [
     }
 
     // ========== AIヘルパー(食材未入力レシピの一括補完) ==========
+    function bulkAddUrls(){
+      const el = document.getElementById('bulkUrlInput');
+      const raw = (el?.value || '').trim();
+      if(!raw){ alert('URLを貼り付けてください。'); return; }
+      const urls = raw.split(/\r?\n/).map(s => s.trim()).filter(s => /^https?:\/\//.test(s));
+      if(!urls.length){ alert('有効なURLが見つかりません。'); return; }
+      const existingUrls = new Set(data.recipes.map(r => String(r.sourceUrl || '').trim()).filter(Boolean));
+      const additions = [];
+      const skipped = [];
+      const domainMap = {
+        'sirogohan.com': '白ごはん.com',
+        'delishkitchen.tv': 'DELISH KITCHEN',
+        'kurashiru.com': 'クラシル',
+        'cookpad.com': 'クックパッド',
+        'recipe.rakuten.co.jp': '楽天レシピ',
+        'kyounoryouri.jp': 'みんなのきょうの料理',
+        'oceans-nadia.com': 'Nadia'
+      };
+      urls.forEach(url => {
+        if(existingUrls.has(url)){ skipped.push(url); return; }
+        existingUrls.add(url);
+        let domainHint = 'レシピ';
+        try{
+          const u = new URL(url);
+          const host = u.hostname.replace(/^www\./, '');
+          domainHint = domainMap[host] || host;
+        }catch(e){
+          skipped.push(url); return;
+        }
+        const id = 'bulk_' + Math.random().toString(36).slice(2,10);
+        additions.push({
+          id,
+          name: `${domainHint}のレシピ(要補完)`,
+          category: 'その他',
+          mainType: '',
+          ingredients: [],
+          required: [],
+          optional: [],
+          tags: ['参考URLあり', '要補完', domainHint],
+          time: 20,
+          difficulty: 'かんたん',
+          childMode: 'separate',
+          spicy: false,
+          light: '普通',
+          steps: ['詳しい作り方は参考URLで確認する。'],
+          memo: `${domainHint}から取り込み(要補完)。AIヘルパーで食材・カテゴリを補完してください。`,
+          sourceUrl: url,
+          sourceKind: 'url',
+          custom: true,
+          teppan: false
+        });
+      });
+      if(additions.length){
+        data.recipes = additions.concat(data.recipes);
+        saveData();
+      }
+      el.value = '';
+      render();
+      let msg = `${additions.length}件のレシピを追加しました。`;
+      if(skipped.length) msg += `\n${skipped.length}件は重複または無効URLでスキップ。`;
+      msg += `\n\n👉 「🤖 AIに補完してもらう」で食材・カテゴリを一括補完できます。`;
+      alert(msg);
+    }
+
     function aiHelperPanel(){
       const incomplete = data.recipes.filter(r => {
         if(!recipeHasSource(r)) return false;
@@ -5730,6 +5818,14 @@ ${items.map((it, i) => `${i+1}. id=${it.id}\n   URL: ${it.url}`).join('\n')}
             </select>
             <button class="primary block" onclick="quickAddRecipeFromUrl()">URLからレシピを追加</button>
             <div class="small" style="margin-top:8px;color:var(--muted)">💡 食材を入れると「まぐろの炒め物」のようにレシピ名が自動でつきます。後から編集もできます。</div>
+          </details>
+
+          <details class="card" ${state.bulkAddOpen ? 'open' : ''} ontoggle="state.bulkAddOpen=this.open">
+            <summary><b>📋 URLを一括登録</b><span class="small" style="margin-left:8px;color:var(--muted)">複数URLを改行区切りで貼り付け</span></summary>
+            <div class="small" style="color:var(--muted);margin:8px 0">複数のレシピURLを改行区切りで貼り付けて一括登録できます。食材・レシピ名は後で「🤖 AIに補完してもらう」で一気に補完できます。</div>
+            <textarea id="bulkUrlInput" placeholder="URLを改行で区切って貼り付け&#10;https://example.com/recipe/1&#10;https://example.com/recipe/2&#10;https://example.com/recipe/3" style="width:100%;min-height:140px;font-family:ui-monospace,monospace;font-size:12px"></textarea>
+            <button class="primary block" style="margin-top:8px" onclick="bulkAddUrls()">📥 一括登録</button>
+            <div class="small" style="margin-top:6px;color:var(--muted)">💡 重複URLは自動でスキップされます。</div>
           </details>
 
           <details class="card" ${state.aiHelperOpen ? 'open' : ''} ontoggle="state.aiHelperOpen=this.open">
