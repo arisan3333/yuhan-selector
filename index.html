@@ -112,6 +112,13 @@
     label.label{display:block;font-weight:700;margin:10px 0 5px;font-size:13px}
     .ingredient-group{margin:10px 0}
     .ingredient-title{font-weight:800;font-size:13px;color:#614c39;margin:10px 0 6px}
+    details.ingredient-group{border:1px solid var(--line);border-radius:15px;background:#fffdf9;overflow:hidden}
+    details.ingredient-group summary{list-style:none;cursor:pointer;padding:10px 12px;margin:0;display:flex;align-items:center;justify-content:space-between;gap:8px}
+    details.ingredient-group summary::-webkit-details-marker{display:none}
+    details.ingredient-group summary::after{content:'開く';font-size:11px;color:var(--muted);font-weight:700}
+    details.ingredient-group[open] summary::after{content:'閉じる'}
+    .ingredient-body{padding:0 10px 10px}
+    .selected-strip{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
     .candidate{position:relative;overflow:hidden}
     .candidate::before{
       content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--accent);
@@ -4087,26 +4094,40 @@
     };
     const STAPLES = new Set(['醤油','みりん','砂糖','塩','こしょう','味噌','めんつゆ','中華だし','小麦粉','片栗粉','バター','マヨネーズ','ケチャップ','酢','生姜','にんにく','ポン酢','カレー粉','豆板醤','コチュジャン','ラー油','チリパウダー','ナンプラー','五香粉','レモン','油','ごま油','水','だし','カレールー','ハヤシルー']);
     const COMMON_INGREDIENTS = {
-      '野菜': ['キャベツ','にんじん','玉ねぎ','小松菜','なす','ピーマン','きゅうり','トマト','ミニトマト','レタス','もやし','白菜','大根','じゃがいも','新じゃが','春キャベツ','新玉ねぎ','ズッキーニ','アスパラ','ニラ','きのこ','ごぼう','かぼちゃ','大葉'],
-      '肉・魚': ['豚こま','豚ロース','豚バラ','豚ひき肉','鶏もも','鶏むね','鶏ひき肉','牛こま','合いびき肉','ウインナー','ベーコン','鮭','さば','ぶり','白身魚','しらす','ツナ缶'],
-      '卵・豆腐など': ['卵','豆腐','厚揚げ','油揚げ','チーズ','牛乳','豆乳','かにかま','ハム','キムチ','大豆','豆'],
-      '主食': ['ご飯','うどん','焼きそば麺','中華麺','パスタ','春雨'],
-      'その他': ['トマト缶','レトルトカレー','ひじき']
+      '野菜・根菜': ['にんじん','大根','じゃがいも','新じゃが','さつまいも','ごぼう','れんこん','長芋','里芋','かぶ'],
+      '野菜・葉物': ['キャベツ','春キャベツ','白菜','小松菜','ほうれん草','レタス','水菜','チンゲン菜','ニラ','春菊','大葉','ねぎ'],
+      '野菜・果菜': ['トマト','ミニトマト','きゅうり','なす','ピーマン','パプリカ','ズッキーニ','かぼちゃ','オクラ','ゴーヤ','とうもろこし','アスパラ'],
+      'きのこ': ['きのこ','しめじ','えのき','舞茸','しいたけ','エリンギ','マッシュルーム'],
+      '豆・その他野菜': ['もやし','枝豆','スナップえんどう','ブロッコリー','菜の花','たけのこ'],
+      '肉': ['豚こま','豚ロース','豚バラ','豚ひき肉','鶏もも','鶏むね','鶏ひき肉','牛こま','合いびき肉','ウインナー','ベーコン','ハム'],
+      '魚・海鮮': ['鮭','さば','ぶり','白身魚','しらす','ツナ缶','えび','いか','たら','サーモン'],
+      '卵・豆腐・大豆': ['卵','豆腐','厚揚げ','油揚げ','納豆','チーズ','牛乳','豆乳','かにかま','キムチ','大豆','豆'],
+      '主食': ['ご飯','うどん','焼きそば麺','中華麺','パスタ','春雨','そうめん','そば'],
+      '缶詰・乾物・その他': ['トマト缶','レトルトカレー','ひじき','わかめ','海苔']
     };
-    const INGREDIENT_ALIASES = {
-      'トマト': ['ミニトマト'],
-      'ミニトマト': ['トマト']
-    };
-
+    const INGREDIENT_EQUIV_GROUPS = [
+      ['トマト','ミニトマト'],
+      ['キャベツ','春キャベツ'],
+      ['玉ねぎ','新玉ねぎ'],
+      ['じゃがいも','新じゃが'],
+      ['きのこ','しめじ','えのき','舞茸','まいたけ','しいたけ','椎茸','エリンギ','マッシュルーム'],
+      ['豚こま','豚肉','豚切り落とし'],
+      ['鶏もも','鶏もも肉','鶏肉'],
+      ['鶏むね','鶏むね肉'],
+      ['ツナ缶','ツナ'],
+      ['鮭','サーモン'],
+      ['卵','たまご','玉子'],
+      ['豆腐','木綿豆腐','絹豆腐']
+    ];
     const SEASONAL = {
       1:['白菜','大根','ねぎ','ほうれん草','小松菜','春菊','れんこん','ごぼう'],
       2:['白菜','大根','ねぎ','ほうれん草','小松菜','ブロッコリー','菜の花'],
       3:['春キャベツ','新玉ねぎ','菜の花','アスパラ','新じゃが','スナップえんどう'],
       4:['春キャベツ','新玉ねぎ','新じゃが','アスパラ','レタス','たけのこ'],
       5:['春キャベツ','新玉ねぎ','新じゃが','アスパラ','レタス','きゅうり','なす','ピーマン','ズッキーニ'],
-      6:['トマト','ミニトマト','きゅうり','なす','ピーマン','ズッキーニ','とうもろこし','オクラ','大葉'],
-      7:['トマト','ミニトマト','きゅうり','なす','ピーマン','オクラ','とうもろこし','枝豆','ゴーヤ'],
-      8:['トマト','ミニトマト','きゅうり','なす','ピーマン','オクラ','とうもろこし','枝豆','ゴーヤ'],
+      6:['トマト','きゅうり','なす','ピーマン','ズッキーニ','とうもろこし','オクラ','大葉'],
+      7:['トマト','きゅうり','なす','ピーマン','オクラ','とうもろこし','枝豆','ゴーヤ'],
+      8:['トマト','きゅうり','なす','ピーマン','オクラ','とうもろこし','枝豆','ゴーヤ'],
       9:['なす','ピーマン','きのこ','さつまいも','かぼちゃ','れんこん'],
       10:['きのこ','さつまいも','かぼちゃ','れんこん','ごぼう','白菜'],
       11:['白菜','大根','ねぎ','ほうれん草','小松菜','れんこん','ごぼう'],
@@ -4131,6 +4152,7 @@
       excludedToday: new Set(),
       filtersToday: {},
       recipeQuery: '',
+      ingredientQuery: '',
       relaxedNotice: ''
     };
 
@@ -4139,6 +4161,7 @@
         version: 1,
         recipes: structuredCloneSafe(INITIAL_RECIPES),
         pantry: [],
+        customIngredients: [],
         bargain: [],
         shoppingList: [],
         shoppingDone: {},
@@ -4171,6 +4194,10 @@
         merged.history = saved.history || [];
         merged.stats = saved.stats || {};
         merged.pantry = saved.pantry || [];
+        const baseSet = baseIngredientSet();
+        const savedCustom = Array.isArray(saved.customIngredients) ? saved.customIngredients : [];
+        const pantryCustom = merged.pantry.filter(x => !baseSet.has(x));
+        merged.customIngredients = uniqueList(savedCustom.concat(pantryCustom));
         merged.bargain = saved.bargain || [];
         merged.shoppingList = saved.shoppingList || [];
         merged.shoppingDone = saved.shoppingDone || {};
@@ -4233,10 +4260,17 @@
               <h2>冷蔵庫にあるもの</h2>
               <button class="mini-btn" onclick="clearPantry()">全部外す</button>
             </div>
-            ${ingredientGroups(COMMON_INGREDIENTS, data.pantry, 'pantry')}
+            <div class="small">追加した食材は一時的ではなく、次回以降も該当カテゴリに常駐します。</div>
             <div class="row" style="margin-top:10px">
-              <input id="customPantryInput" type="text" placeholder="食材を追加 例：大葉">
-              <button class="secondary" onclick="addCustomPantry()">追加</button>
+              <input id="ingredientSearch" type="text" value="${escAttr(state.ingredientQuery)}" placeholder="食材を検索 例：トマト、豚、葉物" onkeydown="if(event.key==='Enter'){state.ingredientQuery=this.value.trim(); render()}">
+              <button class="secondary" onclick="state.ingredientQuery=document.getElementById('ingredientSearch').value.trim(); render()">絞り込み</button>
+              ${state.ingredientQuery ? `<button class="ghost" onclick="state.ingredientQuery=''; render()">クリア</button>` : ''}
+            </div>
+            ${selectedIngredientStrip()}
+            ${ingredientGroups(ingredientCatalog(), data.pantry, 'pantry')}
+            <div class="row" style="margin-top:10px">
+              <input id="customPantryInput" type="text" placeholder="食材を追加 例：空芯菜、納豆、鶏ささみ">
+              <button class="secondary" onclick="addCustomPantry()">追加して常駐</button>
             </div>
           </div>
 
@@ -4272,38 +4306,70 @@
     }
 
     function ingredientGroups(groups, selected, target){
-      const commonSet = new Set(Object.values(groups).flat());
-      const groupHtml = Object.entries(groups).map(([group,items]) => `
-        <div class="ingredient-group">
-          <div class="ingredient-title">${group}</div>
-          <div class="chips">
-            ${items.map(x => `<label class="chip ${selected.includes(x)?'on':''}"><input type="checkbox" ${selected.includes(x)?'checked':''} onchange="toggleArrayItem(data.${target},'${esc(x)}'); saveData(); render()"> ${x}</label>`).join('')}
-          </div>
-        </div>
-      `).join('');
-      const customItems = selected.filter(x => !commonSet.has(x));
-      const customHtml = customItems.length ? `
-        <div class="ingredient-group">
-          <div class="ingredient-title">追加した食材</div>
-          <div class="chips">
-            ${customItems.map(x => `<label class="chip on"><input type="checkbox" checked onchange="toggleArrayItem(data.${target},'${esc(x)}'); saveData(); render()"> ${x}</label>`).join('')}
-          </div>
-        </div>
-      ` : '';
-      return groupHtml + customHtml;
+      const q = (state.ingredientQuery || '').trim();
+      const entries = Object.entries(groups).map(([group,items]) => {
+        const filtered = q ? items.filter(x => x.includes(q) || group.includes(q)) : items;
+        return [group, filtered];
+      }).filter(([,items]) => items.length);
+      if(!entries.length) return `<div class="empty" style="margin-top:10px">該当する食材がありません。下の入力欄から追加できます。</div>`;
+      return entries.map(([group,items]) => {
+        const selectedCount = items.filter(x => selected.includes(x)).length;
+        const open = q || selectedCount || ['野菜・根菜','野菜・葉物','野菜・果菜'].includes(group);
+        return `
+          <details class="ingredient-group" ${open ? 'open' : ''}>
+            <summary class="ingredient-title"><span>${group}</span><span class="small">${selectedCount ? selectedCount + '個選択中' : items.length + '件'}</span></summary>
+            <div class="ingredient-body">
+              <div class="chips">
+                ${items.map(x => `<label class="chip ${selected.includes(x)?'on':''}"><input type="checkbox" ${selected.includes(x)?'checked':''} onchange="toggleArrayItem(data.${target},'${esc(x)}'); saveData(); render()"> ${x}</label>`).join('')}
+              </div>
+            </div>
+          </details>
+        `;
+      }).join('');
     }
 
-    function equivalentIngredients(name){
-      return new Set([name, ...(INGREDIENT_ALIASES[name] || [])]);
+    function selectedIngredientStrip(){
+      if(!data.pantry.length) return `<div class="small" style="margin-top:8px">選択中：なし</div>`;
+      return `<div class="selected-strip">${data.pantry.map(x => `<span class="tag on">${x}<button class="mini-btn" onclick="toggleArrayItem(data.pantry,'${esc(x)}'); saveData(); render()">×</button></span>`).join('')}</div>`;
     }
 
-    function hasEquivalentIngredient(list, name){
-      const equivalents = equivalentIngredients(name);
-      return list.some(item => equivalents.has(item) || equivalentIngredients(item).has(name));
+    function ingredientCatalog(){
+      const catalog = structuredCloneSafe(COMMON_INGREDIENTS);
+      uniqueList(data.customIngredients || []).forEach(item => {
+        const group = categorizeIngredient(item);
+        if(!catalog[group]) catalog[group] = [];
+        if(!catalog[group].includes(item)) catalog[group].push(item);
+      });
+      Object.keys(catalog).forEach(group => {
+        catalog[group] = uniqueList(catalog[group]).sort((a,b) => a.localeCompare(b, 'ja'));
+      });
+      return catalog;
     }
 
-    function matchingRecipeIngredients(recipeIngredients, availableList){
-      return recipeIngredients.filter(x => hasEquivalentIngredient(availableList, x));
+    function baseIngredientSet(){
+      return new Set(Object.values(COMMON_INGREDIENTS).flat());
+    }
+
+    function uniqueList(arr){
+      return [...new Set((arr || []).filter(Boolean))];
+    }
+
+    function categorizeIngredient(item){
+      const s = String(item || '');
+      for(const [group, items] of Object.entries(COMMON_INGREDIENTS)){
+        if(items.includes(s)) return group;
+      }
+      if(/大根|にんじん|人参|じゃが|芋|さつま|ごぼう|れんこん|蓮根|かぶ|里芋|長芋/.test(s)) return '野菜・根菜';
+      if(/キャベツ|白菜|小松菜|ほうれん|レタス|水菜|春菊|ニラ|ねぎ|葱|大葉|しそ|紫蘇|チンゲン|青梗菜|空芯菜|豆苗/.test(s)) return '野菜・葉物';
+      if(/トマト|ミニトマト|なす|茄子|ピーマン|パプリカ|きゅうり|胡瓜|ズッキーニ|オクラ|かぼちゃ|ゴーヤ|とうもろこし/.test(s)) return '野菜・果菜';
+      if(/きのこ|しめじ|えのき|舞茸|まいたけ|椎茸|しいたけ|エリンギ|マッシュルーム/.test(s)) return 'きのこ';
+      if(/もやし|枝豆|豆苗|ブロッコリー|菜の花|たけのこ|スナップ/.test(s)) return '豆・その他野菜';
+      if(/豚|鶏|牛|肉|ウインナー|ベーコン|ハム|ソーセージ|ささみ/.test(s)) return '肉';
+      if(/魚|鮭|サーモン|さば|鯖|ぶり|しらす|ツナ|まぐろ|たら|白身|えび|海老|いか|イカ|ほたて|帆立|かにかま/.test(s)) return '魚・海鮮';
+      if(/卵|玉子|たまご|豆腐|厚揚げ|油揚げ|納豆|大豆|豆|チーズ|牛乳|豆乳/.test(s)) return '卵・豆腐・大豆';
+      if(/ご飯|米|うどん|そば|そうめん|麺|パスタ|春雨|パン/.test(s)) return '主食';
+      if(/缶|乾物|ひじき|わかめ|海苔|キムチ|レトルト/.test(s)) return '缶詰・乾物・その他';
+      return '缶詰・乾物・その他';
     }
 
     function renderCandidates(){
@@ -4323,7 +4389,7 @@
     function candidateCard(item, idx){
       const r = item.recipe;
       const missing = missingIngredients(r);
-      const used = matchingRecipeIngredients(r.ingredients, data.pantry);
+      const used = r.ingredients.filter(x => hasIngredientInList(x, data.pantry));
       const tags = [
         r.childMode === 'ok' ? '<span class="tag good">子供OK</span>' : r.childMode === 'adapt' ? '<span class="tag blue">子供アレンジ可</span>' : '<span class="tag bad">子供別</span>',
         r.spicy ? '<span class="tag hot">辛い</span>' : '',
@@ -4400,7 +4466,7 @@
       if(stats.accepted){ score += Math.min(8, stats.accepted * 1.5); reasons.push('過去に選んだ実績あり'); }
       if(stats.rejected){ score -= Math.min(8, stats.rejected * 0.7); }
 
-      const pantryHits = matchingRecipeIngredients(r.ingredients, data.pantry);
+      const pantryHits = r.ingredients.filter(x => hasIngredientInList(x, data.pantry));
       const missing = missingIngredients(r);
       if(state.modes.pantry && !state.modes.empty){
         score += pantryHits.length * 6;
@@ -4420,8 +4486,8 @@
 
       const month = TODAY.getMonth()+1;
       const seasonal = SEASONAL[month] || [];
-      const seasonalHits = matchingRecipeIngredients(r.ingredients, seasonal);
-      const bargainHits = matchingRecipeIngredients(r.ingredients, data.bargain);
+      const seasonalHits = r.ingredients.filter(x => hasIngredientInList(x, seasonal));
+      const bargainHits = r.ingredients.filter(x => hasIngredientInList(x, data.bargain));
       if(state.modes.seasonal){
         score += seasonalHits.length * 2.3;
         score += bargainHits.length * 5;
@@ -4487,7 +4553,7 @@
 
     function missingIngredients(r){
       return r.required
-        .filter(x => !hasEquivalentIngredient(data.pantry, x))
+        .filter(x => !hasIngredientInList(x, data.pantry))
         .filter(x => !STAPLES.has(x))
         .filter(x => x !== 'ご飯');
     }
@@ -4814,7 +4880,7 @@
       if(!r) return;
       document.getElementById('modalTitle').textContent = r.name;
       const missing = missingIngredients(r);
-      const used = matchingRecipeIngredients(r.ingredients, data.pantry);
+      const used = r.ingredients.filter(x => hasIngredientInList(x, data.pantry));
       const siteLinks = externalSearchLinks(r.name);
       document.getElementById('modalBody').innerHTML = `
         <div class="chips">
@@ -4893,6 +4959,11 @@
       const input = document.getElementById('customPantryInput');
       const val = input.value.trim();
       if(!val) return;
+      const baseSet = baseIngredientSet();
+      if(!baseSet.has(val)){
+        data.customIngredients = data.customIngredients || [];
+        if(!data.customIngredients.includes(val)) data.customIngredients.push(val);
+      }
       if(!data.pantry.includes(val)) data.pantry.push(val);
       input.value = '';
       saveData();
@@ -4996,6 +5067,28 @@
       const now = new Date(todayKey() + 'T00:00:00');
       return Math.floor((now - then) / 86400000);
     }
+    function normalizeIngredientName(s){
+      return String(s || '').replace(/\s+/g,'').replace(/肉$/,'');
+    }
+    function canonicalIngredient(s){
+      const n = normalizeIngredientName(s);
+      for(const group of INGREDIENT_EQUIV_GROUPS){
+        const hit = group.some(alias => {
+          const a = normalizeIngredientName(alias);
+          return n === a || n.includes(a) || a.includes(n);
+        });
+        if(hit) return group[0];
+      }
+      return n;
+    }
+    function ingredientsMatch(a,b){
+      if(a === b) return true;
+      return canonicalIngredient(a) === canonicalIngredient(b);
+    }
+    function hasIngredientInList(ingredient, list){
+      return (list || []).some(x => ingredientsMatch(ingredient, x));
+    }
+
     function toggleArrayItem(arr, item){
       const i = arr.indexOf(item);
       if(i >= 0) arr.splice(i,1);
