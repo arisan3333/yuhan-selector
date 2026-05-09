@@ -205,6 +205,16 @@
       display:flex;align-items:center;justify-content:center;font-size:14px;
     }
     .ai-step-body{flex:1;min-width:0}
+
+    /* レシピを増やす(統合パネル)のサブタブ */
+    .add-tabs{display:flex;gap:4px;background:#f6eadc;border-radius:13px;padding:3px;margin:8px 0}
+    .add-tab{
+      flex:1;border:0;background:transparent;color:var(--muted);
+      padding:9px 6px;border-radius:11px;font-size:12px;font-weight:700;
+      white-space:nowrap;
+    }
+    .add-tab.on{background:#fff;color:var(--ink);box-shadow:0 2px 8px rgba(0,0,0,.06)}
+    .add-panel-body{padding:4px 0}
     .cov-group{margin-bottom:14px}
     .cov-group-title{font-weight:bold;font-size:13px;color:var(--muted);margin-bottom:6px}
     .cov-cells{display:flex;flex-wrap:wrap;gap:6px}
@@ -4225,6 +4235,8 @@ const CURATED_URL_RECIPES = [
       analysisOpen: false,
       analysisTab: 'coverage',
       coverageTab: 'pantry',
+      addRecipeOpen: false,
+      addRecipeTab: 'one',
       quickAddOpen: false,
       bulkAddOpen: false,
       aiHelperOpen: false,
@@ -5356,7 +5368,8 @@ const CURATED_URL_RECIPES = [
       window.open(`https://www.google.com/search?q=${q}`, '_blank', 'noopener');
       setTimeout(() => {
         state.analysisOpen = false;
-        state.quickAddOpen = true;
+        state.addRecipeOpen = true;
+        state.addRecipeTab = 'one';
         render();
         requestAnimationFrame(() => {
           const ingsEl = document.getElementById('quickIngsInput');
@@ -5437,10 +5450,8 @@ const CURATED_URL_RECIPES = [
     // 「URLで追加へ」: URL貼り付けフォームに食材・カテゴリを自動入力して誘導
     function prefillUrlForm(ing, cat){
       state.analysisOpen = false;
-      // URL入力フォームを開いた状態にしたい
-      state.quickAddOpen = true;
-      state.quickAddPrefillIng = ing;
-      state.quickAddPrefillCat = cat;
+      state.addRecipeOpen = true;
+      state.addRecipeTab = 'one';
       render();
       requestAnimationFrame(() => {
         const ingsEl = document.getElementById('quickIngsInput');
@@ -5448,13 +5459,88 @@ const CURATED_URL_RECIPES = [
         const urlEl = document.getElementById('quickUrlInput');
         if(ingsEl) ingsEl.value = ing;
         if(catEl) catEl.value = cat;
-        const target = urlEl || document.querySelector('details > summary');
-        if(target){
-          target.scrollIntoView({behavior:'smooth', block:'center'});
-          if(urlEl) urlEl.focus();
+        if(urlEl){
+          urlEl.scrollIntoView({behavior:'smooth', block:'center'});
+          urlEl.focus();
         }
       });
     }
+
+    // ========== レシピを増やす(統合パネル) ==========
+    function addRecipePanel(){
+      const tab = state.addRecipeTab || 'one';
+      const incomplete = data.recipes.filter(r => {
+        if(!recipeHasSource(r)) return false;
+        const fewIngs = !r.ingredients || r.ingredients.length <= 1;
+        const isDomainName = /(\.com|\.jp|\.tv|\.net|\.io)/.test(r.name) || (r.tags||[]).includes('要補完');
+        return fewIngs || isDomainName;
+      });
+      const tabs = [
+        ['one', '🔗 1件ずつ', 'URLを1つずつ追加'],
+        ['bulk', '📋 一括', '複数URLをまとめて'],
+        ['ai', `🤖 AI補完${incomplete.length?` (${incomplete.length})`:''}`, '食材・カテゴリをAIで補完']
+      ];
+      return `
+        <div class="add-tabs">
+          ${tabs.map(([id, label, desc]) => `
+            <button class="add-tab ${tab===id?'on':''}" onclick="state.addRecipeTab='${id}'; render()">
+              ${label}
+            </button>
+          `).join('')}
+        </div>
+        <div class="add-panel-body">
+          ${tab === 'one' ? addRecipeOnePanel() : ''}
+          ${tab === 'bulk' ? addRecipeBulkPanel() : ''}
+          ${tab === 'ai' ? aiHelperPanel() : ''}
+        </div>
+      `;
+    }
+
+    // 1件ずつURL追加
+    function addRecipeOnePanel(){
+      return `
+        <div class="small" style="color:var(--muted);margin:8px 0">気になったレシピのURLを1つずつ追加。食材も入れるとレシピ名が自動でつきます。</div>
+        <div class="chips" style="margin-bottom:10px">
+          <span class="small" style="color:var(--muted)">サイトで探す:</span>
+          <a class="secondary" href="https://www.sirogohan.com/" target="_blank" rel="noopener" style="font-size:12px;padding:3px 9px">白ごはん.com</a>
+          <a class="secondary" href="https://oceans-nadia.com/" target="_blank" rel="noopener" style="font-size:12px;padding:3px 9px">Nadia</a>
+          <a class="secondary" href="https://cookpad.com/" target="_blank" rel="noopener" style="font-size:12px;padding:3px 9px">クックパッド</a>
+          <a class="secondary" href="https://delishkitchen.tv/" target="_blank" rel="noopener" style="font-size:12px;padding:3px 9px">DELISH KITCHEN</a>
+          <a class="secondary" href="https://www.kurashiru.com/" target="_blank" rel="noopener" style="font-size:12px;padding:3px 9px">クラシル</a>
+          <a class="secondary" href="https://recipe.rakuten.co.jp/" target="_blank" rel="noopener" style="font-size:12px;padding:3px 9px">楽天レシピ</a>
+        </div>
+        <input type="text" id="quickUrlInput" placeholder="URLを貼り付け：https://..." style="width:100%;margin-bottom:8px">
+        <input type="text" id="quickNameInput" placeholder="レシピ名(空なら自動命名)" style="width:100%;margin-bottom:8px">
+        <input type="text" id="quickIngsInput" placeholder="主な食材 例：まぐろ、玉ねぎ" style="width:100%;margin-bottom:8px">
+        <select id="quickCatInput" style="width:100%;margin-bottom:8px">
+          <option value="">カテゴリ自動推測</option>
+          <option value="炒め物">炒め物</option>
+          <option value="煮物">煮物</option>
+          <option value="焼き物">焼き物</option>
+          <option value="揚げ物">揚げ物</option>
+          <option value="蒸し物">蒸し物</option>
+          <option value="サラダ">サラダ</option>
+          <option value="和え物">和え物</option>
+          <option value="汁物">汁物</option>
+          <option value="丼・ご飯">丼・ご飯</option>
+          <option value="麺類">麺類</option>
+          <option value="鍋物">鍋物</option>
+          <option value="その他">その他</option>
+        </select>
+        <button class="primary block" onclick="quickAddRecipeFromUrl()">URLからレシピを追加</button>
+      `;
+    }
+
+    // 一括URL登録
+    function addRecipeBulkPanel(){
+      return `
+        <div class="small" style="color:var(--muted);margin:8px 0">複数のレシピURLを改行区切りで貼り付け。あとからAI補完タブで食材を一括取得できます。</div>
+        <textarea id="bulkUrlInput" placeholder="URLを改行で区切って貼り付け&#10;https://example.com/recipe/1&#10;https://example.com/recipe/2&#10;https://example.com/recipe/3" style="width:100%;min-height:160px;font-family:ui-monospace,monospace;font-size:12px"></textarea>
+        <button class="primary block" style="margin-top:8px" onclick="bulkAddUrls()">📥 一括登録</button>
+        <div class="small" style="margin-top:6px;color:var(--muted)">💡 重複URLは自動でスキップ。登録後は「AI補完」タブで食材を一気に補完できます。</div>
+      `;
+    }
+    // ========== /レシピを増やす ==========
 
     // URL貼り付けでレシピを半自動追加
     function quickAddRecipeFromUrl(){
@@ -5606,10 +5692,14 @@ const CURATED_URL_RECIPES = [
         saveData();
       }
       el.value = '';
+      // 登録できたらAI補完タブに自動移動(誘導)
+      if(additions.length > 0){
+        state.addRecipeTab = 'ai';
+      }
       render();
       let msg = `${additions.length}件のレシピを追加しました。`;
       if(skipped.length) msg += `\n${skipped.length}件は重複または無効URLでスキップ。`;
-      msg += `\n\n👉 「🤖 AIに補完してもらう」で食材・カテゴリを一括補完できます。`;
+      if(additions.length > 0) msg += `\n\n👉 続けて「🤖 AI補完」タブから食材・カテゴリを一括補完できます。`;
       alert(msg);
     }
 
@@ -5785,56 +5875,13 @@ ${items.map((it, i) => `${i+1}. id=${it.id}\n   URL: ${it.url}`).join('\n')}
             ${analysisPanel()}
           </details>
 
-          <details class="card" ${state.quickAddOpen ? 'open' : ''} ontoggle="state.quickAddOpen=this.open">
-            <summary><b>🔗 URLからレシピを追加</b><span class="small" style="margin-left:8px;color:var(--muted)">気になったレシピのURLを貼るだけ</span></summary>
-            <div class="small" style="color:var(--muted);margin:8px 0">レシピ名・食材・カテゴリの目星を入力して登録 → 後でレシピをタップして「参考URLを開く」で本サイトを確認。</div>
-            <div class="chips" style="margin-bottom:10px">
-              <span class="small" style="color:var(--muted)">サイトで探す:</span>
-              <a class="secondary" href="https://www.sirogohan.com/" target="_blank" rel="noopener" style="font-size:12px;padding:3px 9px">白ごはん.com</a>
-              <a class="secondary" href="https://oceans-nadia.com/" target="_blank" rel="noopener" style="font-size:12px;padding:3px 9px">Nadia</a>
-              <a class="secondary" href="https://cookpad.com/" target="_blank" rel="noopener" style="font-size:12px;padding:3px 9px">クックパッド</a>
-              <a class="secondary" href="https://delishkitchen.tv/" target="_blank" rel="noopener" style="font-size:12px;padding:3px 9px">DELISH KITCHEN</a>
-              <a class="secondary" href="https://www.kurashiru.com/" target="_blank" rel="noopener" style="font-size:12px;padding:3px 9px">クラシル</a>
-              <a class="secondary" href="https://recipe.rakuten.co.jp/" target="_blank" rel="noopener" style="font-size:12px;padding:3px 9px">楽天レシピ</a>
-              <a class="secondary" href="https://www.kyounoryouri.jp/" target="_blank" rel="noopener" style="font-size:12px;padding:3px 9px">きょうの料理</a>
-            </div>
-            <input type="text" id="quickUrlInput" placeholder="URLを貼り付け：https://..." style="width:100%;margin-bottom:8px">
-            <input type="text" id="quickNameInput" placeholder="レシピ名(空なら「食材＋カテゴリ」で自動命名)" style="width:100%;margin-bottom:8px">
-            <input type="text" id="quickIngsInput" placeholder="主な食材(レシピ名の自動命名にも使われます。例：まぐろ、玉ねぎ)" style="width:100%;margin-bottom:8px">
-            <select id="quickCatInput" style="width:100%;margin-bottom:8px">
-              <option value="">カテゴリ自動推測</option>
-              <option value="炒め物">炒め物</option>
-              <option value="煮物">煮物</option>
-              <option value="焼き物">焼き物</option>
-              <option value="揚げ物">揚げ物</option>
-              <option value="蒸し物">蒸し物</option>
-              <option value="サラダ">サラダ</option>
-              <option value="和え物">和え物</option>
-              <option value="汁物">汁物</option>
-              <option value="丼・ご飯">丼・ご飯</option>
-              <option value="麺類">麺類</option>
-              <option value="鍋物">鍋物</option>
-              <option value="その他">その他</option>
-            </select>
-            <button class="primary block" onclick="quickAddRecipeFromUrl()">URLからレシピを追加</button>
-            <div class="small" style="margin-top:8px;color:var(--muted)">💡 食材を入れると「まぐろの炒め物」のようにレシピ名が自動でつきます。後から編集もできます。</div>
-          </details>
-
-          <details class="card" ${state.bulkAddOpen ? 'open' : ''} ontoggle="state.bulkAddOpen=this.open">
-            <summary><b>📋 URLを一括登録</b><span class="small" style="margin-left:8px;color:var(--muted)">複数URLを改行区切りで貼り付け</span></summary>
-            <div class="small" style="color:var(--muted);margin:8px 0">複数のレシピURLを改行区切りで貼り付けて一括登録できます。食材・レシピ名は後で「🤖 AIに補完してもらう」で一気に補完できます。</div>
-            <textarea id="bulkUrlInput" placeholder="URLを改行で区切って貼り付け&#10;https://example.com/recipe/1&#10;https://example.com/recipe/2&#10;https://example.com/recipe/3" style="width:100%;min-height:140px;font-family:ui-monospace,monospace;font-size:12px"></textarea>
-            <button class="primary block" style="margin-top:8px" onclick="bulkAddUrls()">📥 一括登録</button>
-            <div class="small" style="margin-top:6px;color:var(--muted)">💡 重複URLは自動でスキップされます。</div>
-          </details>
-
-          <details class="card" ${state.aiHelperOpen ? 'open' : ''} ontoggle="state.aiHelperOpen=this.open">
-            <summary><b>🤖 AIに食材・カテゴリを補完してもらう</b><span class="small" style="margin-left:8px;color:var(--muted)">食材未入力のレシピをまとめて</span></summary>
-            ${aiHelperPanel()}
+          <details class="card" ${state.addRecipeOpen ? 'open' : ''} ontoggle="state.addRecipeOpen=this.open">
+            <summary><b>➕ レシピを増やす</b><span class="small" style="margin-left:8px;color:var(--muted)">URL登録・一括登録・AI補完</span></summary>
+            ${addRecipePanel()}
           </details>
 
           <details class="card">
-            <summary><b>新しいレシピを登録</b></summary>
+            <summary><b>📝 レシピを手動で登録(URLなし)</b></summary>
             ${recipeForm(null, 'new')}
           </details>
 
