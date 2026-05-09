@@ -180,6 +180,7 @@
     @media(max-width:420px){.calendar-day{min-height:62px;padding:4px}.calendar-dish{font-size:9px}.history-card{grid-template-columns:74px 1fr}.history-photo{width:74px;height:74px}}
 
     /* 分析パネル */
+    .cov-count{background:rgba(0,0,0,.08);border-radius:10px;padding:1px 7px;font-size:11px;font-weight:bold;margin-left:4px}
     .cov-group{margin-bottom:14px}
     .cov-group-title{font-weight:bold;font-size:13px;color:var(--muted);margin-bottom:6px}
     .cov-cells{display:flex;flex-wrap:wrap;gap:6px}
@@ -197,6 +198,47 @@
     .taste-kind{font-size:10px;background:rgba(0,0,0,.05);padding:2px 6px;border-radius:8px;color:var(--muted)}
     .gap-idea{padding:10px;border:1px solid var(--line);border-radius:12px;margin-bottom:8px;background:#fff}
     .gap-idea .secondary,.gap-idea .ghost{font-size:12px;padding:4px 10px}
+
+    /* 今日の状況カード */
+    .cond-card{padding:14px}
+    .cond-section{margin-bottom:8px}
+    .cond-label{font-size:12px;color:var(--muted);font-weight:700;margin-bottom:8px}
+    .cond-main{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+    @media(max-width:480px){.cond-main{grid-template-columns:1fr}}
+    .cond-main-btn{
+      display:flex;align-items:center;gap:10px;padding:11px 12px;
+      border:1.5px solid var(--line);border-radius:14px;background:#fffdf9;
+      cursor:pointer;text-align:left;transition:all .15s;
+      color:var(--ink);font:inherit;
+    }
+    .cond-main-btn .cond-icon{font-size:22px;line-height:1}
+    .cond-main-btn .cond-text{display:flex;flex-direction:column;gap:2px;line-height:1.2}
+    .cond-main-btn .cond-text b{font-size:14px;font-weight:800}
+    .cond-main-btn .cond-text span{font-size:11px;color:var(--muted)}
+    .cond-main-btn.on{
+      background:linear-gradient(135deg,#ffe8c8,#fff5e3);
+      border-color:#f4a85a;
+      box-shadow:0 4px 12px rgba(242,139,56,.15);
+    }
+    .cond-main-btn.on .cond-text b{color:#783800}
+    .cond-extra{margin-top:10px;border-top:1px dashed var(--line);padding-top:10px}
+    .cond-extra summary{list-style:none;cursor:pointer;font-size:13px;font-weight:700;color:#604a36;display:flex;align-items:center;gap:6px}
+    .cond-extra summary::-webkit-details-marker{display:none}
+    .cond-extra summary::before{content:'▶';font-size:10px;color:var(--muted);transition:transform .2s}
+    .cond-extra[open] summary::before{transform:rotate(90deg)}
+
+    /* 冷蔵庫カード(整理版) */
+    .pantry-card{padding:14px}
+    .pantry-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+    .tag.on.big{padding:7px 12px;font-size:14px}
+    .pantry-all summary{
+      list-style:none;cursor:pointer;padding:10px 12px;
+      background:#fffdf9;border:1px solid var(--line);border-radius:13px;
+      display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:14px;
+    }
+    .pantry-all summary::-webkit-details-marker{display:none}
+    .pantry-all[open] summary{border-bottom-left-radius:0;border-bottom-right-radius:0}
+    .pantry-categories{padding:8px 0}
 
   </style>
 </head>
@@ -7877,7 +7919,37 @@ const CURATED_URL_RECIPES = [
     "custom": false,
     "teppan": false,
     "curatedUrl": true
-  }
+  },
+  {"id":"url101","name":"アスパラの肉巻き(豚バラ)","category":"焼き物","mainType":"","ingredients":["アスパラ","豚バラ","醤油","みりん","砂糖"],"required":["アスパラ","豚バラ"],"optional":[],"tags":["旬","春","子供OK","参考URLあり"],"time":15,"difficulty":"かんたん","childMode":"ok","spicy":false,"light":"普通","steps":["参考URLで作り方を確認する。"],"memo":"春アスパラの定番。甘辛い照り焼き味でご飯がすすむ。","sourceUrl":"https://delishkitchen.tv/curations/15195","sourceKind":"url","custom":false,"teppan":false,"curatedUrl":true},
+  {"id":"url102","name":"アスパラとベーコンのバター炒め","category":"炒め物","mainType":"","ingredients":["アスパラ","ベーコン","バター","塩","こしょう"],"required":["アスパラ","ベーコン"],"optional":[],"tags":["旬","春","時短","参考URLあり"],"time":10,"difficulty":"かんたん","childMode":"ok","spicy":false,"light":"普通","steps":["参考URLで作り方を確認する。"],"memo":"レンジでもフライパンでも。副菜の鉄板。","sourceUrl":"https://delishkitchen.tv/curations/14816","sourceKind":"url","custom":false,"teppan":false,"curatedUrl":true},
+  {"id":"url103","name":"えびとアスパラの中華風塩炒め","category":"炒め物","mainType":"","ingredients":["えび","アスパラ","生姜","片栗粉","鶏ガラスープの素"],"required":["えび","アスパラ"],"optional":[],"tags":["旬","春","参考URLあり"],"time":15,"difficulty":"かんたん","childMode":"ok","spicy":false,"light":"普通","steps":["参考URLで作り方を確認する。"],"memo":"えびの代わりにイカ・ホタテでも。","sourceUrl":"https://delishkitchen.tv/curations/15195","sourceKind":"url","custom":false,"teppan":false,"curatedUrl":true},
+  {"id":"url104","name":"新玉ねぎのスライスサラダ","category":"サラダ","mainType":"","ingredients":["新玉ねぎ","かつお節","ポン酢"],"required":["新玉ねぎ"],"optional":[],"tags":["旬","春","時短","参考URLあり"],"time":10,"difficulty":"かんたん","childMode":"adapt","spicy":false,"light":"あっさり","steps":["参考URLで作り方を確認する。"],"memo":"新玉ねぎの旬限定。さっと水にさらしてかつお節+ポン酢。","sourceUrl":"https://www.sirogohan.com/recipe/sintama/","sourceKind":"url","custom":false,"teppan":false,"curatedUrl":true},
+  {"id":"url105","name":"新玉ねぎと卵の甘酢ソース","category":"炒め物","mainType":"","ingredients":["新玉ねぎ","卵","ケチャップ","酢","砂糖"],"required":["新玉ねぎ","卵"],"optional":[],"tags":["旬","春","子供OK","参考URLあり"],"time":15,"difficulty":"かんたん","childMode":"ok","spicy":false,"light":"普通","steps":["参考URLで作り方を確認する。"],"memo":"甘酸っぱくて子供も食べやすい。","sourceUrl":"https://www.sirogohan.com/recipe/amazutamago/","sourceKind":"url","custom":false,"teppan":false,"curatedUrl":true},
+  {"id":"url106","name":"新玉ねぎのかつお出汁スープ","category":"汁物","mainType":"","ingredients":["新玉ねぎ","かつお節","わかめ","醤油"],"required":["新玉ねぎ"],"optional":[],"tags":["旬","春","参考URLあり"],"time":15,"difficulty":"かんたん","childMode":"ok","spicy":false,"light":"あっさり","steps":["参考URLで作り方を確認する。"],"memo":"野菜+鍋でだしを取りながら作るシンプルスープ。","sourceUrl":"https://www.sirogohan.com/recipe/sintamakatuo/","sourceKind":"url","custom":false,"teppan":false,"curatedUrl":true},
+  {"id":"url107","name":"たけのこご飯","category":"丼・ご飯","mainType":"主食","ingredients":["たけのこ","油揚げ","米","醤油","みりん","だし"],"required":["たけのこ","米"],"optional":[],"tags":["旬","春","和食","参考URLあり"],"time":60,"difficulty":"普通","childMode":"ok","spicy":false,"light":"普通","steps":["参考URLで作り方を確認する。"],"memo":"春の定番炊き込みご飯。","sourceUrl":"https://www.sirogohan.com/recipe/takenokogohan/","sourceKind":"url","custom":false,"teppan":false,"curatedUrl":true},
+  {"id":"url108","name":"若竹煮(たけのこ+わかめ)","category":"煮物","mainType":"","ingredients":["たけのこ","わかめ","だし","醤油","みりん"],"required":["たけのこ","わかめ"],"optional":[],"tags":["旬","春","和食","参考URLあり"],"time":20,"difficulty":"かんたん","childMode":"adapt","spicy":false,"light":"あっさり","steps":["参考URLで作り方を確認する。"],"memo":"春の出会いもの。木の芽があれば散らす。","sourceUrl":"https://www.sirogohan.com/recipe/wakatake/","sourceKind":"url","custom":false,"teppan":false,"curatedUrl":true},
+  {"id":"url109","name":"鶏むね肉のピカタ","category":"焼き物","mainType":"","ingredients":["鶏むね","卵","小麦粉","塩","こしょう"],"required":["鶏むね","卵"],"optional":[],"tags":["子供OK","参考URLあり"],"time":15,"difficulty":"かんたん","childMode":"ok","spicy":false,"light":"普通","steps":["参考URLで作り方を確認する。"],"memo":"鶏むねでもしっとり。卵衣でやさしい味。","sourceUrl":"https://www.sirogohan.com/recipe/pikata/","sourceKind":"url","custom":false,"teppan":false,"curatedUrl":true},
+  {"id":"url110","name":"鶏むね肉のチキン南蛮","category":"揚げ物","mainType":"","ingredients":["鶏むね","卵","小麦粉","酢","砂糖","醤油","マヨネーズ"],"required":["鶏むね","卵"],"optional":[],"tags":["子供OK","参考URLあり"],"time":25,"difficulty":"普通","childMode":"ok","spicy":false,"light":"普通","steps":["参考URLで作り方を確認する。"],"memo":"鶏むねでも甘酢タレで満足感。タルタルもおいしい。","sourceUrl":"https://delishkitchen.tv/recipes/124434116094296164","sourceKind":"url","custom":false,"teppan":false,"curatedUrl":true},
+  {"id":"url111","name":"鶏むね肉のやわらか塩レモン","category":"焼き物","mainType":"","ingredients":["鶏むね","レモン","塩","片栗粉","酒"],"required":["鶏むね"],"optional":[],"tags":["時短","参考URLあり"],"time":15,"difficulty":"かんたん","childMode":"ok","spicy":false,"light":"あっさり","steps":["参考URLで作り方を確認する。"],"memo":"片栗粉まぶしてしっとり。さっぱり塩レモン味。","sourceUrl":"https://delishkitchen.tv/recipes/142519681083343361","sourceKind":"url","custom":false,"teppan":false,"curatedUrl":true},
+  {"id":"url112","name":"鶏むね肉のよだれ鶏","category":"和え物","mainType":"","ingredients":["鶏むね","ねぎ","醤油","酢","ラー油","ごま油"],"required":["鶏むね"],"optional":[],"tags":["辛い","参考URLあり"],"time":20,"difficulty":"かんたん","childMode":"separate","spicy":true,"light":"あっさり","steps":["参考URLで作り方を確認する。"],"memo":"レンジで茹でた鶏むねにピリ辛タレ。","sourceUrl":"https://www.sirogohan.com/recipe/yodaredori/","sourceKind":"url","custom":false,"teppan":false,"curatedUrl":true},
+  {"id":"url113","name":"鶏むね肉のねぎ塩だれ","category":"焼き物","mainType":"","ingredients":["鶏むね","長ねぎ","塩","ごま油","レモン汁"],"required":["鶏むね","長ねぎ"],"optional":[],"tags":["時短","参考URLあり"],"time":15,"difficulty":"かんたん","childMode":"adapt","spicy":false,"light":"あっさり","steps":["参考URLで作り方を確認する。"],"memo":"焼き鶏むねにねぎ塩だれをかけるだけ。","sourceUrl":"https://delishkitchen.tv/recipes/178594448672817574","sourceKind":"url","custom":false,"teppan":false,"curatedUrl":true},
+  {"id":"url114","name":"豚こまの生姜焼き","category":"焼き物","mainType":"","ingredients":["豚こま","玉ねぎ","生姜","醤油","みりん","酒"],"required":["豚こま"],"optional":[],"tags":["和食","子供OK","時短","参考URLあり"],"time":15,"difficulty":"かんたん","childMode":"ok","spicy":false,"light":"普通","steps":["参考URLで作り方を確認する。"],"memo":"豚こまで作るしょうが焼き。柔らかく食べやすい。","sourceUrl":"https://www.sirogohan.com/recipe/syougayaki2/","sourceKind":"url","custom":false,"teppan":false,"curatedUrl":true},
+  {"id":"url115","name":"豚こまとキャベツの甘辛炒め","category":"炒め物","mainType":"","ingredients":["豚こま","キャベツ","醤油","みりん","砂糖"],"required":["豚こま","キャベツ"],"optional":[],"tags":["時短","子供OK","参考URLあり"],"time":15,"difficulty":"かんたん","childMode":"ok","spicy":false,"light":"普通","steps":["参考URLで作り方を確認する。"],"memo":"キャベツ消費にもぴったりの甘辛炒め。","sourceUrl":"https://delishkitchen.tv/recipes/142019667055739392","sourceKind":"url","custom":false,"teppan":false,"curatedUrl":true},
+  {"id":"url116","name":"豚こまボール(豚こまの肉団子)","category":"揚げ物","mainType":"","ingredients":["豚こま","片栗粉","醤油","みりん","砂糖","酢","ケチャップ"],"required":["豚こま"],"optional":[],"tags":["子供OK","参考URLあり"],"time":25,"difficulty":"普通","childMode":"ok","spicy":false,"light":"普通","steps":["参考URLで作り方を確認する。"],"memo":"豚こまをぎゅっと丸めて揚げ焼き。子供大好物。","sourceUrl":"https://delishkitchen.tv/recipes/255569066050879702","sourceKind":"url","custom":false,"teppan":false,"curatedUrl":true},
+  {"id":"url117","name":"豚こまと白菜のうま煮","category":"煮物","mainType":"","ingredients":["豚こま","白菜","にんじん","しょうゆ","オイスターソース","片栗粉"],"required":["豚こま","白菜"],"optional":[],"tags":["参考URLあり","子供OK"],"time":20,"difficulty":"かんたん","childMode":"ok","spicy":false,"light":"普通","steps":["参考URLで作り方を確認する。"],"memo":"白菜とろとろのうま煮。寒い日にも。","sourceUrl":"https://delishkitchen.tv/recipes/239345015519183495","sourceKind":"url","custom":false,"teppan":false,"curatedUrl":true},
+  {"id":"url118","name":"豚こまの大葉巻き","category":"焼き物","mainType":"","ingredients":["豚こま","大葉","チーズ","醤油","みりん"],"required":["豚こま","大葉"],"optional":[],"tags":["参考URLあり","お弁当"],"time":20,"difficulty":"かんたん","childMode":"ok","spicy":false,"light":"普通","steps":["参考URLで作り方を確認する。"],"memo":"豚こまを広げて大葉とチーズを巻いて照り焼き。","sourceUrl":"https://delishkitchen.tv/recipes/233156440894308668","sourceKind":"url","custom":false,"teppan":false,"curatedUrl":true},
+  {"id":"url119","name":"ハンバーグ(基本)","category":"焼き物","mainType":"","ingredients":["合いびき肉","玉ねぎ","卵","パン粉","牛乳","ケチャップ","ウスターソース"],"required":["合いびき肉","玉ねぎ"],"optional":[],"tags":["子供OK","和食","参考URLあり"],"time":30,"difficulty":"普通","childMode":"ok","spicy":false,"light":"普通","steps":["参考URLで作り方を確認する。"],"memo":"基本のハンバーグ。子供の鉄板。","sourceUrl":"https://www.sirogohan.com/recipe/hanba-gu/","sourceKind":"url","custom":false,"teppan":false,"curatedUrl":true},
+  {"id":"url120","name":"オムライス","category":"丼・ご飯","mainType":"主食","ingredients":["卵","ご飯","鶏もも","玉ねぎ","ケチャップ","バター"],"required":["卵","ご飯","鶏もも"],"optional":[],"tags":["子供OK","参考URLあり"],"time":25,"difficulty":"普通","childMode":"ok","spicy":false,"light":"普通","steps":["参考URLで作り方を確認する。"],"memo":"子供の定番。チキンライスにふわとろ卵。","sourceUrl":"https://www.sirogohan.com/recipe/omurice/","sourceKind":"url","custom":false,"teppan":false,"curatedUrl":true},
+  {"id":"url121","name":"鮭のホイル焼き","category":"焼き物","mainType":"","ingredients":["鮭","玉ねぎ","しめじ","バター","醤油"],"required":["鮭"],"optional":[],"tags":["子供OK","和食","参考URLあり"],"time":20,"difficulty":"かんたん","childMode":"ok","spicy":false,"light":"あっさり","steps":["参考URLで作り方を確認する。"],"memo":"アルミホイルで包んで焼くだけ。野菜もとれる。","sourceUrl":"https://www.sirogohan.com/recipe/sakehoiru/","sourceKind":"url","custom":false,"teppan":false,"curatedUrl":true},
+  {"id":"url122","name":"鮭のムニエル","category":"焼き物","mainType":"","ingredients":["鮭","小麦粉","バター","レモン","塩","こしょう"],"required":["鮭"],"optional":[],"tags":["子供OK","時短","参考URLあり"],"time":15,"difficulty":"かんたん","childMode":"ok","spicy":false,"light":"普通","steps":["参考URLで作り方を確認する。"],"memo":"バターの香りが食欲そそる。子供にも人気。","sourceUrl":"https://delishkitchen.tv/recipes/123434115888777732","sourceKind":"url","custom":false,"teppan":false,"curatedUrl":true},
+  {"id":"url123","name":"ぶりの照り焼き","category":"焼き物","mainType":"","ingredients":["ぶり","醤油","みりん","酒","砂糖"],"required":["ぶり"],"optional":[],"tags":["和食","参考URLあり"],"time":15,"difficulty":"かんたん","childMode":"ok","spicy":false,"light":"普通","steps":["参考URLで作り方を確認する。"],"memo":"和食の定番。フライパン1つで簡単。","sourceUrl":"https://www.sirogohan.com/recipe/buriteri/","sourceKind":"url","custom":false,"teppan":false,"curatedUrl":true},
+  {"id":"url124","name":"さばの味噌煮","category":"煮物","mainType":"","ingredients":["さば","味噌","生姜","醤油","みりん","砂糖"],"required":["さば"],"optional":[],"tags":["和食","参考URLあり"],"time":25,"difficulty":"普通","childMode":"adapt","spicy":false,"light":"普通","steps":["参考URLで作り方を確認する。"],"memo":"和食の鉄板。生姜たっぷりで臭みなし。","sourceUrl":"https://www.sirogohan.com/recipe/sabamiso/","sourceKind":"url","custom":false,"teppan":false,"curatedUrl":true},
+  {"id":"url125","name":"鶏もも肉の唐揚げ","category":"揚げ物","mainType":"","ingredients":["鶏もも","醤油","酒","生姜","にんにく","片栗粉"],"required":["鶏もも"],"optional":[],"tags":["子供OK","和食","参考URLあり"],"time":30,"difficulty":"普通","childMode":"ok","spicy":false,"light":"普通","steps":["参考URLで作り方を確認する。"],"memo":"子供大好物。下味しっかりがコツ。","sourceUrl":"https://www.sirogohan.com/recipe/karaage/","sourceKind":"url","custom":false,"teppan":false,"curatedUrl":true},
+  {"id":"url126","name":"基本の豚汁","category":"汁物","mainType":"","ingredients":["豚こま","大根","にんじん","ごぼう","こんにゃく","味噌","ねぎ"],"required":["豚こま","大根","にんじん"],"optional":[],"tags":["和食","参考URLあり"],"time":30,"difficulty":"かんたん","childMode":"ok","spicy":false,"light":"普通","steps":["参考URLで作り方を確認する。"],"memo":"具だくさんでこれだけでも満足。","sourceUrl":"https://www.sirogohan.com/recipe/tonjiru/","sourceKind":"url","custom":false,"teppan":false,"curatedUrl":true},
+  {"id":"url127","name":"基本の筑前煮","category":"煮物","mainType":"","ingredients":["鶏もも","にんじん","れんこん","ごぼう","しいたけ","こんにゃく","醤油","みりん","だし"],"required":["鶏もも","にんじん","れんこん"],"optional":[],"tags":["和食","参考URLあり"],"time":40,"difficulty":"普通","childMode":"adapt","spicy":false,"light":"普通","steps":["参考URLで作り方を確認する。"],"memo":"和食の定番。多めに作って常備菜にも。","sourceUrl":"https://www.sirogohan.com/recipe/tikuzenni/","sourceKind":"url","custom":false,"teppan":false,"curatedUrl":true},
+  {"id":"url128","name":"豚バラ大根","category":"煮物","mainType":"","ingredients":["豚バラ","大根","醤油","みりん","酒","砂糖","生姜"],"required":["豚バラ","大根"],"optional":[],"tags":["和食","参考URLあり"],"time":30,"difficulty":"かんたん","childMode":"ok","spicy":false,"light":"普通","steps":["参考URLで作り方を確認する。"],"memo":"大根に味がしみてご飯がすすむ。","sourceUrl":"https://www.sirogohan.com/recipe/butadaikon/","sourceKind":"url","custom":false,"teppan":false,"curatedUrl":true},
+  {"id":"url129","name":"肉豆腐","category":"煮物","mainType":"","ingredients":["豚こま","木綿豆腐","ねぎ","醤油","みりん","砂糖","だし"],"required":["豚こま","木綿豆腐"],"optional":[],"tags":["和食","参考URLあり"],"time":20,"difficulty":"かんたん","childMode":"ok","spicy":false,"light":"普通","steps":["参考URLで作り方を確認する。"],"memo":"あっさりめで疲れた日にも。","sourceUrl":"https://www.sirogohan.com/recipe/nikudoufu/","sourceKind":"url","custom":false,"teppan":false,"curatedUrl":true},
+  {"id":"url130","name":"豚の角煮","category":"煮物","mainType":"","ingredients":["豚バラ","ねぎ","生姜","醤油","酒","砂糖"],"required":["豚バラ"],"optional":[],"tags":["和食","参考URLあり"],"time":120,"difficulty":"普通","childMode":"ok","spicy":false,"light":"こってり","steps":["参考URLで作り方を確認する。"],"memo":"時間はかかるが圧力鍋なら短縮可。","sourceUrl":"https://www.sirogohan.com/recipe/kakuni/","sourceKind":"url","custom":false,"teppan":false,"curatedUrl":true}
 ];
     const STORAGE_KEY = 'menu_selector_personal_v1';
     const TODAY = new Date();
@@ -8346,63 +8418,173 @@ const CURATED_URL_RECIPES = [
       const seasonal = SEASONAL[month] || [];
       return `
         <section class="section">
-          <div class="card">
-            <h2>今日の条件</h2>
-            <div class="chips">
-              ${modeChip('pantry','あるものから')}
-              ${modeChip('empty','冷蔵庫なんもない')}
-              ${modeChip('shopping','買い物前提')}
-              ${modeChip('tired','疲れている')}
-              ${modeChip('childSame','子供も同じもの')}
-              ${modeChip('spicyAdult','大人だけ辛いものOK')}
-              ${modeChip('seasonal','旬・安そう優先')}
-            </div>
-            <div class="notice" style="margin-top:10px">候補は3件だけ。全部違う場合は、表示済みを外して次の候補を出します。</div>
-          </div>
+          ${todayConditionCard()}
+          ${pantryCard()}
+          ${bargainCard(month, seasonal)}
 
-          <div class="card">
-            <div class="between">
-              <h2>冷蔵庫にあるもの</h2>
-              <button class="mini-btn" onclick="clearPantry()">全部外す</button>
-            </div>
-            <div class="small">追加した食材は一時的ではなく、次回以降も該当カテゴリに常駐します。</div>
-            <div class="row" style="margin-top:10px">
-              <input id="ingredientSearch" type="text" value="${escAttr(state.ingredientQuery)}" placeholder="食材を検索 例：トマト、豚、葉物" onkeydown="if(event.key==='Enter'){state.ingredientQuery=this.value.trim(); render()}">
-              <button class="secondary" onclick="state.ingredientQuery=document.getElementById('ingredientSearch').value.trim(); render()">絞り込み</button>
-              ${state.ingredientQuery ? `<button class="ghost" onclick="state.ingredientQuery=''; render()">クリア</button>` : ''}
-            </div>
-            ${selectedIngredientStrip()}
-            ${ingredientGroups(ingredientCatalog(), data.pantry, 'pantry')}
-            <div class="row" style="margin-top:10px">
-              <input id="customPantryInput" type="text" placeholder="食材を追加 例：空芯菜、納豆、鶏ささみ">
-              <button class="secondary" onclick="addCustomPantry()">追加して常駐</button>
-            </div>
-          </div>
-
-          <div class="card">
-            <h2>${month}月の旬・買ってもよさそう</h2>
-            <div class="small">旬食材は自動加点。「安そう・買いたい」は手動チェックで強めに加点します。</div>
-            <div class="ingredient-group">
-              <div class="ingredient-title">旬候補</div>
-              <div class="chips">
-                ${seasonal.map(x => `<label class="chip ${data.bargain.includes(x) ? 'on':''}"><input type="checkbox" ${data.bargain.includes(x)?'checked':''} onchange="toggleArrayItem(data.bargain,'${esc(x)}'); saveData(); render()"> ${x}</label>`).join('')}
-              </div>
-            </div>
-            <div class="row" style="margin-top:10px">
-              <input id="customBargainInput" type="text" placeholder="安そうな食材を追加 例：もやし">
-              <button class="secondary" onclick="addCustomBargain()">追加</button>
-            </div>
-            ${data.bargain.length ? `<div class="chips" style="margin-top:10px">${data.bargain.map(x=>`<span class="tag on">${x}<button class="mini-btn" onclick="toggleArrayItem(data.bargain,'${esc(x)}'); saveData(); render()">×</button></span>`).join('')}</div>`:''}
-          </div>
-
-          <div class="grid2">
-            <button class="primary block" onclick="generateCandidates(true)">今日の候補を3つ出す</button>
-            <button class="secondary block" onclick="rejectCurrentAndRegenerate('mood')">3つとも違うので別候補</button>
+          <div class="grid2" style="margin-top:14px">
+            <button class="primary block" onclick="generateCandidates(true)">🍽 今日の候補を3つ出す</button>
+            <button class="secondary block" onclick="rejectCurrentAndRegenerate('mood')">違う候補を出す</button>
           </div>
           ${state.relaxedNotice ? `<div class="warn" style="margin-top:10px">${state.relaxedNotice}</div>`:''}
 
           <section id="candidates">${renderCandidates()}</section>
         </section>
+      `;
+    }
+
+    // 今日の条件カード(階層化)
+    function todayConditionCard(){
+      // メインモード: pantry / empty / shopping から1つ選ぶラジオ的UI
+      const mainMode = state.modes.empty ? 'empty' : state.modes.shopping ? 'shopping' : 'pantry';
+      const mainOptions = [
+        ['pantry', '🥬', 'あるものから', '冷蔵庫の食材を活用'],
+        ['empty', '🛒', '冷蔵庫から想像して', '今日買い物に行くつもり'],
+        ['shopping', '✨', 'なんでもOK', '何でも買って作る']
+      ];
+      return `
+        <div class="card cond-card">
+          <div class="cond-section">
+            <div class="cond-label">今日の状況</div>
+            <div class="cond-main">
+              ${mainOptions.map(([key, icon, label, desc]) => `
+                <button class="cond-main-btn ${mainMode===key?'on':''}" onclick="setMainMode('${key}')">
+                  <span class="cond-icon">${icon}</span>
+                  <span class="cond-text"><b>${label}</b><span>${desc}</span></span>
+                </button>
+              `).join('')}
+            </div>
+          </div>
+          <details class="cond-extra" ${(state.modes.tired||state.modes.childSame||state.modes.spicyAdult||!state.modes.seasonal)?'open':''}>
+            <summary>細かい条件 <span class="small">${condExtraSummary()}</span></summary>
+            <div class="chips" style="margin-top:8px">
+              ${modeChip('tired','😪 疲れている')}
+              ${modeChip('childSame','👧 子供も同じもの')}
+              ${modeChip('spicyAdult','🌶 大人だけ辛いOK')}
+              ${modeChip('seasonal','🌸 旬・安そう優先')}
+            </div>
+          </details>
+        </div>
+      `;
+    }
+
+    function condExtraSummary(){
+      const arr = [];
+      if(state.modes.tired) arr.push('疲れ');
+      if(state.modes.childSame) arr.push('子供同じ');
+      if(state.modes.spicyAdult) arr.push('辛さOK');
+      if(!state.modes.seasonal) arr.push('旬OFF');
+      return arr.length ? '(' + arr.join('・') + ')' : '';
+    }
+
+    function setMainMode(key){
+      state.modes.pantry = (key === 'pantry');
+      state.modes.empty = (key === 'empty');
+      state.modes.shopping = (key === 'shopping');
+      render();
+    }
+
+    // 冷蔵庫カード(整理版)
+    function pantryCard(){
+      const pantry = data.pantry || [];
+      const sel = pantry.length;
+      const groups = ingredientCatalog();
+      const recentlyUsed = computeRecentlyUsedIngredients(8);
+      const q = (state.ingredientQuery || '').trim();
+      return `
+        <div class="card pantry-card">
+          <div class="pantry-head">
+            <div>
+              <h2 style="margin:0">🥬 冷蔵庫にあるもの</h2>
+              <div class="small" style="margin-top:2px">${sel ? sel + '個 選択中' : '何も選んでいません'}</div>
+            </div>
+            ${sel ? `<button class="mini-btn" onclick="clearPantry()">全部外す</button>` : ''}
+          </div>
+          ${sel ? `
+            <div class="selected-strip" style="margin-top:10px">
+              ${pantry.map(x => `<span class="tag on big">${x}<button class="mini-btn" onclick="toggleArrayItem(data.pantry,'${esc(x)}'); saveData(); render()">×</button></span>`).join('')}
+            </div>
+          ` : ''}
+          <div class="row" style="margin-top:12px;gap:6px">
+            <input id="ingredientSearch" type="text" value="${escAttr(state.ingredientQuery)}" placeholder="食材を検索: 例 トマト、豚" oninput="state.ingredientQuery=this.value; renderPantryOnly()" style="flex:1">
+            ${q ? `<button class="ghost" onclick="state.ingredientQuery=''; render()">✕</button>` : ''}
+          </div>
+          ${recentlyUsed.length && !q ? `
+            <div style="margin-top:10px">
+              <div class="small" style="margin-bottom:4px">最近よく使う食材(タップで追加)</div>
+              <div class="chips">
+                ${recentlyUsed.map(x => `<button class="chip ${pantry.includes(x)?'on':''}" onclick="toggleArrayItem(data.pantry,'${esc(x)}'); saveData(); render()">${pantry.includes(x)?'✓':'+'} ${x}</button>`).join('')}
+              </div>
+            </div>
+          ` : ''}
+          <div style="margin-top:12px">
+            <details class="pantry-all" ${q ? 'open' : ''}>
+              <summary><b>カテゴリから選ぶ</b><span class="small">${q ? '検索中' : 'タップで開く'}</span></summary>
+              <div class="pantry-categories">${ingredientGroups(groups, pantry, 'pantry')}</div>
+            </details>
+          </div>
+          <div class="row" style="margin-top:10px">
+            <input id="customPantryInput" type="text" placeholder="食材を新規追加 例：空芯菜、納豆" style="flex:1">
+            <button class="secondary" onclick="addCustomPantry()">追加</button>
+          </div>
+        </div>
+      `;
+    }
+
+    // 履歴+鉄板から「最近よく使う食材」を抽出
+    function computeRecentlyUsedIngredients(limit = 8){
+      const recent = (data.history || []).slice(0, 30);
+      const counts = {};
+      recent.forEach(h => {
+        const r = recipeById(h.recipeId);
+        if(!r) return;
+        (r.ingredients || []).forEach(ing => {
+          if(STAPLES.has(ing)) return;
+          counts[ing] = (counts[ing] || 0) + 1;
+        });
+      });
+      // 鉄板にある食材も加点
+      data.recipes.filter(r => r.teppan).forEach(r => {
+        (r.ingredients || []).forEach(ing => {
+          if(STAPLES.has(ing)) return;
+          counts[ing] = (counts[ing] || 0) + 0.5;
+        });
+      });
+      return Object.entries(counts).sort((a,b) => b[1]-a[1]).slice(0, limit).map(([k]) => k);
+    }
+
+    // pantryのエリアだけ再描画(検索キーワード変更時)
+    function renderPantryOnly(){
+      // 簡略化のため全体再描画
+      render();
+      // フォーカスを戻す
+      requestAnimationFrame(() => {
+        const el = document.getElementById('ingredientSearch');
+        if(el){ el.focus(); el.setSelectionRange(el.value.length, el.value.length); }
+      });
+    }
+
+    // 旬・安そうカード(整理版)
+    function bargainCard(month, seasonal){
+      const bg = data.bargain || [];
+      return `
+        <div class="card">
+          <h2 style="margin:0 0 4px">🌸 ${month}月の旬・買いたいもの</h2>
+          <div class="small" style="margin-bottom:8px">旬は自動で加点。買いたいものは手動チェックで強めに加点。</div>
+          <div class="chips">
+            ${seasonal.map(x => `<button class="chip ${bg.includes(x) ? 'on':''}" onclick="toggleArrayItem(data.bargain,'${esc(x)}'); saveData(); render()">${bg.includes(x)?'✓':''} ${x}</button>`).join('')}
+          </div>
+          ${bg.filter(x => !seasonal.includes(x)).length ? `
+            <div class="small" style="margin-top:10px">追加した食材:</div>
+            <div class="chips" style="margin-top:4px">
+              ${bg.filter(x => !seasonal.includes(x)).map(x => `<span class="tag on">${x}<button class="mini-btn" onclick="toggleArrayItem(data.bargain,'${esc(x)}'); saveData(); render()">×</button></span>`).join('')}
+            </div>
+          ` : ''}
+          <div class="row" style="margin-top:10px">
+            <input id="customBargainInput" type="text" placeholder="安そうな食材を追加 例：もやし" style="flex:1">
+            <button class="secondary" onclick="addCustomBargain()">追加</button>
+          </div>
+        </div>
       `;
     }
 
@@ -8886,27 +9068,53 @@ const CURATED_URL_RECIPES = [
       `;
     }
 
-    // 機能A: 食材カバレッジ
+    // 機能A: 食材カバレッジ(コンパクト版)
     function analysisCoverageView(){
       const cov = computeCoverage();
-      const rows = Object.entries(cov).map(([group, items]) => {
-        const sorted = [...items].sort((a,b) => a.count - b.count);
-        const cells = sorted.map(it => {
-          const cls = it.count === 0 ? 'cov-zero' : it.count <= 2 ? 'cov-low' : it.count <= 5 ? 'cov-mid' : 'cov-high';
-          const inPantry = it.inPantry ? '🛒' : '';
-          return `<button class="cov-cell ${cls}" onclick="state.recipeQuery='${escAttr(it.name)}'; render()" title="クリックして検索">${it.name}${inPantry}<span>${it.count}</span></button>`;
-        }).join('');
-        return `<div class="cov-group"><div class="cov-group-title">${group}</div><div class="cov-cells">${cells}</div></div>`;
-      }).join('');
-      const zeroes = [];
-      Object.values(cov).flat().forEach(it => { if(it.count === 0) zeroes.push(it.name); });
-      const fewest = Object.values(cov).flat().filter(it => it.count > 0).sort((a,b) => a.count - b.count).slice(0, 8);
+      const allItems = Object.values(cov).flat();
+      const zeroes = allItems.filter(it => it.count === 0);
+      const fewest = allItems.filter(it => it.count > 0).sort((a,b) => a.count - b.count).slice(0, 12);
+      const inPantryFewest = fewest.filter(it => it.inPantry);
       return `
-        <div class="small" style="color:var(--muted);margin-bottom:8px">食材ごとの登録レシピ数。<b style="color:var(--accent)">赤=0件</b>、<b>橙=少ない</b>、緑=多い。タップで検索。🛒は冷蔵庫にある食材。</div>
-        ${rows}
-        ${zeroes.length ? `<div class="card" style="margin-top:12px;background:#fff8ef"><b>📭 レシピがない食材(${zeroes.length}個)</b><div class="small" style="margin-top:6px">${zeroes.join('、')}</div><div class="small" style="margin-top:6px;color:var(--muted)">これらの食材を使うレシピを追加すると、レパートリーがぐっと広がります。</div></div>` : ''}
-        ${fewest.length ? `<div class="card" style="margin-top:8px"><b>🔻 レシピが少ない食材TOP8</b><div class="small" style="margin-top:6px">${fewest.map(it => `${it.name}(${it.count})`).join('、')}</div></div>` : ''}
+        <div class="small" style="color:var(--muted);margin-bottom:10px">登録レシピ数が少ない食材を表示。タップで検索 or レシピ追加へ。</div>
+        ${inPantryFewest.length ? `
+          <div class="card" style="margin-top:0;background:#fff8ef">
+            <b>🛒 冷蔵庫にあって、レシピ少なめ</b>
+            <div class="chips" style="margin-top:8px">
+              ${inPantryFewest.map(it => `<button class="chip" onclick="state.recipeQuery='${escAttr(it.name)}'; state.analysisOpen=false; render()">${it.name} <span class="cov-count">${it.count}</span></button>`).join('')}
+            </div>
+            <div class="small" style="margin-top:6px;color:var(--muted)">これらの食材を使うレシピを増やすと活用しやすくなります。</div>
+          </div>
+        ` : ''}
+        ${zeroes.length ? `
+          <div class="card" style="margin-top:8px">
+            <b>📭 レシピがない食材 (${zeroes.length})</b>
+            <div class="chips" style="margin-top:8px">${zeroes.slice(0,20).map(it => `<button class="chip" onclick="searchAndAddRecipe('${escAttr(it.name)}')">+ ${it.name}</button>`).join('')}</div>
+            ${zeroes.length > 20 ? `<div class="small" style="margin-top:4px;color:var(--muted)">ほか${zeroes.length-20}件...</div>` : ''}
+            <div class="small" style="margin-top:6px;color:var(--muted)">タップでネット検索 → URL貼り付けで追加できます。</div>
+          </div>
+        ` : ''}
+        <div class="card" style="margin-top:8px">
+          <b>🔻 レシピが少ない食材</b>
+          <div class="chips" style="margin-top:8px">${fewest.map(it => `<button class="chip" onclick="state.recipeQuery='${escAttr(it.name)}'; state.analysisOpen=false; render()">${it.name} <span class="cov-count">${it.count}</span></button>`).join('')}</div>
+        </div>
       `;
+    }
+
+    // 食材から検索画面に飛ばす(URL貼り付けフォームへ)
+    function searchAndAddRecipe(ing){
+      const q = encodeURIComponent(ing + ' レシピ 人気');
+      window.open(`https://www.google.com/search?q=${q}`, '_blank', 'noopener');
+      // 少し遅らせて分析閉じてフォームへ
+      setTimeout(() => {
+        state.analysisOpen = false;
+        render();
+        // URL貼り付けフォームの場所へスクロール
+        requestAnimationFrame(() => {
+          const el = document.getElementById('quickUrlInput');
+          if(el){ el.scrollIntoView({behavior:'smooth', block:'center'}); el.focus(); }
+        });
+      }, 400);
     }
 
     // 機能B: 好み傾向
@@ -9006,6 +9214,86 @@ const CURATED_URL_RECIPES = [
       render();
       alert('候補に追加しました。レシピタブで編集できます。');
     }
+
+    // URL貼り付けでレシピを半自動追加
+    function quickAddRecipeFromUrl(){
+      const urlEl = document.getElementById('quickUrlInput');
+      const nameEl = document.getElementById('quickNameInput');
+      const ingsEl = document.getElementById('quickIngsInput');
+      const catEl = document.getElementById('quickCatInput');
+      const url = (urlEl.value || '').trim();
+      if(!url){ alert('URLを貼り付けてください。'); return; }
+      if(!/^https?:\/\//.test(url)){ alert('URLの形式が違います。https://で始まるURLを貼ってください。'); return; }
+      // URLからドメイン推測 → レシピ名のヒントに
+      let domainHint = '';
+      try{
+        const u = new URL(url);
+        const host = u.hostname.replace(/^www\./, '');
+        const map = {
+          'sirogohan.com': '白ごはん.com',
+          'delishkitchen.tv': 'DELISH KITCHEN',
+          'kurashiru.com': 'クラシル',
+          'cookpad.com': 'クックパッド',
+          'recipe.rakuten.co.jp': '楽天レシピ',
+          'orangepage.net': 'オレンジページ',
+          'kyounoryouri.jp': 'みんなのきょうの料理',
+          'macaro-ni.jp': 'macaroni',
+          'erecipe.woman.excite.co.jp': 'Eレシピ'
+        };
+        domainHint = map[host] || host;
+      }catch(e){
+        alert('URLの形式が変です。'); return;
+      }
+      const inputName = (nameEl.value || '').trim();
+      const ingsRaw = (ingsEl.value || '').trim();
+      const ings = ingsRaw ? ingsRaw.split(/[、,，]/).map(s => s.trim()).filter(Boolean) : [];
+      let cat = catEl.value;
+      if(!cat){
+        // 食材から雑にカテゴリ推測
+        const ingStr = ings.join(' ');
+        if(/麺|うどん|そば|パスタ|ラーメン/.test(ingStr + ' ' + inputName)) cat = '麺類';
+        else if(/ご飯|米|丼|チャーハン/.test(ingStr + ' ' + inputName)) cat = '丼・ご飯';
+        else if(/汁|スープ|味噌汁/.test(inputName)) cat = '汁物';
+        else if(/サラダ/.test(inputName)) cat = 'サラダ';
+        else if(/煮|シチュー/.test(inputName)) cat = '煮物';
+        else if(/揚|フライ|唐揚|天ぷら/.test(inputName)) cat = '揚げ物';
+        else if(/焼|グリル|ソテー|ハンバーグ|ムニエル/.test(inputName)) cat = '焼き物';
+        else if(/炒/.test(inputName)) cat = '炒め物';
+        else cat = 'その他';
+      }
+      const name = inputName || `${domainHint}のレシピ`;
+      const id = 'qa_' + Date.now().toString(36);
+      const item = {
+        id,
+        name,
+        category: cat,
+        mainType: '',
+        ingredients: ings,
+        required: ings,
+        optional: [],
+        tags: ['参考URLあり', domainHint],
+        time: 20,
+        difficulty: 'かんたん',
+        childMode: 'separate',
+        spicy: false,
+        light: '普通',
+        steps: ['詳しい作り方は参考URLで確認する。'],
+        memo: `${domainHint}から取り込み。気に入ったら鉄板に。`,
+        sourceUrl: url,
+        sourceKind: 'url',
+        custom: true,
+        teppan: false
+      };
+      data.recipes.unshift(item);
+      saveData();
+      // フォームをリセット
+      urlEl.value = '';
+      nameEl.value = '';
+      ingsEl.value = '';
+      catEl.value = '';
+      render();
+      alert(`「${name}」を追加しました。レシピタブで開いて、必要なら食材・カテゴリを編集してください。`);
+    }
     // ========== /分析機能 ==========
 
     function viewRecipes(){
@@ -9043,6 +9331,38 @@ const CURATED_URL_RECIPES = [
           <details class="card" ${state.analysisOpen ? 'open' : ''} ontoggle="state.analysisOpen=this.open">
             <summary><b>📊 レパートリー分析</b><span class="small" style="margin-left:8px;color:var(--muted)">食材カバー・好み傾向・空き枠の提案</span></summary>
             ${analysisPanel()}
+          </details>
+
+          <details class="card">
+            <summary><b>🔗 URLからレシピを追加</b><span class="small" style="margin-left:8px;color:var(--muted)">気になったレシピのURLを貼るだけ</span></summary>
+            <div class="small" style="color:var(--muted);margin:8px 0">レシピ名・食材・カテゴリの目星を入力して登録 → 後でレシピをタップして「参考URLを開く」で本サイトを確認。</div>
+            <div class="chips" style="margin-bottom:10px">
+              <span class="small" style="color:var(--muted)">サイトで探す:</span>
+              <a class="secondary" href="https://www.sirogohan.com/" target="_blank" rel="noopener" style="font-size:12px;padding:3px 9px">白ごはん.com</a>
+              <a class="secondary" href="https://delishkitchen.tv/" target="_blank" rel="noopener" style="font-size:12px;padding:3px 9px">DELISH KITCHEN</a>
+              <a class="secondary" href="https://www.kurashiru.com/" target="_blank" rel="noopener" style="font-size:12px;padding:3px 9px">クラシル</a>
+              <a class="secondary" href="https://recipe.rakuten.co.jp/" target="_blank" rel="noopener" style="font-size:12px;padding:3px 9px">楽天レシピ</a>
+            </div>
+            <input type="text" id="quickUrlInput" placeholder="URLを貼り付け：https://..." style="width:100%;margin-bottom:8px">
+            <input type="text" id="quickNameInput" placeholder="レシピ名(任意。空ならURLから推測)" style="width:100%;margin-bottom:8px">
+            <input type="text" id="quickIngsInput" placeholder="主な食材(任意。例：鶏もも、玉ねぎ、卵)" style="width:100%;margin-bottom:8px">
+            <select id="quickCatInput" style="width:100%;margin-bottom:8px">
+              <option value="">カテゴリ自動推測</option>
+              <option value="炒め物">炒め物</option>
+              <option value="煮物">煮物</option>
+              <option value="焼き物">焼き物</option>
+              <option value="揚げ物">揚げ物</option>
+              <option value="蒸し物">蒸し物</option>
+              <option value="サラダ">サラダ</option>
+              <option value="和え物">和え物</option>
+              <option value="汁物">汁物</option>
+              <option value="丼・ご飯">丼・ご飯</option>
+              <option value="麺類">麺類</option>
+              <option value="鍋物">鍋物</option>
+              <option value="その他">その他</option>
+            </select>
+            <button class="primary block" onclick="quickAddRecipeFromUrl()">URLからレシピを追加</button>
+            <div class="small" style="margin-top:8px;color:var(--muted)">💡 URLから自動でドメイン推測してレシピ名にします。あとから編集も可。</div>
           </details>
 
           <details class="card">
