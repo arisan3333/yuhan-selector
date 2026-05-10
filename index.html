@@ -4563,11 +4563,14 @@ const CURATED_URL_RECIPES = [
       if(tags.includes('前菜・副菜') || /副菜|前菜|小鉢|サラダ|和え物|和え|ナムル|おひたし|冷奴|きんぴら|浅漬け|漬け|マリネ|酢の物/.test(text) || ['副菜','サラダ','サラダ・副菜','和え物'].includes(category)) out.add('前菜・副菜');
 
       const refreshingHit = tags.includes('さっぱり') || light === 'あっさり' || /さっぱり|ポン酢|ぽん酢|甘酢|黒酢|酢の物|マリネ|梅|レモン|柚子|ゆず|大葉|青じそ|おろし|大根おろし|みぞれ|薬味|ねぎ塩/.test(text);
-      const richHit = tags.includes('こってり') || light === 'こってり' || light === '重め' || category === '揚げ物' || category === 'カレー・シチュー' || /こってり|濃厚|チーズ|マヨ|マヨネーズ|バター|クリーム|生クリーム|豚バラ|ベーコン|唐揚げ|天ぷら|フライ|揚げ|カレー|シチュー|タルタル|グラタン|ドリア/.test(text);
-      const richStrong = light === 'こってり' || light === '重め' || category === '揚げ物' || category === 'カレー・シチュー' || /チーズ|マヨ|マヨネーズ|バター|クリーム|生クリーム|唐揚げ|天ぷら|フライ|揚げ|カレー|シチュー|タルタル|グラタン|ドリア/.test(text);
+      // マヨ・チーズは副材料として入るだけでは「こってり」にしない。
+      // こってりは、揚げ物・クリーム系・濃厚ソース・タルタル・チーズたっぷり等に限定する。
+      const richPattern = /こってり|濃厚|こく旨|コク旨|背脂|バター|クリーム|生クリーム|豚バラ|ベーコン|唐揚げ|から揚げ|天ぷら|フライ|揚げ|カレー|シチュー|タルタル|グラタン|ドリア|マヨたっぷり|マヨネーズたっぷり|マヨソース|チーズたっぷり|濃厚チーズ|チーズソース|チーズ焼き|チーズフォンデュ/;
+      const richHit = tags.includes('こってり') || light === 'こってり' || light === '重め' || category === '揚げ物' || category === 'カレー・シチュー' || richPattern.test(text);
+      const richStrong = light === 'こってり' || light === '重め' || category === '揚げ物' || category === 'カレー・シチュー' || richPattern.test(text);
 
       // 「さっぱり」と「こってり」は両立させない。
-      // 両方に引っかかる場合は、揚げ物・マヨ・チーズ・クリーム系など明確に濃厚なもの以外は「さっぱり」を優先。
+      // 両方に引っかかる場合は、明確に濃厚なもの以外は「さっぱり」を優先。
       if(refreshingHit && richHit){
         out.add(richStrong ? 'こってり' : 'さっぱり');
       }else if(refreshingHit){
@@ -4585,15 +4588,23 @@ const CURATED_URL_RECIPES = [
       if(!r) return r;
       const rawTags = normalizeRecipeTags(r.tags);
       if(r.light === '軽め') r.light = '普通';
-      // 特徴タグは毎回再判定して、旧タグ・矛盾タグ・炭水化物ありのヘルシーを自動整理する。
+      // 手動編集済みのレシピは、ユーザーが選んだ特徴タグを正とする。
+      // これにより、一度消した「こってり」などが自動推定で復活しない。
+      if(r.featureTagsManual){
+        r.tags = uniqueList(rawTags);
+        return r;
+      }
+      // 未編集のレシピだけ特徴タグを自動推定する。
+      // 旧版で自動付与された特徴タグ自体は推定根拠にしない。
       const baseTags = rawTags.filter(t => !FEATURE_TAGS.includes(t));
-      r.tags = uniqueList(baseTags.concat(inferFeatureTags({...r, tags: rawTags})));
+      r.tags = uniqueList(baseTags.concat(inferFeatureTags({...r, tags: baseTags})));
       return r;
     }
 
     function recipeHasFeature(r, feature){
       const tags = normalizeRecipeTags(r?.tags || []);
       if(tags.includes(feature)) return true;
+      if(r?.featureTagsManual) return false;
       return inferFeatureTags({...r, tags}).includes(feature);
     }
 
@@ -5901,7 +5912,7 @@ const CURATED_URL_RECIPES = [
     "time": 調理時間の数値(分),
     "spicy": 辛いならtrue,
     "childMode": "ok=子供OK / adapt=アレンジ可 / separate=子供別 のいずれか",
-    "tags": ["ヘルシー/前菜・副菜/さっぱり/こってり/温まる のうち該当するものだけ"]
+    "featureTags": ["ヘルシー/前菜・副菜/さっぱり/こってり/温まる のうち該当するものだけ"]
   }
 ]
 \`\`\`
@@ -5911,9 +5922,12 @@ ${items.map((it, i) => `${i+1}. id=${it.id}\n   URL: ${it.url}`).join('\n')}
 
 注意:
 - ingredients は調味料(醤油、みりん、塩、こしょう、油など)を除き、メインの具材だけ
-- tags は料理の特徴だけ。ダイエットは使わずヘルシーに統一
+- featureTags は料理の特徴だけ。ダイエットは使わずヘルシーに統一
 - 米・ご飯・パスタ・麺・パンなど主食系炭水化物が入る料理は「ヘルシー」にしない
-- さっぱり と こってり は両立不可。迷う場合は さっぱり を優先し、揚げ物・マヨ・チーズ・クリーム系など明確に濃厚なものだけ こってり にする
+- さっぱり と こってり は両立不可。迷う場合は さっぱり を優先
+- マヨネーズ・チーズは、少量または副材料として入るだけでは「こってり」にしない
+- 「こってり」は、揚げ物、クリーム系、濃厚ソース、タルタル、マヨが味の主役、チーズたっぷり、グラタン、ドリアなど明確に重い料理に限定
+- 例: ツナマヨナムル、チーズ入りサラダ、粉チーズ少量の料理は、それだけで「こってり」にしない
 - 鍋物・汁物・煮込み・あんかけ・うどんなどは「温まる」を付ける
 - ページが読めなかったURLは結果から除外してOK
 - 必ずJSON配列形式のみで返答してください
@@ -5959,11 +5973,14 @@ ${items.map((it, i) => `${i+1}. id=${it.id}\n   URL: ${it.url}`).join('\n')}
         if(typeof item.time === 'number') r.time = item.time;
         if(typeof item.spicy === 'boolean') r.spicy = item.spicy;
         if(item.childMode && ['ok','adapt','separate'].includes(item.childMode)) r.childMode = item.childMode;
-        if(Array.isArray(item.tags) && item.tags.length){
-          r.tags = normalizeRecipeTags((r.tags || []).concat(item.tags));
-        }
-        // 「AI補完済み」タグを付ける
-        r.tags = uniqueList(normalizeRecipeTags((r.tags || []).filter(t => t !== '要補完')).concat(['AI補完済み']));
+        const hasAiFeatureTags = Array.isArray(item.featureTags) || Array.isArray(item.tags);
+        const aiFeatureTags = normalizeRecipeTags([
+          ...(Array.isArray(item.featureTags) ? item.featureTags : []),
+          ...(Array.isArray(item.tags) ? item.tags : []) // 旧形式との互換用
+        ]).filter(t => FEATURE_TAGS.includes(t));
+        const baseTags = normalizeRecipeTags(r.tags || []).filter(t => !FEATURE_TAGS.includes(t) && t !== '要補完');
+        r.tags = uniqueList(baseTags.concat(aiFeatureTags).concat(['AI補完済み']));
+        r.featureTagsManual = hasAiFeatureTags;
         normalizeRecipeForFeatures(r);
         r.modified = true;
         r.modifiedAt = new Date().toISOString();
@@ -6146,7 +6163,7 @@ ${items.map((it, i) => `${i+1}. id=${it.id}\n   URL: ${it.url}`).join('\n')}
           <input name="name" required value="${escAttr(r.name || '')}" placeholder="例：豚こまキャベツ味噌炒め">
 
           <div class="notice" style="margin:10px 0">
-            <b>カテゴリ</b>は料理の形、<b>タグ</b>は条件です。ヘルシー・前菜/副菜・さっぱり・こってり・温まるなどはタグで管理します。米・パスタなど主食系炭水化物入りはヘルシー対象外、さっぱり/こってりはどちらか一方に自動整理します。
+            <b>カテゴリ</b>は料理の形、<b>タグ</b>は条件です。ヘルシー・前菜/副菜・さっぱり・こってり・温まるなどはタグで管理します。編集後はここで選んだタグを優先します。
           </div>
 
           <label class="label">カテゴリ（料理の形）</label>
@@ -6300,6 +6317,7 @@ ${items.map((it, i) => `${i+1}. id=${it.id}\n   URL: ${it.url}`).join('\n')}
         sourceKind: sourceUrl ? 'url' : 'custom',
         custom: true,
         teppan: true,
+        featureTagsManual: tags.some(t => FEATURE_TAGS.includes(t)),
         createdAt: new Date().toISOString()
       };
       normalizeRecipeForFeatures(r);
@@ -6345,6 +6363,7 @@ ${items.map((it, i) => `${i+1}. id=${it.id}\n   URL: ${it.url}`).join('\n')}
       r.sourceUrl = sourceUrl;
       r.sourceKind = sourceUrl ? 'url' : 'custom';
       r.stock = false;
+      r.featureTagsManual = true;
       r.modified = true;
       r.modifiedAt = new Date().toISOString();
       normalizeRecipeForFeatures(r);
