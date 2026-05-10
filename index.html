@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#f7a84b">
-  <title>今日なに食べる？</title>
+  <title>🍽️ 今日なに食べる？</title>
   <style>
     :root{
       --bg:#fff8ef;
@@ -48,9 +48,9 @@
     .pill{display:inline-flex;align-items:center;gap:5px;border-radius:999px;background:var(--soft);border:1px solid var(--line);padding:5px 9px;font-size:12px;color:#60452e;white-space:nowrap}
     .tabs{
       position:fixed;left:0;right:0;bottom:0;z-index:30;
-      display:grid;grid-template-columns:repeat(5,1fr);
+      display:grid;grid-template-columns:repeat(6,1fr);
       max-width:780px;margin:0 auto;
-      padding:7px 8px calc(7px + var(--safe-bottom));
+      padding:7px 6px calc(7px + var(--safe-bottom));
       background:rgba(255,255,255,.96);
       border-top:1px solid var(--line);
       box-shadow:0 -8px 24px rgba(72,42,20,.08);
@@ -58,11 +58,11 @@
     }
     .tab{
       border:0;background:transparent;color:var(--muted);
-      padding:8px 3px;border-radius:14px;font-size:12px;
+      padding:8px 2px;border-radius:14px;font-size:11px;
       display:flex;flex-direction:column;align-items:center;gap:2px;
     }
     .tab span:first-child{font-size:18px}
-    .tab span:last-child{font-size:11px}
+    .tab span:last-child{font-size:10px}
     .tab.active{background:#fff0dc;color:#9a4c12;font-weight:700}
     .section{margin:12px 0}
     .card{
@@ -315,8 +315,8 @@
     <header>
       <div class="title">
         <div>
-          <h1>今日なに食べる？</h1>
-          <div class="sub">あるもの・旬・家族NGから夕飯候補を3つに絞る <span style="font-size:11px;color:#9a8068">v20260510-sort-split</span></div>
+          <h1>🍽️ 今日なに食べる？</h1>
+          <div class="sub">あるもの・旬・家族NGから夕飯候補を3つに絞る</div>
         </div>
         <span class="pill" id="recipeCountPill">🍳 100件</span>
       </div>
@@ -328,6 +328,7 @@
   <nav class="tabs" aria-label="メニュー">
     <button class="tab active" data-tab="today"><span>🍽️</span><span>今日</span></button>
     <button class="tab" data-tab="recipes"><span>📚</span><span>レシピ</span></button>
+    <button class="tab" data-tab="history"><span>📖</span><span>記録</span></button>
     <button class="tab" data-tab="shopping"><span>🛒</span><span>買い物</span></button>
     <button class="tab" data-tab="settings"><span>👪</span><span>家族</span></button>
     <button class="tab" data-tab="data"><span>💾</span><span>保存</span></button>
@@ -6662,6 +6663,9 @@ ${items.map((it, i) => `${i+1}. id=${it.id}\n   URL: ${it.url}`).join('\n')}
               <li>発行されたURLをAndroidで開く</li>
               <li>ブラウザの「ホーム画面に追加」を使うとアプリ風に開けます</li>
             </ol>
+          </div>
+          <div style="text-align:center;color:#b8a892;font-size:11px;margin-top:8px">
+            🍽️ 今日なに食べる？ <span class="kbd" style="font-size:10px">v20260510-record</span>
           </div>
         </section>
       `;
